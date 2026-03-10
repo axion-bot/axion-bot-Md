@@ -1,0 +1,75 @@
+{
+  "name": "axionbot",
+  "version": "1.0.0",
+  "description": "Bot zozzap by deadly",
+  "main": "based.js",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "realvare",
+    "url": "https://github.com/axion-bot"
+  },
+  "homepage": "https://github.com/axion-bot/axion-bot-Md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axion-bot/axion-bot-Md.git"
+  },
+  "bugs": {
+    "url": "git+https://github.com/axion-bot/axion-bot-Md/issues"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "bot-MD",
+    "javascript",
+    "nodejs",
+    "based",
+    "baileys",
+    "whatsapp-bot",
+    "varebot",
+    "@realvare/based",
+    "@realvare/baileys"
+  ],
+  "directories": {
+    "lib": "lib",
+    "plugins": "plugins",
+    "media": "media"
+  },
+  "scripts": {
+    "start": "node based.js",
+    "code": "node based.js code",
+    "qr": "node based.js qr"
+  },
+  "dependencies": {
+    "@realvare/baileys": "latest",
+    "awesome-phonenumber": "^3.4.0",
+    "axios": "^1.12.2",
+    "canvas": "^3.2.0",
+    "chalk": "^5.6.2",
+    "cheerio": "^1.1.2",
+    "file-type": "^21.0.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "formdata-node": "^6.0.3",
+    "jimp": "^0.22.10",
+    "jsdom": "^27.0.0",
+    "jsqr": "latest",
+    "lodash": "^4.17.21",
+    "lowdb": "^3.0.0",
+    "msedge-tts": "latest",
+    "node-cache": "latest",
+    "node-fetch": "latest",
+    "node-webpmux": "^3.2.1",
+    "performance-now": "^2.1.0",
+    "pino": "^10.1.0",
+    "puppeteer": "latest",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "ruhend-scraper": "latest",
+    "yargs": "^18.0.0",
+    "yt-search": "latest"
+  },
+  "engines": {
+    "node": ">=20.2.0",
+    "npm": ">=10.9.2"
+  }
+}
