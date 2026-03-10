@@ -354,11 +354,10 @@ axionbot.forEach((line, i) => {
     console.log(chalk.hex(color).bold(line));
 });
 
-global.isLogoPrinted = true;
+        Global.isLogoPrinted = true;
+    } // Chiude il blocco relativo alla stampa del logo o all'apertura connessione
 
-        }
-    }
-        if (connection === 'close') {
+    if (connection === 'close') {
         const reason = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
         
         if (reason === DisconnectReason.badSession) {
