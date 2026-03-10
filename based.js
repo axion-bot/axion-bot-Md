@@ -353,7 +353,7 @@ axionbot.forEach((line, i) => {
     console.log(chalk.hex(color).bold(line));
 });
 
-Global.isLogoPrinted = true;
+global.isLogoPrinted = true;
 
 if (connection === 'close') {
     const reason = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
