@@ -38,8 +38,8 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
     return `
 『 𝚫𝐗𝐈𝐎𝐍 • 𝐂𝐎𝐑𝐄 』
 ╼━━━━━━━━━━━━━━╾
-  ◈ **ғᴜɴᴢɪᴏɴᴇ:** ${title}
-  ◈ **sᴛᴀᴛᴏ:** ${stato}
+  ◈ *ғᴜɴᴢɪᴏɴᴇ:* ${title}
+  ◈ *sᴛᴀᴛᴏ:* ${stato}
 ╼━━━━━━━━━━━━━━╾
   ⌬ ${desc}
 `.trim();
@@ -52,9 +52,11 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
     throw `
 『 𝚫𝐗𝐈𝐎𝐍 • 𝐈𝐍𝐓𝐄𝐑𝐅𝐀𝐂𝐄 』
 ╼━━━━━━━━━━━━━━╾
-  💡 **ᴄᴍᴅ:** .attiva <modulo>
+  💡 *ᴄᴍᴅ:*
+.1 <funzione>
+.0 <funzione>
 
-  **sɪᴄᴜʀᴇᴢᴢᴀ:**
+  *sɪᴄᴜʀᴇᴢᴢᴀ:*
   🛡️ antilink, antispam, antibot
   🔞 antiporno, antigore, antitrava
   🔒 antinuke, antitag, antiprivato
