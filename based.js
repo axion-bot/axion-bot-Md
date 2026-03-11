@@ -328,7 +328,7 @@ const axionbot = [
     `╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═════╝  ╚═════╝    ╚═╝   `
 ];
 
-nexsusbot.forEach((line, i) => {
+axionbot.forEach((line, i) => {
     const color = finchevedotuttoviolaviola[i] || finchevedotuttoviolaviola[finchevedotuttoviolaviola.length - 1];
     // Grassetto e colore applicati direttamente a ogni riga
     console.log(chalk.hex(color).bold(line));
