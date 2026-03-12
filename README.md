@@ -50,7 +50,7 @@ Una volta ottenuti i file da **𝕯𝖊ⱥ𝖉𝖑𝐲**, potrai personalizzare:
 Se hai bisogno di assistenza o vuoi collaborare al progetto:
 
 * **Proprietario:** 𝕯𝖊ⱥ𝖉𝖑𝐲
-* **Canale Ufficiale:** [ https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d ]
+* **Canale Ufficiale:** [https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d]
 
 ---
 
