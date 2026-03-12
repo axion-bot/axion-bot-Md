@@ -6,7 +6,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "author": {
-    "name": "realvare",
+    "name": "axion",
     "url": "https://github.com/axion-bot"
   },
   "homepage": "https://github.com/axion-bot/axion-bot-Md",
@@ -26,7 +26,7 @@
     "main",
     "baileys",
     "whatsapp-bot",
-    "varebot",
+    "axionbot",
     "@realvare/based",
     "@realvare/baileys"
   ],
