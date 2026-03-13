@@ -38,7 +38,7 @@ let handler = async (m, { conn }) => {
         m.chat,
         {
             text: message,
-            footer: 'Sistema Economia 💶',
+            footer: 'Wallet 💶',
             buttons: buttons,
             headerType: 1,
             mentions: [who]
