@@ -43,7 +43,7 @@ let txt=`🛍️ *BENVENUTO ALLO SHOP*\n\n`
 txt+=`1️⃣ Supermarket\n`
 txt+=`2️⃣ Tech Store\n`
 txt+=`3️⃣ Game Shop\n\n`
-txt+=`Scrivi il numero del negozio.`
+txt+=`*_Scrivi il numero del negozio._*\n\n_Con .zaino vedi gli oggetti che hai comprato_`
 
 global.shopSession[user]={step:"shop"}
 
