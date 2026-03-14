@@ -55,6 +55,6 @@ Se hai bisogno di assistenza o vuoi collaborare al progetto:
 
 <div align="center">
   <p>Prodotto con ❤️ dal team di 𝛥𝐗𝐈𝚶𝐍</p>
-  <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Access-Private-red?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Active-red?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Access-Public -brightgreen?style=for-the-badge" />
 </div>
