@@ -16,13 +16,13 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
   ◈ *ᴀᴄᴄᴇssᴏ:* ᴍᴏᴅ
 ╼━━━━━━━━━━━━━━╾
 
-╭━━━〔 👮 ᴄᴏᴍᴀɴᴅɪ ᴍᴏᴅᴇʀᴀᴛᴏʀɪ 〕━⬣
-┃ 🧙‍♂️ ${usedPrefix}tagmod
-┃ ⚡ ${usedPrefix}pingmod
+╭━━━〔 👮 ᴄᴏᴍᴀɴᴅɪ 〕━⬣
+┃ 🧙‍♂️ ${usedPrefix}tagm
+┃ ⚡ ${usedPrefix}pingm
 ┃ 🚫 ${usedPrefix}delm
 ┃ 💀 ${usedPrefix}nukegp
-┃ ⚠️ ${usedPrefix}warnmod
-┃ ✅ ${usedPrefix}unwarnmod
+┃ ⚠️ ${usedPrefix}warnm
+┃ ✅ ${usedPrefix}unwarnm
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
