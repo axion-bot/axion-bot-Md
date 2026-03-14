@@ -47,6 +47,5 @@ handler.help = ['listmod']
 handler.tags = ['group']
 handler.command = ['listmod']
 handler.group = true
-handler.rowner = true
 
 export default handler
