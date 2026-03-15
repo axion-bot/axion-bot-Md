@@ -1,61 +1,98 @@
-import fs from 'fs';
+const userMessages = {}
 
-const KARMA_FILE = './karma.json';
+const handler = async (m, { conn, text }) => {
 
-// Carica il file karma
-const loadKarma = () => {
-    return fs.existsSync(KARMA_FILE) ? JSON.parse(fs.readFileSync(KARMA_FILE, 'utf8')) : {};
-};
+let target =
+  m.mentionedJid?.[0] ||
+  m.quoted?.sender ||
+  m.sender
 
-// Salvataggio
-const saveKarma = (data) => {
-    fs.writeFileSync(KARMA_FILE, JSON.stringify(data, null, 2));
-};
+let msgs = userMessages[target] || []
 
-let handler = async (m, { conn, text, command, mentionedJid }) => {
-    let karma = loadKarma();
-    const MY_SIGN = "𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓";
+if (msgs.length === 0) {
+return m.reply("Non ho ancora abbastanza messaggi da analizzare.")
+}
 
-    // Comando .vibe @utente
-    if (command === 'vibe') {
-        let user = mentionedJid[0] || m.sender;
-        let score = karma[user] || 0;
-        let status = score >= 10 ? "🌟 Positivo/Produttivo" : (score <= -5 ? "⚠️ Tossico/Polemico" : "⚖️ Neutrale");
-        
-        return m.reply(`『 📊 』- *Vibe di @${user.split('@')[0]}*\n` +
-                       `*Karma:* ${score}\n*Stato:* ${status}\n\n${MY_SIGN}`, null, { mentions: [user] });
-    }
+let score = 0
+let polemico = 0
+let positivo = 0
+let neutro = 0
 
-    // Comando .classifica
-    if (command === 'classifica') {
-        let sorted = Object.entries(karma).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        let txt = `『 🏆 』- *Top 5 Karma di ${MY_SIGN}*\n\n`;
-        txt += sorted.map(([id, score], i) => `${i + 1}. @${id.split('@')[0]} : ${score}`).join('\n');
-        return m.reply(txt, null, { mentions: sorted.map(a => a[0]) });
-    }
-};
+const negativeWords = ["stupido","idiota","zitto","ma stai","che dici","boh","bah","ridicolo"]
+const positiveWords = ["grazie","perfetto","bella","ok","bravo","grande","top","lol"]
 
-handler.command = ['vibe', 'classifica'];
-export default handler;
+msgs.forEach(msg => {
 
-// -- LOGICA ANALISI MESSAGGI --
-// Questo pezzo di codice va messo nel tuo file principale (es. index.js o event.js)
-// che intercetta i messaggi in arrivo:
-/*
-conn.ev.on('messages.upsert', async ({ messages }) => {
-    let m = messages[0];
-    if (!m.message || m.key.fromMe) return;
-    
-    let text = m.message.conversation || m.message.extendedTextMessage?.text || "";
-    let pos = ['grazie', 'bravo', 'ottimo', 'aiuto', 'bene', 'top', 'perfetto'];
-    let neg = ['stupido', 'merda', 'idiota', 'zitto', 'odio'];
-    
-    let karma = loadKarma();
-    if (!karma[m.sender]) karma[m.sender] = 0;
-    
-    pos.forEach(w => { if (text.toLowerCase().includes(w)) karma[m.sender]++; });
-    neg.forEach(w => { if (text.toLowerCase().includes(w)) karma[m.sender]--; });
-    
-    saveKarma(karma);
-});
-*/
+let t = msg.toLowerCase()
+
+if (negativeWords.some(w => t.includes(w))) {
+score -= 2
+polemico++
+}
+else if (positiveWords.some(w => t.includes(w))) {
+score += 2
+positivo++
+}
+else {
+neutro++
+}
+
+})
+
+let vibe = "😐 Neutrale"
+
+if (score >= 5) vibe = "✨ Positiva"
+if (score <= -5) vibe = "⚠️ Polemica"
+
+let karma = Math.max(-10, Math.min(10, score))
+
+let tag = `@${target.split("@")[0]}`
+
+await conn.sendMessage(m.chat,{
+text:`╭───〔 🔎 ANALISI VIBE 〕───╮
+
+👤 Utente: ${tag}
+
+🧠 Vibe rilevata:
+${vibe}
+
+⭐ Karma:
+${karma}/10
+
+📊 Statistiche messaggi
+• Positivi: ${positivo}
+• Neutri: ${neutro}
+• Polemici: ${polemico}
+
+💡 Suggerimento:
+${karma <= -5 ? "L'utente sembra un po' polemico oggi." : "Conversazione normale."}
+
+╰────────────────╯`,
+mentions:[target]
+})
+
+}
+
+handler.help = ["vibe"]
+handler.tags = ["fun"]
+handler.command = /^vibe$/i
+
+export default handler
+
+
+
+// TRACKER MESSAGGI
+
+export function before(m) {
+
+if (!m.text) return
+
+if (!userMessages[m.sender]) userMessages[m.sender] = []
+
+userMessages[m.sender].push(m.text)
+
+if (userMessages[m.sender].length > 30) {
+userMessages[m.sender].shift()
+}
+
+}
