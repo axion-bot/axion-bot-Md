@@ -1,12 +1,24 @@
 import cron from 'node-cron';
 import fs from 'fs';
 
-let reminders = JSON.parse(fs.readFileSync('./reminders.json') || '[]');
+// Funzione sicura per caricare i promemoria
+const loadReminders = () => {
+    try {
+        if (!fs.existsSync('./reminders.json')) {
+            fs.writeFileSync('./reminders.json', '[]');
+            return [];
+        }
+        return JSON.parse(fs.readFileSync('./reminders.json', 'utf8') || '[]');
+    } catch (e) {
+        return [];
+    }
+};
+
+let reminders = loadReminders();
 
 let handler = async (m, { conn, text }) => {
-    // Esempio comando: .ricorda 16:15 bere acqua
     let [time, ...msg] = text.split(' ');
-    if (!time || !msg) return m.reply("Uso: .ricorda [HH:MM] [messaggio]");
+    if (!time || !msg.length) return m.reply("Uso: .ricorda [HH:MM] [messaggio]");
 
     let reminder = { time, text: msg.join(' '), chat: m.chat };
     reminders.push(reminder);
@@ -19,22 +31,25 @@ let handler = async (m, { conn, text }) => {
 handler.command = ['ricorda'];
 export default handler;
 
-// Schedulatore che controlla ogni minuto
-cron.schedule('* * * * *', () => {
+// Schedulatore
+cron.schedule('* * * * *', async () => {
     let now = new Date();
     let currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
                       now.getMinutes().toString().padStart(2, '0');
 
-    reminders.forEach((r, index) => {
+    let toKeep = [];
+    for (let r of reminders) {
         if (r.time === currentTime) {
-            // Qui il bot invia il messaggio
-            // Nota: global.conn è solitamente l'istanza del bot
             if (global.conn) {
-                global.conn.sendMessage(r.chat, { text: `『 ⏰ 』- *Promemoria per 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓:*\n${r.text}` });
+                await global.conn.sendMessage(r.chat, { text: `『 ⏰ 』- *Promemoria per 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓:*\n${r.text}` });
             }
-            // Rimuovi dopo aver inviato
-            reminders.splice(index, 1);
-            fs.writeFileSync('./reminders.json', JSON.stringify(reminders));
+        } else {
+            toKeep.push(r);
         }
-    });
+    }
+
+    if (toKeep.length !== reminders.length) {
+        reminders = toKeep;
+        fs.writeFileSync('./reminders.json', JSON.stringify(reminders));
+    }
 });
