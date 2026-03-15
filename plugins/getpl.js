@@ -10,7 +10,7 @@ let handler = async (m, { conn, text, isOwner }) => {
     
     if (!text) {
         return conn.reply(m.chat, `
-⚙️ *AXION SYSTEM - FILE RETRIEVER*
+⚙️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - FILE RETRIEVER*
 Uso corretto: 
 *.getpl <nome-plugin>*
 
@@ -40,7 +40,7 @@ ${SIGN}`, m)
 
     // Risposta estetica
     let msg = `
-🚀 *AXION B0T - PLUGIN LOADED*
+🚀 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - PLUGIN LOADED*
 
 📂 *FILE:* ${pluginName}
 📊 *SIZE:* ${(code.length / 1024).toFixed(2)} KB
