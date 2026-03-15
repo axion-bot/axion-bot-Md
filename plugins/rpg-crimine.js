@@ -1,96 +1,84 @@
-let handler = async (m, { conn }) => {
+let handler = async (m, { conn, usedPrefix, command, args }) => {
     let user = m.sender
-    if (!global.db.data.users[user]) global.db.data.users[user] = {}
+    if (!global.db.data.users[user]) global.db.data.users[user] = { euro: 0, lastCrime: 0, isJailed: false, jailTime: 0 }
     let u = global.db.data.users[user]
-    if (!u.euro) u.euro = 0
 
-    // Tipi di crimine
-    const crimes = [
-        {
-            name: "Rapina in banca 🏦",
-            successRate: 0.4,
-            reward: [300, 700],
-            storiesSuccess: [
-                "Hai svaligiato la banca con destrezza e sei fuggito senza problemi!",
-                "La cassaforte non ti ha fermato, sei uscito con i soldi in mano!"
-            ],
-            storiesFail: [
-                "La polizia ti ha beccato mentre tentavi la rapina!",
-                "Allarme attivato! Devi scappare a mani vuote!"
-            ]
-        },
-        {
-            name: "Truffa al casinò 🎰",
-            successRate: 0.5,
-            reward: [200, 500],
-            storiesSuccess: [
-                "Hai ingannato il banco e hai vinto una bella somma!",
-                "La tua strategia al tavolo ha funzionato perfettamente!"
-            ],
-            storiesFail: [
-                "Il croupier ti ha scoperto e sei stato buttato fuori!",
-                "La fortuna non era dalla tua parte questa volta!"
-            ]
-        },
-        {
-            name: "Furto in casa 🏠",
-            successRate: 0.6,
-            reward: [100, 300],
-            storiesSuccess: [
-                "Hai trovato un bottino nascosto e sei uscito senza problemi!",
-                "La casa era vuota e il colpo è andato liscio!"
-            ],
-            storiesFail: [
-                "Il proprietario ti ha sorpreso, scappa a mani vuote!",
-                "Hai fatto rumore e sei stato scoperto!"
-            ]
-        },
-        {
-            name: "Scippo in strada 🚶‍♂️💨",
-            successRate: 0.7,
-            reward: [50, 150],
-            storiesSuccess: [
-                "Hai sfilato il portafoglio senza che nessuno ti vedesse!",
-                "Un colpo veloce e sei già lontano!"
-            ],
-            storiesFail: [
-                "Ti hanno visto e inseguito, perdi parte del bottino!",
-                "Hai lasciato il portafoglio cadere mentre scappavi!"
-            ]
+    const cauzionePrezzo = 5000 // Prezzo per uscire subito
+
+    // --- CONTROLLO STATO PRIGIONE ---
+    if (u.isJailed && command !== 'evadi' && command !== 'cauzione') {
+        let tempoRimanente = u.jailTime - new Date()
+        if (tempoRimanente > 0) {
+            let minuti = Math.ceil(tempoRimanente / 60000)
+            return conn.reply(m.chat, `🔒 *SEI IN CELLA!* 🔒\nTi restano ancora *${minuti} minuti*.\n\nUsa i bottoni dell'ultimo messaggio per tentare l'evasione o pagare la cauzione!`, m)
+        } else {
+            u.isJailed = false 
+            u.jailTime = 0
         }
+    }
+
+    // --- LOGICA 💰 CAUZIONE ---
+    if (command === 'cauzione') {
+        if (!u.isJailed) return m.reply("Libero come un fringuello! Non hai bisogno di cauzioni.")
+        if (u.euro < cauzionePrezzo) return m.reply(`❌ Non hai abbastanza soldi! La cauzione costa **${cauzionePrezzo}€**, tu hai solo **${u.euro}€**.`)
+
+        u.euro -= cauzionePrezzo
+        u.isJailed = false
+        u.jailTime = 0
+        return m.reply(`⚖️ *LIBERTÀ ACQUISTATA!*\nHai pagato **${cauzionePrezzo}€** agli avvocati e sei uscito pulito. Non farti beccare di nuovo!`)
+    }
+
+    // --- LOGICA 🏃‍♂️ EVASIONE ---
+    if (command === 'evadi') {
+        if (!u.isJailed) return 
+        const successoEvasione = Math.random() < 0.3 
+        if (successoEvasione) {
+            u.isJailed = false
+            u.jailTime = 0
+            return m.reply("🏃‍♂️💨 *COLPO DI GENIO!* Sei scappato dalle fogne. Sei di nuovo libero!")
+        } else {
+            u.jailTime += 600000 // Aggiunge 10 minuti
+            return m.reply("👮‍♂️ *PRESO!* Le guardie ti hanno randellato. Altri 10 minuti di isolamento aggiunti!")
+        }
+    }
+
+    // --- CONFIGURAZIONE CRIMINI ---
+    const crimes = [
+        { name: "Rapina in banca 🏦", rate: 0.35, reward: [1500, 3000] },
+        { name: "Furto in villa 🏠", rate: 0.50, reward: [600, 1200] },
+        { name: "Scippo 💨", rate: 0.75, reward: [150, 400] }
     ]
 
-    // Selezione casuale del crimine
     const crime = crimes[Math.floor(Math.random() * crimes.length)]
-    const success = Math.random() < crime.successRate
+    const success = Math.random() < crime.rate
     const amount = Math.floor(Math.random() * (crime.reward[1] - crime.reward[0] + 1)) + crime.reward[0]
-
-    // Bottoni interattivi
-    const buttons = [
-        { buttonId: '.crimine', buttonText: { displayText: '🔁 Riprova' }, type: 1 },
-        { buttonId: '.wallet', buttonText: { displayText: '💶 Mostra saldo' }, type: 1 }
-    ]
 
     if (success) {
         u.euro += amount
-        const story = crime.storiesSuccess[Math.floor(Math.random() * crime.storiesSuccess.length)]
         await conn.sendMessage(m.chat, {
-            text: `🕶️ ${crime.name} riuscito!\n${story}\nGuadagni: ${amount} €\nTotale: ${u.euro} €`,
-            buttons,
+            text: `🕶️ *MISSIONE COMPIUTA!*\nHai fatto: ${crime.name}\n💶 Bottino: +${amount}€\n💰 Saldo: ${u.euro}€`,
+            buttons: [{ buttonId: `${usedPrefix}crimine`, buttonText: { displayText: '🔁 Altro colpo' }, type: 1 }],
             headerType: 1
         }, { quoted: m })
     } else {
-        const loss = Math.floor(amount / 2)
-        u.euro -= loss
-        if (u.euro < 0) u.euro = 0
-        const story = crime.storiesFail[Math.floor(Math.random() * crime.storiesFail.length)]
+        // --- ARRESTO ---
+        u.isJailed = true
+        u.jailTime = new Date() * 1 + 300000 // 5 Minuti
+
+        const txtFail = `🚔 *MANETTE AI POLSI!*\nIl colpo "${crime.name}" è fallito miseramente.\n\n⏳ *Pena:* 5 Minuti di cella\n💰 *Cauzione:* ${cauzionePrezzo}€`
+
+        const jailButtons = [
+            { buttonId: `${usedPrefix}evadi`, buttonText: { displayText: '🏃‍♂️ Tenta Evasione (30%)' }, type: 1 },
+            { buttonId: `${usedPrefix}cauzione`, buttonText: { displayText: `⚖️ Paga Cauzione (${cauzionePrezzo}€)` }, type: 1 }
+        ]
+
         await conn.sendMessage(m.chat, {
-            text: `🚔 ${crime.name} fallito!\n${story}\nPerdi: ${loss} €\nTotale: ${u.euro} €`,
-            buttons,
+            text: txtFail,
+            buttons: jailButtons,
             headerType: 1
         }, { quoted: m })
     }
 }
 
-handler.command = /^crimine$/i
+handler.command = /^(crimine|evadi|cauzione)$/i
 export default handler
