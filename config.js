@@ -14,7 +14,7 @@ const moduleCache = new NodeCache({ stdTTL: 300 });
 global.owner = [
   ['212778494602', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
   ['393701330693', 'Blood', true], 
-  ['212781816909'], 'Luxifer', true], 
+  ['212781816909', 'Luxifer', true], 
 ]
 global.mods = ['xxxxxxxxxx', 'xxxxxxxxxx']
 global.prems = ['xxxxxxxxxx', 'xxxxxxxxxx']
@@ -28,7 +28,7 @@ global.versione  = pkg.version
 global.testobot  = `AXION-CORE-V${pkg.version}`
 
 // 🌐 LINK
-global.repobot   = 'https://github.com/axion-bot/axion-bot'
+global.repobot   = 'https://github.com/axion-bot/axion-bot-Md'
 global.canale    = 'https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d'
 global.insta     = 'https://www.instagram.com/darius._.n'
 
