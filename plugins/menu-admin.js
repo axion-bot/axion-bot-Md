@@ -24,10 +24,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 
 ╭━━━〔 ⚠️ ᴡᴀʀɴ 〕━⬣
 ┃ ⚠️ ${usedPrefix}warn
-┃ 📄 ${usedPrefix}listwarn
 ┃ ✅ ${usedPrefix}unwarn
-┃ ❌ ${usedPrefix}delwarn
-┃ 🔄 ${usedPrefix}resetwarn
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🔇 ᴄᴏɴᴛʀᴏʟʟᴏ 〕━⬣
