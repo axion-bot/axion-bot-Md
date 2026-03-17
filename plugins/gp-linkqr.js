@@ -48,6 +48,5 @@ const handler = async (m, { conn }) => {
 };
 
 handler.command = ['qrgruppo'];
-handler.admin = true; // SOLO admin
 
 export default handler;
