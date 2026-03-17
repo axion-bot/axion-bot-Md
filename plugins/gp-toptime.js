@@ -23,7 +23,7 @@ let handler = async (m, { conn }) => {
         text: text,
         mentions: mentions,
         footer: 'Clicca sotto per la classifica estesa',
-        buttons: [{ buttonId: '.top10', buttonText: { displayText: '📊 Mostra Top 10' }, type: 1 }],
+        buttons: [{ buttonId: '.top10time', buttonText: { displayText: '📊 Mostra Top 10' }, type: 1 }],
         headerType: 1
     }, { quoted: m })
 }
@@ -52,7 +52,7 @@ handler.before = async function (m, { conn }) {
         // --------------------------------------
 
         // Risposta al bottone
-        if (m.text === '.top10' || m.message?.buttonsResponseMessage?.selectedButtonId === '.top10') {
+        if (m.text === '.top10' || m.message?.buttonsResponseMessage?.selectedButtonId === '.top10time') {
             const top10 = Object.entries(dayObj.chats[m.chat])
                 .sort((a, b) => b[1].time - a[1].time)
                 .slice(0, 10)
