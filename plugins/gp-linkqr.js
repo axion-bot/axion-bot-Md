@@ -48,6 +48,6 @@ const handler = async (m, { conn }) => {
 };
 
 handler.command = ['qrgruppo'];
-handler.rowner = true; // SOLO owner reale
+handler.admin = true; // SOLO admin
 
 export default handler;
