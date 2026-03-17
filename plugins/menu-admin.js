@@ -50,7 +50,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 
 ╭━━━〔 🔗 ʟɪɴᴋ ɢʀᴜᴘᴘᴏ 〕━⬣
 ┃ 🔗 ${usedPrefix}link
-┃ 📥 ${usedPrefix}prendilink
+┃ 📥 ${usedPrefix}linkqr
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
