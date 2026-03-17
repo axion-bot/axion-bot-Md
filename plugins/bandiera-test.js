@@ -564,7 +564,7 @@ let handler = async (m, { conn, command, isAdmin }) => {
 handler.before = bandieraBefore
 handler.help = ['bandiera', 'skipbandiera']
 handler.tags = ['giochi']
-handler.command = /^(bandiera|skipbandiera|skip)$/i
+handler.command = /^(bandiera2|skipbandiera|skip)$/i
 handler.group = true
 
 export default handler
