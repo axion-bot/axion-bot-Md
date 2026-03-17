@@ -1,6 +1,7 @@
 let handler = async (m, { conn, command, usedPrefix }) => {
     let staff = `
-ㅤㅤ⋆｡˚『 ╭ \`STAFF 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓\` ╯ 』˚｡⋆\n╭\n│
+ㅤㅤ⋆｡˚『 ╭ \`STAFF 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓\` ╯ 』˚｡⋆\n╭
+│
 │ 『 🤖 』 \`Bot:\` *${global.nomebot}*
 │ 『 🍥 』 \`Versione:\` *${global.versione}*
 │
@@ -26,23 +27,14 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 │ • \`Supporto:\` @+393509594333
 │
 *╰⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*`;
+
     await conn.reply(
         m.chat, 
         staff.trim(), 
         m, 
         { 
-            ...global.fake,
             contextInfo: {
-                ...global.fake,
-                mentionedJid: ['212778494602@s.whatsapp.net', '212781816909@s.whatsapp.net', '639350468907@s.whatsapp.net'],
-                externalAdReply: {
-                    renderLargerThumbnail: true,
-                    title: 'STAFF - UFFICIALE',
-                    body: 'Supporto e Moderazione',
-                    mediaType: 1,
-                    sourceUrl: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-                    thumbnailUrl: 'https://i.ibb.co/rfXDzMNQ/aizenginnigga.jpg'
-                }
+                mentionedJid: ['212778494602@s.whatsapp.net', '212781816909@s.whatsapp.net', '639350468907@s.whatsapp.net']
             }
         }
     );
