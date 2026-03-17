@@ -17,7 +17,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╼━━━━━━━━━━━━━━╾
 
 ╭━━━〔 🛠️ ɢᴇsᴛɪᴏɴᴇ 〕━⬣
-┃ 🚨 ${usedPrefix}rouletteban
+┃ 🚨 ${usedPrefix}reimpostalink
 ┃ 🛡️ ${usedPrefix}admins
 ┃ ✅ ${usedPrefix}richieste
 ╰━━━━━━━━━━━━━━━━⬣
