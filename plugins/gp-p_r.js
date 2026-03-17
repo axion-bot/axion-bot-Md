@@ -24,7 +24,7 @@ var handler = async (m, { conn, text, command }) => {
   } else {
     action = 'demote'
     icon = '⚙️'
-    title = '𝐄𝐒𝐏𝐔𝐋𝐒𝐈𝐎𝐍𝐄'
+    title = '𝐑𝐄𝐕𝐎𝐂𝐀𝐓𝐎'
     effect = '𝐏𝐎𝐓𝐄𝐑𝐄 𝐑𝐄𝐕𝐎𝐂𝐀𝐓𝐎'
   }
 
