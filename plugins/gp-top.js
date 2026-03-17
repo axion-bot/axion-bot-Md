@@ -20,9 +20,9 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 
   const medaglie = ['🥇','🥈','🥉','🏅','🏅','🏅','🏅','🏅','🏅','🏅']
 
-  let testo = `╭━━━〔 📊 *CLASSIFICA* 📊 〕━━━⬣\n`
+  let testo = `╭━〔 📊 *CLASSIFICA* 📊 〕━⬣\n`
   testo += `┃ 💬 Messaggi totali: *${dati.totali}*\n`
-  testo += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+  testo += `╰━━━━━━━━━━━━━━━━━⬣\n\n`
   testo += `🏆 *TOP ${limite} DI OGGI*\n\n`
 
   let menzioni = classifica.map(u => u[0])
@@ -83,9 +83,9 @@ setInterval(async () => {
         .sort((a, b) => b[1].conteggio - a[1].conteggio)
         .slice(0, 3)
 
-      let testo = `╭━━━〔 🏆 *FINALE DEL GIORNO* 🏆 〕━⬣\n`
+      let testo = `╭━〔 🏆 *FINALE* 🏆 〕━⬣\n`
       testo += `┃ 📊 Totale messaggi: *${dati.totali}*\n`
-      testo += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+      testo += `╰━━━━━━━━━━━━━━━━━⬣\n\n`
 
       let menzioni = classifica.map(u => u[0])
       const medaglie = ['🥇','🥈','🥉']
