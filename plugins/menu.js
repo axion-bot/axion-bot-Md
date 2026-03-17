@@ -17,7 +17,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
   ◈ *ᴅᴇᴠ:* 𝕯𝖊ⱥ𝖉𝖑𝐲
   ◈ *ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝚫𝐗𝐈𝐎𝐍*
 ╼━━━━━━━━━━━━━━╾
-*`.trim();
+`.trim();
 
     // Configurazione completa di tutti i bottoni del menu
     const buttons = [
