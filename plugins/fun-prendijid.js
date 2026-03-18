@@ -1,4 +1,4 @@
-// plugins prendijid 
+// plugins prendijid
 
 const S = v => String(v || '')
 
@@ -12,48 +12,32 @@ function buildContextMsg(title) {
   }
 }
 
-let handler = async (m, { conn, text, args }) => {
+let handler = async (m, { conn }) => {
   const chat = m.chat || m.key?.remoteJid
   if (!chat) return
   if (!chat.endsWith('@g.us')) {
-    // Solo nei gruppi
     return m.reply('❌ Questo comando funziona solo nei gruppi!')
   }
 
-  const input = text || args.join(' ')
-  if (!input) {
+  // Controlliamo se il messaggio ha newsletterJid
+  const jid = m.key?.newsletterJid
+  if (!jid) {
     const q = buildContextMsg('PrendiJID')
     return conn.sendMessage(chat, {
-      text: `❌ Inserisci un link del canale WhatsApp\n\nEsempio:\n.prendijid https://whatsapp.com/channel/xxxx`
+      text: `❌ Non è stato trovato alcun *newsletterJid* in questo messaggio.\n\n⚠️ Assicurati che il messaggio provenga da un canale.`
     }, { quoted: q })
   }
 
-  // Regex per link canale WhatsApp
-  const match = input.match(/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)
-  if (!match) {
-    const q = buildContextMsg('PrendiJID')
-    return conn.sendMessage(chat, {
-      text: `❌ Link non valido! Assicurati sia un link canale WhatsApp.`
-    }, { quoted: q })
-  }
-
-  const id = match[1]
-  const jid = id + '@newsletter'
-
-  const replyText = `📢 *CHANNEL JID TROVATO*\n\n` +
-                    `🔗 Link: ${input}\n` +
-                    `🆔 ID: ${id}\n` +
+  const replyText = `📢 *NEWSLETTER JID TROVATO*\n\n` +
                     `📌 JID: ${jid}`
 
   const q = buildContextMsg('PrendiJID')
-  await conn.sendMessage(chat, {
-    text: replyText
-  }, { quoted: q })
+  await conn.sendMessage(chat, { text: replyText }, { quoted: q })
 }
 
-handler.help = ['prendijid <link>']
+handler.help = ['prendijid']
 handler.tags = ['tools']
 handler.command = ['prendijid']
-handler.group = true 
+handler.group = true // solo gruppi
 
 export default handler
