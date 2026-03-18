@@ -68,9 +68,9 @@ let handler = async (m, { conn }) => {
   }, { quoted: m })
 }
 
-handler.help = ['test']
+handler.help = ['dispositivo']
 handler.tags = ['owner']
-handler.command = ['test']
+handler.command = ['dispositivo']
 handler.group = true
 handler.rowner = true
 
