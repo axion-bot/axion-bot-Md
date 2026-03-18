@@ -512,6 +512,8 @@ let handler = async (m, { conn, command, isAdmin }) => {
 
 *Buon divertimento!*`
 
+  > ("Dev by Bonzino")}`
+
     try {
       const sent = url
         ? await sendBandiera(conn, chat, url, caption, m)
