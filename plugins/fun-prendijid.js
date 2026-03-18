@@ -1,12 +1,41 @@
-// file: commands/prendijid.js
-export async function handler(m, { conn, text, args }) {
-  // Se non ci sono argomenti, prova a usare text
+// plugins prendijid 
+
+const S = v => String(v || '')
+
+function buildContextMsg(title) {
+  return {
+    key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'CTX' },
+    message: {
+      locationMessage: { name: title }
+    },
+    participant: '0@s.whatsapp.net'
+  }
+}
+
+let handler = async (m, { conn, text, args }) => {
+  const chat = m.chat || m.key?.remoteJid
+  if (!chat) return
+  if (!chat.endsWith('@g.us')) {
+    // Solo nei gruppi
+    return m.reply('❌ Questo comando funziona solo nei gruppi!')
+  }
+
   const input = text || args.join(' ')
-  if (!input) return m.reply('❌ Inserisci un link del canale\nEsempio:\n.prendijid https://whatsapp.com/channel/xxxx')
+  if (!input) {
+    const q = buildContextMsg('PrendiJID')
+    return conn.sendMessage(chat, {
+      text: `❌ Inserisci un link del canale WhatsApp\n\nEsempio:\n.prendijid https://whatsapp.com/channel/xxxx`
+    }, { quoted: q })
+  }
 
   // Regex per link canale WhatsApp
   const match = input.match(/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)
-  if (!match) return m.reply('❌ Link non valido! Assicurati sia un link canale WhatsApp.')
+  if (!match) {
+    const q = buildContextMsg('PrendiJID')
+    return conn.sendMessage(chat, {
+      text: `❌ Link non valido! Assicurati sia un link canale WhatsApp.`
+    }, { quoted: q })
+  }
 
   const id = match[1]
   const jid = id + '@newsletter'
@@ -16,10 +45,15 @@ export async function handler(m, { conn, text, args }) {
                     `🆔 ID: ${id}\n` +
                     `📌 JID: ${jid}`
 
-  m.reply(replyText)
+  const q = buildContextMsg('PrendiJID')
+  await conn.sendMessage(chat, {
+    text: replyText
+  }, { quoted: q })
 }
 
-// Config handler
-handler.command = /^(prendijid)$/i
-handler.tags = ['tools']
 handler.help = ['prendijid <link>']
+handler.tags = ['tools']
+handler.command = ['prendijid']
+handler.group = true 
+
+export default handler
