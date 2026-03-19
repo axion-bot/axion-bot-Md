@@ -1,7 +1,7 @@
 import { addExif } from '../lib/sticker.js'
 
 let handler = async (m, { conn, text, usedPrefix }) => {
-  if (!m.quoted) return m.reply(`\`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐜𝐡𝐞 𝐯𝐮𝐨𝐢 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐞\\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓``)
+  if (!m.quoted) return m.reply(`\`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐜𝐡𝐞 𝐯𝐮𝐨𝐢 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐞\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
 
   let stiker = false
   try {
