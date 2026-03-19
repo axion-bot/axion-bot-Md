@@ -40,23 +40,6 @@ const FRASI = [
   '🔍 *Guarda attentamente e prova a indovinare!*'
 ]
 
-const fallbackFlags = [
-  { name: 'Italia', iso2: 'it', continent: 'Europa', aliases: [] },
-  { name: 'Francia', iso2: 'fr', continent: 'Europa', aliases: [] },
-  { name: 'Germania', iso2: 'de', continent: 'Europa', aliases: [] },
-  { name: 'Spagna', iso2: 'es', continent: 'Europa', aliases: [] },
-  { name: 'Portogallo', iso2: 'pt', continent: 'Europa', aliases: [] },
-  { name: 'Regno Unito', iso2: 'gb', continent: 'Europa', aliases: ['UK', 'Gran Bretagna', 'Inghilterra'] },
-  { name: 'Stati Uniti', iso2: 'us', continent: 'America', aliases: ['USA', 'America', 'United States'] },
-  { name: 'Canada', iso2: 'ca', continent: 'America', aliases: [] },
-  { name: 'Brasile', iso2: 'br', continent: 'America', aliases: ['Brasil'] },
-  { name: 'Argentina', iso2: 'ar', continent: 'America', aliases: [] },
-  { name: 'Giappone', iso2: 'jp', continent: 'Asia', aliases: [] },
-  { name: 'Cina', iso2: 'cn', continent: 'Asia', aliases: [] },
-  { name: 'India', iso2: 'in', continent: 'Asia', aliases: [] },
-  { name: 'Australia', iso2: 'au', continent: 'Oceania', aliases: [] }
-]
-
 function loadFlags() {
   try {
     const filePath = path.resolve('./data/bandiere.json')
