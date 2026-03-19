@@ -3,7 +3,7 @@ import { execSync } from 'child_process'
 let handler = async (m, { conn }) => {
   try {
     // Messaggio iniziale
-    await conn.reply(m.chat, '🔄 Controllo aggiornamenti...', m)
+    await conn.reply(m.chat, '🔄 𝐂𝐨𝐧𝐭𝐫𝐨𝐥𝐥𝐨 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐢...', m)
 
     // Eseguo pull
     let update = execSync('git fetch origin && git reset --hard origin/main && git pull', { encoding: 'utf-8' })
@@ -16,7 +16,7 @@ let handler = async (m, { conn }) => {
       return `📄 ${file} (+${ins}/-${del})`
     }).join('\n')
 
-    let resultMsg = '✅ Aggiornamento completato!' + (files)
+    let resultMsg = '✅ 𝐀𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨!' + (files)
 
     await conn.reply(m.chat, resultMsg, m)
     await m.react('✅')
