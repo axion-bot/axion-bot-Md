@@ -311,8 +311,42 @@ async function connectionUpdate(update) {
         global.qrGenerated = true;
     }
     if (connection === 'open') {
+                const RESTART_FILE = path.resolve('./tmp/restart-state.json');
+
+        if (fs.existsSync(RESTART_FILE)) {
+            let restartInfo = null;
+            let startupErrors = 0;
+
+            try {
+                restartInfo = JSON.parse(fs.readFileSync(RESTART_FILE, 'utf-8'));
+            } catch (e) {
+                startupErrors++;
+            }
+
+            if (restartInfo?.chat) {
+                try {
+                    const elapsedMs = Date.now() - (restartInfo.startedAt || Date.now());
+                    const elapsedSec = (elapsedMs / 1000).toFixed(1);
+                    const totalErrors = (restartInfo.errors || 0) + startupErrors;
+
+                    await conn.sendMessage(restartInfo.chat, {
+                        text: `» Riavvio completato!\n⏱️ Tempo: ${elapsedSec}s\n🧾 Errori: ${totalErrors}`,
+                        mentions: restartInfo.sender ? [restartInfo.sender] : []
+                    });
+                } catch (e) {
+                    console.error('Errore invio post-restart:', e);
+                }
+            }
+
+            try {
+                fs.unlinkSync(RESTART_FILE);
+            } catch (e) {
+                console.error('Errore eliminazione file restart:', e);
+            }
+        }
         global.qrGenerated = false;
         global.connectionMessagesPrinted = {};
+        
         if (!global.isLogoPrinted) {
             const finchevedotuttoviolaviola = [
     '#00BFFF', '#00CED1', '#20B2AA', '#2ECC71', '#2ECC71', '#20B2AA', '#00CED1', '#00BFFF',
