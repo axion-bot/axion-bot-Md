@@ -7,7 +7,8 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
     const uptimeMs = process.uptime() * 1000;
     const uptimeStr = clockString(uptimeMs);
     const totalUsers = Object.keys(global.db?.data?.users || {}).length;
-
+    const totalCommands = Object.keys(global.plugins || {}).length;
+    
     // Testo principale con statistiche e info sistema
     const menuBody = `
 『 𝚫𝐗𝐈𝐎𝐍 • 𝐈𝐍𝐅𝐎 』
