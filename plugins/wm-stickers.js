@@ -1,7 +1,7 @@
 import { addExif } from '../lib/sticker.js'
 
 let handler = async (m, { conn, text, usedPrefix }) => {
-  if (!m.quoted) return m.reply(`『 ✧ 』 - \`Rispondi allo sticker che vuoi personalizzare\``)
+  if (!m.quoted) return m.reply(`『 ◈ 』 - \`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐜𝐡𝐞 𝐯𝐮𝐨𝐢 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐞\``)
 
   let stiker = false
   try {
@@ -13,7 +13,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     let [packname, ...author] = text.split('|')
     author = (author || []).join('|')
     let mime = m.quoted.mimetype || ''
-    if (!/webp/.test(mime)) return m.reply(`『 ✧ 』- \`Rispondi a uno sticker\``)
+    if (!/webp/.test(mime)) return m.reply(`『 ◈ 』- \`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫\``)
 
     let img = await m.quoted.download()
     if (!img) return m.reply(`${global.errore}`)
