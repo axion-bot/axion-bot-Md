@@ -1,4 +1,5 @@
 import { performance } from 'perf_hooks';
+import pkg from '../package.json' assert { type: 'json' };
 
 const handler = async (message, { conn, usedPrefix = '.' }) => {
 
@@ -14,7 +15,9 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
   ◈ *ᴜsᴇʀ:* @${userId.split('@')[0]}
   ◈ *ᴜᴘᴛɪᴍᴇ:* ${uptimeStr}
   ◈ *ᴜᴛᴇɴᴛɪ:* ${totalUsers}
+  ◈ *ᴄᴏᴍᴀɴᴅɪ:* ${totalCommands}
   ◈ *ᴅᴇᴠ:* _*Deadly & Staff*_
+  ◈ *ᴠᴇʀsɪᴏɴᴇ:* ${pkg.version}
   ◈ *ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
 ╼━━━━━━━━━━━━━━╾
 `.trim();
