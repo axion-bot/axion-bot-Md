@@ -1,6 +1,5 @@
 import { performance } from 'perf_hooks';
 
-// FIX package.json (compatibile ovunque)
 let pkg;
 try {
     pkg = require('../package.json');
@@ -55,7 +54,6 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
     }, { quoted: message });
 };
 
-// Funzione uptime
 function clockString(ms) {
     const d = Math.floor(ms / 86400000);
     const h = Math.floor(ms / 3600000) % 24;
