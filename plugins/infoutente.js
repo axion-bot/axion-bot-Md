@@ -30,21 +30,31 @@ function isRealOwner(jid) {
   }
 }
 
-// 🔥 DETECT DEVICE
+// 🔥 DEVICE MIGLIORATO
 function getDevice(m) {
   try {
-    if (m.device) return m.device
+    const raw =
+      String(
+        m?.device ||
+        m?.sourceDevice ||
+        m?.message?.device ||
+        ''
+      ).toLowerCase()
 
-    const id = m.key?.id || ''
+    if (raw.includes('ios') || raw.includes('iphone')) return '🍏 *𝐢𝐎𝐒*'
+    if (raw.includes('android')) return '🤖 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
+    if (raw.includes('web')) return '💻 *𝐖𝐞𝐛*'
+    if (raw.includes('desktop') || raw.includes('windows') || raw.includes('mac')) return '🖥️ *𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
 
-    if (id.startsWith('3A')) return '📱 Android'
-    if (id.startsWith('3E')) return '🍏 iPhone'
-    if (id.startsWith('BAE')) return '💻 Web'
-    if (id.length > 21) return '💻 Desktop'
+    const id = String(m?.key?.id || '')
 
-    return '❓ Sconosciuto'
+    if (/^3A/i.test(id)) return '🤖 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
+    if (/^3E/i.test(id)) return '🍏 *𝐢𝐎𝐒*'
+    if (/^BAE/i.test(id)) return '💻 *𝐖𝐞𝐛*'
+
+    return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
   } catch {
-    return '❓ Sconosciuto'
+    return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
   }
 }
 
@@ -86,8 +96,6 @@ let handler = async (m, { conn }) => {
 
   const target = resolveTargetJid(m)
   const user = global?.db?.data?.users?.[target] || {}
-  const chat = global?.db?.data?.chats?.[chatId] || {}
-  const chatUser = chat?.users?.[target] || {}
 
   let isAdmin = false
   let isSuperAdmin = false
@@ -117,7 +125,6 @@ let handler = async (m, { conn }) => {
 
   const warn = Number(user.warn || 0)
   const muted = !!user.muto
-  const messages = Number(chatUser.messages || 0)
 
   const joinedAt =
     user.regTime > 0
@@ -128,6 +135,7 @@ let handler = async (m, { conn }) => {
 
   const device = getDevice(m)
 
+  // 🔥 MULTIRUOLI CORRETTI
   const roles = []
   if (isOwner) roles.push('*⭐ 𝐎𝐰𝐧𝐞𝐫*')
   if (isAdmin) roles.push('*🛡️ 𝐀𝐝𝐦𝐢𝐧*')
@@ -144,7 +152,6 @@ let handler = async (m, { conn }) => {
 *🆔 𝐈𝐃:* ${tag}
 *📱 𝐃𝐞𝐯𝐢𝐜𝐞:* ${device}
 *🔑 𝐑𝐮𝐨𝐥𝐢:* ${roles.join(' | ')}
-*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* ${messages}
 *📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚:* ${joinedAt}
 *⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/𝟑
 *🔇 𝐌𝐮𝐭𝐞:* ${muted ? '*𝐒𝐢*' : '*𝐍𝐨*'}`
