@@ -33,7 +33,7 @@ function isRealOwner(jid) {
 function getDevice(m) {
   const raw = String(m.device || m.sourceDevice || '').toLowerCase()
 
-  if (raw.includes('android')) return '🤖 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
+  if (raw.includes('android')) return '📱 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
   if (raw.includes('ios') || raw.includes('iphone')) return '🍏 *𝐢𝐎𝐒*'
   if (raw.includes('web')) return '💻 *𝐖𝐞𝐛*'
   if (raw.includes('desktop') || raw.includes('windows') || raw.includes('mac')) return '🖥️ *𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
