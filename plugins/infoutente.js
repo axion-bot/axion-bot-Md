@@ -29,7 +29,8 @@ function isRealOwner(jid) {
     return false
   }
 }
-|
+
+// 🔥 DETECT DEVICE
 function getDevice(m) {
   try {
     if (m.device) return m.device
