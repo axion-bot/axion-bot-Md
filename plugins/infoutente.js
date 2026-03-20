@@ -1,4 +1,4 @@
-//Infoutente.js plugin ny Bonzino
+//Infoutente.js plugin by Bonzino
 
 function S(v) {
   return String(v || '')
@@ -8,57 +8,32 @@ function bare(j = '') {
   return S(j).split('@')[0].split(':')[0]
 }
 
-function normJid(conn, jid = '') {
-  let x = S(jid)
-  try { if (conn?.decodeJid) x = conn.decodeJid(x) } catch {}
-  x = x.replace(/:[0-9]+/, '')
-  if (/@lid$/.test(x)) x = x.replace(/@lid$/, '@s.whatsapp.net')
-  if (!/@/.test(x)) x += '@s.whatsapp.net'
-  return x
-}
-
 function resolveTargetJid(m) {
-  const ctx = m?._contextInfo || m?.message?.extendedTextMessage?.contextInfo || {}
-
-  if (Array.isArray(ctx.mentionedJid) && ctx.mentionedJid.length) {
-    return String(ctx.mentionedJid[0])
-  }
-
-  if (ctx.participant) return String(ctx.participant)
-
-  if (m.quoted) {
-    const q = m.quoted
-    const qSender = q?.sender || q?.participant || q?.key?.participant
-    if (qSender) return String(qSender)
-  }
-
-  return String(m.sender || m.participant || m.key?.participant || '')
+  if (m.mentionedJid && m.mentionedJid[0]) return m.mentionedJid[0]
+  if (m.quoted && m.quoted.sender) return m.quoted.sender
+  return m.sender
 }
 
 async function getDisplayName(conn, jid, meta, m) {
-  const j = normJid(conn, jid)
-
-  const dbName = global?.db?.data?.users?.[j]?.name
+  const dbName = global?.db?.data?.users?.[jid]?.name
   if (dbName) return dbName
 
-  if (bare(m?.sender) === bare(j) && (m?.pushName || m?.senderName)) {
-    return m.pushName || m.senderName
-  }
+  if (bare(m.sender) === bare(jid) && m.pushName) return m.pushName
 
   try {
-    const c = conn?.contacts?.[j]
+    const c = conn?.contacts?.[jid]
     const n = c?.name || c?.verifiedName || c?.notify || c?.pushName
     if (n) return n
   } catch {}
 
   try {
     if (Array.isArray(meta?.participants)) {
-      const p = meta.participants.find(v => bare(v.id || v.jid) === bare(j))
+      const p = meta.participants.find(v => v.id === jid || v.jid === jid)
       if (p?.name || p?.notify) return p.name || p.notify
     }
   } catch {}
 
-  return bare(j)
+  return bare(jid)
 }
 
 function formatDate(ts) {
@@ -67,40 +42,39 @@ function formatDate(ts) {
 }
 
 let handler = async (m, { conn }) => {
-  const chatId = m.chat || m.key?.remoteJid
+  const chatId = m.chat
   if (!chatId) return
 
   let meta = null
   try {
-    if (chatId.endsWith('@g.us')) meta = await conn.groupMetadata(chatId)
+    if (m.isGroup) meta = await conn.groupMetadata(chatId)
   } catch {}
 
-  const rawTarget = resolveTargetJid(m)
-  const target = normJid(conn, rawTarget)
-
-  let isAdmin = false
-  let isSuperAdmin = false
-
-  try {
-    if (Array.isArray(meta?.participants)) {
-      const p = meta.participants.find(v => bare(v.id || v.jid) === bare(target))
-      const role = S(p?.admin).toLowerCase()
-
-      isAdmin =
-        role === 'admin' ||
-        role === 'superadmin' ||
-        p?.admin === true ||
-        p?.isAdmin === true
-
-      isSuperAdmin =
-        role === 'superadmin' ||
-        p?.isSuperAdmin === true
-    }
-  } catch {}
-
+  const target = resolveTargetJid(m)
   const user = global?.db?.data?.users?.[target] || {}
   const chat = global?.db?.data?.chats?.[chatId] || {}
   const chatUser = chat?.users?.[target] || {}
+
+  let isAdmin = false
+  let isSuperAdmin = false
+  let isOwner = false
+
+  if (Array.isArray(global.owner)) {
+    const ownerJids = global.owner.map(o => o[0] + '@s.whatsapp.net')
+    isOwner = ownerJids.includes(target)
+  }
+
+  try {
+    if (Array.isArray(meta?.participants)) {
+      const participant = meta.participants.find(u => u.id === target || u.jid === target)
+
+      if (participant?.admin === 'admin') isAdmin = true
+      if (participant?.admin === 'superadmin') {
+        isAdmin = true
+        isSuperAdmin = true
+      }
+    }
+  } catch {}
 
   const displayName = await getDisplayName(conn, target, meta, m)
 
@@ -108,15 +82,17 @@ let handler = async (m, { conn }) => {
   const muted = !!user.muto
   const messages = Number(chatUser.messages || 0)
 
-  const joinedAt = user.regTime > 0
-    ? formatDate(user.regTime)
-    : user.firstTime > 0
-      ? formatDate(user.firstTime)
-      : 'Non disponibile'
+  const joinedAt =
+    user.regTime > 0
+      ? formatDate(user.regTime)
+      : user.firstTime > 0
+        ? formatDate(user.firstTime)
+        : 'Non disponibile'
 
   let roleText = '👤 𝐌𝐞𝐦𝐛𝐫𝐨'
-  if (isAdmin) roleText = '🛡️ 𝐀𝐝𝐦𝐢𝐧'
-  if (isSuperAdmin) roleText = '👑 𝐒𝐮𝐩𝐞𝐫𝐀𝐝𝐦𝐢𝐧'
+  if (isOwner) roleText = '⭐ 𝐎𝐰𝐧𝐞𝐫'
+  else if (isSuperAdmin) roleText = '👑 𝐒𝐮𝐩𝐞𝐫𝐀𝐝𝐦𝐢𝐧'
+  else if (isAdmin) roleText = '🛡️ 𝐀𝐝𝐦𝐢𝐧'
 
   const tag = '@' + bare(target)
 

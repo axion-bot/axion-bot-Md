@@ -1,4 +1,4 @@
-// plugins/infoutente.js
+//Infoutente.js plugin ny Bonzino
 
 function S(v) {
   return String(v || '')
