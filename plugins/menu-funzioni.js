@@ -29,7 +29,6 @@ const handler = async (m, { conn, usedPrefix = '.' }) => {
 ╭━━━〔 🛡️ ᴘʀᴏᴛᴇᴢɪᴏɴɪ 〕━⬣
 ┃ 🔗 AntiLink → ${stato(chat.antiLink)}
 ┃ 🧱 AntiTrava → ${stato(chat.antitrava)}
-┃ 💣 AntiNuke → ${stato(chat.antinuke)}
 ┃ 🛑 AntiSpam → ${stato(chat.antispam)}
 ┃ 🤖 AntiBot → ${stato(chat.antiBot)}
 ┃ 📸 AntiInsta → ${stato(chat.antiInsta)}
