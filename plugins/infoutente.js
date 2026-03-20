@@ -1,5 +1,7 @@
 //Infoutente.js plugin by Bonzino
 
+// plugins/infoutente.js
+
 import { getDevice } from '@realvare/baileys'
 
 const S = v => String(v || '')
@@ -168,8 +170,14 @@ let handler = async (m, { conn }) => {
 *⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/𝟑
 *🔇 𝐌𝐮𝐭𝐞:* ${muted ? '*𝐒𝐢*' : '*𝐍𝐨*'}`
 
+  let pp = 'https://i.ibb.co/2kR7x9J/avatar.png'
+  try {
+    pp = await conn.profilePictureUrl(target, 'image')
+  } catch {}
+
   await conn.sendMessage(chatId, {
-    text,
+    image: { url: pp },
+    caption: text,
     mentions: [target]
   }, { quoted: m })
 }
