@@ -1,17 +1,23 @@
 //Infoutente.js plugin by Bonzino
 
-function S(v) {
-  return String(v || '')
-}
+import { getDevice } from '@realvare/baileys'
+
+const S = v => String(v || '')
 
 function bare(j = '') {
   return S(j).split('@')[0].split(':')[0]
 }
 
 function resolveTargetJid(m) {
-  if (m.mentionedJid && m.mentionedJid[0]) return m.mentionedJid[0]
-  if (m.quoted && m.quoted.sender) return m.quoted.sender
-  return m.sender
+  const ctx = m.message?.extendedTextMessage?.contextInfo || {}
+
+  if (Array.isArray(m.mentionedJid) && m.mentionedJid.length) return m.mentionedJid[0]
+  if (Array.isArray(ctx.mentionedJid) && ctx.mentionedJid.length) return ctx.mentionedJid[0]
+  if (m.quoted?.sender) return m.quoted.sender
+  if (m.quoted?.participant) return m.quoted.participant
+  if (ctx.participant) return ctx.participant
+
+  return m.sender || m.key?.participant || m.participant || null
 }
 
 function isRealOwner(jid) {
@@ -30,15 +36,23 @@ function isRealOwner(jid) {
   }
 }
 
-function getDevice(m) {
-  const raw = String(m.device || m.sourceDevice || '').toLowerCase()
+function getMessageId(m) {
+  return (
+    m?.quoted?.id ||
+    m?.quoted?.key?.id ||
+    m?.key?.id ||
+    ''
+  )
+}
 
-  if (raw.includes('android')) return '📱 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
-  if (raw.includes('ios') || raw.includes('iphone')) return '🍏 *𝐢𝐎𝐒*'
-  if (raw.includes('web')) return '💻 *𝐖𝐞𝐛*'
-  if (raw.includes('desktop') || raw.includes('windows') || raw.includes('mac')) return '🖥️ *𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
-
-  return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
+function mapDeviceName(device) {
+  switch (String(device || '').toLowerCase()) {
+    case 'ios': return '🍏 *𝐢𝐎𝐒*'
+    case 'android': return '🤖 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
+    case 'web': return '💻 *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐖𝐞𝐛*'
+    case 'desktop': return '🖥️ *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
+    default: return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
+  }
 }
 
 async function getDisplayName(conn, jid, meta, m) {
@@ -78,8 +92,13 @@ let handler = async (m, { conn }) => {
   } catch {}
 
   const target = resolveTargetJid(m)
+  if (!target) {
+    return conn.sendMessage(chatId, {
+      text: '*⚠️ Rispondi a un messaggio o tagga un utente.*'
+    }, { quoted: m })
+  }
+
   const user = global?.db?.data?.users?.[target] || {}
-  const chat = global?.db?.data?.chats?.[chatId] || {}
 
   let isAdmin = false
   let isSuperAdmin = false
@@ -109,6 +128,7 @@ let handler = async (m, { conn }) => {
 
   const warn = Number(user.warn || 0)
   const muted = !!user.muto
+  const totalMessages = Number(user.messages || 0)
 
   const joinedAt =
     user.regTime > 0
@@ -117,11 +137,15 @@ let handler = async (m, { conn }) => {
         ? formatDate(user.firstTime)
         : 'Non disponibile'
 
-  const todayMessages = Number(
-    chat?.archivioMessaggi?.utenti?.[target]?.conteggio || 0
-  )
+  const sourceMsg = m.quoted || m
+  const msgId = getMessageId(sourceMsg)
 
-  const device = getDevice(m)
+  let device = '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
+  try {
+    device = mapDeviceName(getDevice(msgId))
+  } catch (e) {
+    console.error('infoutente-device error:', e)
+  }
 
   const roles = []
   if (isOwner) roles.push('*⭐ 𝐎𝐰𝐧𝐞𝐫*')
@@ -139,7 +163,7 @@ let handler = async (m, { conn }) => {
 *🆔 𝐈𝐃:* ${tag}
 *📱 𝐃𝐞𝐯𝐢𝐜𝐞:* ${device}
 *🔑 𝐑𝐮𝐨𝐥𝐢:* ${roles.join(' | ')}
-*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐎𝐠𝐠𝐢:* ${todayMessages}
+*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* ${totalMessages}
 *📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚:* ${joinedAt}
 *⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/𝟑
 *🔇 𝐌𝐮𝐭𝐞:* ${muted ? '*𝐒𝐢*' : '*𝐍𝐨*'}`
