@@ -185,7 +185,7 @@ await conn.sendMessage(chatId, {
       thumbnailUrl: pp,
       mediaType: 1,
       renderLargerThumbnail: false,
-      showAdAttribution: true,
+      showAdAttribution: false,
     }
   }
 }, { quoted: m })
