@@ -48,7 +48,7 @@ function getMessageId(m) {
 function mapDeviceName(device) {
   switch (String(device || '').toLowerCase()) {
     case 'ios': return '🍏 *𝐢𝐎𝐒*'
-    case 'android': return '🤖 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
+    case 'android': return '📱 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
     case 'web': return '💻 *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐖𝐞𝐛*'
     case 'desktop': return '🖥️ *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
     default: return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
