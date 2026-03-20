@@ -29,6 +29,23 @@ function isRealOwner(jid) {
     return false
   }
 }
+|
+function getDevice(m) {
+  try {
+    if (m.device) return m.device
+
+    const id = m.key?.id || ''
+
+    if (id.startsWith('3A')) return '📱 Android'
+    if (id.startsWith('3E')) return '🍏 iPhone'
+    if (id.startsWith('BAE')) return '💻 Web'
+    if (id.length > 21) return '💻 Desktop'
+
+    return '❓ Sconosciuto'
+  } catch {
+    return '❓ Sconosciuto'
+  }
+}
 
 async function getDisplayName(conn, jid, meta, m) {
   const dbName = global?.db?.data?.users?.[jid]?.name
@@ -108,6 +125,8 @@ let handler = async (m, { conn }) => {
         ? formatDate(user.firstTime)
         : 'Non disponibile'
 
+  const device = getDevice(m)
+
   const roles = []
   if (isOwner) roles.push('*⭐ 𝐎𝐰𝐧𝐞𝐫*')
   if (isAdmin) roles.push('*🛡️ 𝐀𝐝𝐦𝐢𝐧*')
@@ -122,6 +141,7 @@ let handler = async (m, { conn }) => {
 
 *👤 𝐍𝐨𝐦𝐞:* ${displayName}
 *🆔 𝐈𝐃:* ${tag}
+*📱 𝐃𝐞𝐯𝐢𝐜𝐞:* ${device}
 *🔑 𝐑𝐮𝐨𝐥𝐢:* ${roles.join(' | ')}
 *💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* ${messages}
 *📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚:* ${joinedAt}
