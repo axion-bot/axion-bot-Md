@@ -1,4 +1,4 @@
-import fs from 'fs'
+iimport fs from 'fs'
 import { join } from 'path'
 import { exec } from 'child_process'
 
@@ -13,7 +13,7 @@ const LEVELS = {
 
 const EFFECTS = {
   eco: {
-    label: 'Eco',
+    label: '𝐄𝐜𝐨',
     description: 'Riverbero morbido e spaziale',
     build: (i) => ({
       type: 'af',
@@ -22,7 +22,7 @@ const EFFECTS = {
   },
 
   basso: {
-    label: 'Basso',
+    label: '𝐁𝐚𝐬𝐬𝐨',
     description: 'Rinforza le frequenze basse',
     build: (i) => ({
       type: 'af',
@@ -31,7 +31,7 @@ const EFFECTS = {
   },
 
   acuto: {
-    label: 'Acuto',
+    label: '𝐀𝐜𝐮𝐭𝐨',
     description: 'Enfatizza le frequenze alte',
     build: (i) => ({
       type: 'af',
@@ -40,7 +40,7 @@ const EFFECTS = {
   },
 
   grave: {
-    label: 'Grave',
+    label: '𝐆𝐫𝐚𝐯𝐞',
     description: 'Taglia le alte e rende il suono più cupo',
     build: (i) => ({
       type: 'af',
@@ -49,7 +49,7 @@ const EFFECTS = {
   },
 
   radio: {
-    label: 'Radio',
+    label: '𝐑𝐚𝐝𝐢𝐨',
     description: 'Effetto radio compresso',
     build: (i) => ({
       type: 'af',
@@ -58,7 +58,7 @@ const EFFECTS = {
   },
 
   telefono: {
-    label: 'Telefono',
+    label: '𝐓𝐞𝐥𝐞𝐟𝐨𝐧𝐨',
     description: 'Voce stretta tipo chiamata',
     build: (i) => ({
       type: 'af',
@@ -67,7 +67,7 @@ const EFFECTS = {
   },
 
   robot: {
-    label: 'Robot',
+    label: '𝐑𝐨𝐛𝐨𝐭',
     description: 'Voce metallica artificiale',
     build: (i) => ({
       type: 'filter_complex',
@@ -76,7 +76,7 @@ const EFFECTS = {
   },
 
   alien: {
-    label: 'Alien',
+    label: '𝐀𝐥𝐢𝐞𝐧',
     description: 'Voce alterata e spaziale',
     build: (i) => {
       const rate = (1.15 + i / 120).toFixed(2)
@@ -90,7 +90,7 @@ const EFFECTS = {
   },
 
   demone: {
-    label: 'Demone',
+    label: '𝐃𝐞𝐦𝐨𝐧𝐞',
     description: 'Voce bassa e distorta',
     build: (i) => {
       const rate = (0.9 - Math.min(0.35, i / 250)).toFixed(2)
@@ -103,7 +103,7 @@ const EFFECTS = {
   },
 
   vinile: {
-    label: 'Vinile',
+    label: '𝐕𝐢𝐧𝐢𝐥𝐞',
     description: 'Timbro vintage più caldo',
     build: (i) => ({
       type: 'af',
@@ -112,7 +112,7 @@ const EFFECTS = {
   },
 
   nightcore: {
-    label: 'Nightcore',
+    label: '𝐍𝐢𝐠𝐡𝐭𝐜𝐨𝐫𝐞',
     description: 'Voce più veloce e alta',
     build: (i) => {
       const mult = (1.08 + i / 500).toFixed(2)
@@ -124,7 +124,7 @@ const EFFECTS = {
   },
 
   vibrato: {
-    label: 'Vibrato',
+    label: '𝐕𝐢𝐛𝐫𝐚𝐭𝐨',
     description: 'Oscillazione ritmica della voce',
     build: (i) => ({
       type: 'af',
@@ -133,7 +133,7 @@ const EFFECTS = {
   },
 
   tremolo: {
-    label: 'Tremolo',
+    label: '𝐓𝐫𝐞𝐦𝐨𝐥𝐨',
     description: 'Pulsazione regolare del volume',
     build: (i) => ({
       type: 'af',
@@ -142,11 +142,130 @@ const EFFECTS = {
   },
 
   inverso: {
-    label: 'Inverso',
+    label: '𝐈𝐧𝐯𝐞𝐫𝐬𝐨',
     description: 'Riproduzione al contrario',
     build: () => ({
       type: 'filter_complex',
       value: 'areverse'
+    })
+  },
+
+  chipmunks: {
+    label: '𝐂𝐡𝐢𝐩𝐦𝐮𝐧𝐤𝐬',
+    description: 'Voce super acuta stile scoiattolo',
+    build: (i) => {
+      const rate = (1.35 + i / 200).toFixed(2)
+      const tempo = (0.88 - Math.min(0.18, i / 1000)).toFixed(2)
+      return {
+        type: 'af',
+        value: `asetrate=44100*${rate},atempo=${tempo}`
+      }
+    }
+  },
+
+  earrape: {
+    label: '𝐄𝐚𝐫𝐫𝐚𝐩𝐞',
+    description: 'Volume estremo e aggressivo',
+    build: (i) => ({
+      type: 'af',
+      value: `volume=${(2 + i / 8).toFixed(1)},alimiter=limit=0.95`
+    })
+  },
+
+  distorto: {
+    label: '𝐃𝐢𝐬𝐭𝐨𝐫𝐭𝐨',
+    description: 'Voce sporca e aggressiva',
+    build: (i) => {
+      const crush = (0.03 + i / 1800).toFixed(3)
+      return {
+        type: 'af',
+        value: `acrusher=${crush}:1:64:0:log,firequalizer=gain_entry='entry(0,12);entry(250,0);entry(4000,12)'`
+      }
+    }
+  },
+
+  '8d': {
+    label: '𝐄𝐢𝐠𝐡𝐭 𝐃',
+    description: 'Effetto stereo in movimento',
+    build: (i) => ({
+      type: 'af',
+      value: `apulsator=hz=${(0.05 + i / 2000).toFixed(3)}`
+    })
+  },
+
+  flanger: {
+    label: '𝐅𝐥𝐚𝐧𝐠𝐞𝐫',
+    description: 'Modulazione metallica oscillante',
+    build: (i) => ({
+      type: 'af',
+      value: `flanger=delay=${10 + Math.round(i / 5)}:depth=${(0.1 + i / 500).toFixed(2)}`
+    })
+  },
+
+  coro: {
+    label: '𝐂𝐨𝐫𝐨',
+    description: 'Voce sdoppiata tipo chorus',
+    build: (i) => ({
+      type: 'af',
+      value: `chorus=0.7:0.9:${40 + Math.round(i / 2)}:0.4:0.25:2`
+    })
+  },
+
+  sottacqua: {
+    label: '𝐒𝐨𝐭𝐭𝐚𝐜𝐪𝐮𝐚',
+    description: 'Suono ovattato e profondo',
+    build: (i) => ({
+      type: 'af',
+      value: `asetrate=44100*${(0.75 - Math.min(0.2, i / 500)).toFixed(2)},atempo=${(1.2 + i / 400).toFixed(2)},lowpass=f=${400 - Math.min(150, i)}`
+    })
+  },
+
+  metallico: {
+    label: '𝐌𝐞𝐭𝐚𝐥𝐥𝐢𝐜𝐨',
+    description: 'Risonanza metallica corta',
+    build: (i) => ({
+      type: 'af',
+      value: `aecho=0.8:0.88:${5 + Math.round(i / 8)}:${(0.3 + i / 200).toFixed(2)}`
+    })
+  },
+
+  profondo: {
+    label: '𝐏𝐫𝐨𝐟𝐨𝐧𝐝𝐨',
+    description: 'Voce più scura e lenta',
+    build: (i) => {
+      const rate = (0.9 - Math.min(0.25, i / 350)).toFixed(2)
+      const tempo = (1.05 + i / 500).toFixed(2)
+      return {
+        type: 'af',
+        value: `asetrate=44500*${rate},atempo=${tempo}`
+      }
+    }
+  },
+
+  lento: {
+    label: '𝐋𝐞𝐧𝐭𝐨',
+    description: 'Rallenta la voce',
+    build: (i) => ({
+      type: 'af',
+      value: `atempo=${Math.max(0.55, 1 - i / 200).toFixed(2)}`
+    })
+  },
+
+  veloce: {
+    label: '𝐕𝐞𝐥𝐨𝐜𝐞',
+    description: 'Accelera la voce',
+    build: (i) => ({
+      type: 'af',
+      value: `atempo=${(1 + i / 100).toFixed(2)}`
+    })
+  },
+
+  cristallino: {
+    label: '𝐂𝐫𝐢𝐬𝐭𝐚𝐥𝐥𝐢𝐧𝐨',
+    description: 'Voce più nitida e brillante',
+    build: (i) => ({
+      type: 'af',
+      value: `crystalizer=i=${Math.max(2, Math.round(i / 12))}`
     })
   }
 }
@@ -158,10 +277,10 @@ function getBar(intensity = 50) {
 }
 
 function getLevelName(intensity = 50) {
-  if (intensity <= 25) return 'Basso'
-  if (intensity <= 50) return 'Medio'
-  if (intensity <= 75) return 'Alto'
-  return 'Massimo'
+  if (intensity <= 25) return '𝐁𝐚𝐬𝐬𝐨'
+  if (intensity <= 50) return '𝐌𝐞𝐝𝐢𝐨'
+  if (intensity <= 75) return '𝐀𝐥𝐭𝐨'
+  return '𝐌𝐚𝐬𝐬𝐢𝐦𝐨'
 }
 
 function getPanel(effectKey, intensity) {
@@ -170,42 +289,43 @@ function getPanel(effectKey, intensity) {
    *✦ 𝐀𝐔𝐃𝐈𝐎 𝐅𝐗 ✦*
 *╰━━━━━━━🎛️━━━━━━━╯*
 
-*🎚️ 𝐄𝐟𝐟𝐞𝐭𝐭𝐨:* ${effect.label}
-*📖 𝐃𝐞𝐬𝐜𝐫𝐢𝐳𝐢𝐨𝐧𝐞:* ${effect.description}
-*⚡ 𝐈𝐧𝐭𝐞𝐧𝐬𝐢𝐭à:* ${intensity}%
-*🎛️ 𝐋𝐢𝐯𝐞𝐥𝐥𝐨:* ${getLevelName(intensity)}
-*📊 ${getBar(intensity)}*
+*𝐄𝐟𝐟𝐞𝐭𝐭𝐨:* ${effect.label}
+*𝐃𝐞𝐬𝐜𝐫𝐢𝐳𝐢𝐨𝐧𝐞:* ${effect.description}
+*𝐈𝐧𝐭𝐞𝐧𝐬𝐢𝐭à:* ${intensity}%
+*𝐋𝐢𝐯𝐞𝐥𝐥𝐨:* ${getLevelName(intensity)}
+*𝐁𝐚𝐫𝐫𝐚:* ${getBar(intensity)}
 
-*📌 Rispondi a un audio e usa questo pannello.*`
+*𝐍𝐨𝐭𝐚:* 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐞 𝐮𝐬𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐩𝐚𝐧𝐧𝐞𝐥𝐥𝐨.`
 }
 
 function getMenu(prefix) {
   const names = Object.keys(EFFECTS)
-    .map(k => `*• ${k}*`)
+    .map(k => `• ${k}`)
     .join('\n')
 
   return `*╭━━━━━━━🎵━━━━━━━╮*
    *✦ 𝐄𝐅𝐅𝐄𝐓𝐓𝐈 𝐀𝐔𝐃𝐈𝐎 ✦*
 *╰━━━━━━━🎵━━━━━━━╯*
 
-*Usa:* \`${prefix}fx nomeeffetto\`
+*𝐔𝐬𝐨:* ${prefix}fx nomeeffetto
 
-*Esempi:*
-\`${prefix}fx eco\`
-\`${prefix}fx robot\`
-\`${prefix}fx alien\`
+*𝐄𝐬𝐞𝐦𝐩𝐢:*
+${prefix}fx eco
+${prefix}fx robot
+${prefix}fx alien
 
-*Effetti disponibili:*
+*𝐄𝐟𝐟𝐞𝐭𝐭𝐢:*
 ${names}`
 }
 
 function getButtons(prefix, effectKey) {
   return [
-    { buttonId: `${prefix}fxset ${effectKey} basso`, buttonText: { displayText: '🔹 Basso' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} medio`, buttonText: { displayText: '🔸 Medio' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} alto`, buttonText: { displayText: '🟠 Alto' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} massimo`, buttonText: { displayText: '🔴 Massimo' }, type: 1 },
-    { buttonId: `${prefix}fxapply`, buttonText: { displayText: '✅ Applica' }, type: 1 }
+    { buttonId: `${prefix}fxset ${effectKey} basso`, buttonText: { displayText: '🔹 𝐁𝐚𝐬𝐬𝐨' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} medio`, buttonText: { displayText: '🔸 𝐌𝐞𝐝𝐢𝐨' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} alto`, buttonText: { displayText: '🟠 𝐀𝐥𝐭𝐨' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} massimo`, buttonText: { displayText: '🔴 𝐌𝐚𝐬𝐬𝐢𝐦𝐨' }, type: 1 },
+    { buttonId: `${prefix}fxapply`, buttonText: { displayText: '✅ 𝐀𝐩𝐩𝐥𝐢𝐜𝐚' }, type: 1 },
+    { buttonId: `${prefix}fxreset`, buttonText: { displayText: '❌ 𝐑𝐞𝐬𝐞𝐭' }, type: 1 }
   ]
 }
 
@@ -266,7 +386,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       const mime = getMime(q)
 
       if (!/audio/.test(mime)) {
-        return m.reply(`*❌ Rispondi a un audio o a una nota vocale prima di scegliere l'effetto.*`)
+        return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐨 𝐚 𝐮𝐧𝐚 𝐧𝐨𝐭𝐚 𝐯𝐨𝐜𝐚𝐥𝐞 𝐩𝐫𝐢𝐦𝐚 𝐝𝐢 𝐬𝐜𝐞𝐠𝐥𝐢𝐞𝐫𝐞 𝐥’𝐞𝐟𝐟𝐞𝐭𝐭𝐨.')
       }
 
       const inputBuffer = await q.download()
@@ -287,14 +407,14 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       }
 
       if (!EFFECTS[effectKey]) {
-        return m.reply(`*❌ Effetto non valido.*\n\nUsa *${usedPrefix}effetti* per vedere la lista.`)
+        return m.reply(`*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐄𝐟𝐟𝐞𝐭𝐭𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.\n\n*𝐔𝐬𝐚:* ${usedPrefix}effetti`)
       }
 
       const q = m.quoted || m
       const mime = getMime(q)
 
       if (!/audio/.test(mime)) {
-        return m.reply(`*❌ Rispondi a un audio o a una nota vocale prima di aprire il pannello.*`)
+        return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐨 𝐚 𝐮𝐧𝐚 𝐧𝐨𝐭𝐚 𝐯𝐨𝐜𝐚𝐥𝐞 𝐩𝐫𝐢𝐦𝐚 𝐝𝐢 𝐚𝐩𝐫𝐢𝐫𝐞 𝐢𝐥 𝐩𝐚𝐧𝐧𝐞𝐥𝐥𝐨.')
       }
 
       const inputBuffer = await q.download()
@@ -312,16 +432,16 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       const levelKey = String(args[1] || '').toLowerCase()
 
       if (!EFFECTS[effectKey]) {
-        return m.reply(`*❌ Effetto non valido.*`)
+        return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐄𝐟𝐟𝐞𝐭𝐭𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.')
       }
 
       if (!(levelKey in LEVELS)) {
-        return m.reply(`*❌ Livello non valido.* Usa: *basso, medio, alto, massimo*`)
+        return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐋𝐢𝐯𝐞𝐥𝐥𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.\n\n*𝐔𝐬𝐚:* basso, medio, alto, massimo')
       }
 
       const state = global.audiofx[m.sender]
       if (!state || state.effect !== effectKey || !state.sourceBuffer) {
-        return m.reply(`*⚠️ Apri prima un effetto rispondendo a un audio con* *${usedPrefix}fx ${effectKey}*`)
+        return m.reply(`*𝐍𝐨𝐭𝐚:* 𝐀𝐩𝐫𝐢 𝐩𝐫𝐢𝐦𝐚 𝐮𝐧 𝐞𝐟𝐟𝐞𝐭𝐭𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐧𝐝𝐨 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐜𝐨𝐧 ${usedPrefix}fx ${effectKey}`)
       }
 
       const intensity = LEVELS[levelKey]
@@ -337,7 +457,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (cmd === 'fxapply') {
       const state = global.audiofx[m.sender]
       if (!state || !state.effect || !state.sourceBuffer) {
-        return m.reply(`*⚠️ Apri prima un effetto rispondendo a un audio con* *${usedPrefix}fx nomeeffetto*`)
+        return m.reply(`*𝐍𝐨𝐭𝐚:* 𝐀𝐩𝐫𝐢 𝐩𝐫𝐢𝐦𝐚 𝐮𝐧 𝐞𝐟𝐟𝐞𝐭𝐭𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐧𝐝𝐨 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐜𝐨𝐧 ${usedPrefix}fx nomeeffetto`)
       }
 
       await m.react('⏳')
@@ -369,24 +489,32 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       } catch (e) {
         console.error(e)
         await m.react('❌')
-        await m.reply(`*❌ Errore:* ${e.message}`)
+        await m.reply(`*𝐄𝐫𝐫𝐨𝐫𝐞:* ${e.message}`)
       } finally {
         safeUnlink(input)
         safeUnlink(output)
-        delete global.audiofx[m.sender]
       }
 
       return
     }
+
+    if (cmd === 'fxreset') {
+      if (!global.audiofx[m.sender]) {
+        return m.reply('*𝐍𝐨𝐭𝐚:* 𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐚𝐧𝐧𝐞𝐥𝐥𝐨 𝐚𝐭𝐭𝐢𝐯𝐨 𝐝𝐚 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐫𝐞.')
+      }
+
+      delete global.audiofx[m.sender]
+      return m.reply('*✅ 𝐑𝐞𝐬𝐞𝐭 𝐞𝐟𝐟𝐞𝐭𝐭𝐮𝐚𝐭𝐨.*\n\n𝐎𝐫𝐚 𝐩𝐮𝐨𝐢 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚 𝐮𝐧 𝐧𝐮𝐨𝐯𝐨 𝐚𝐮𝐝𝐢𝐨 𝐞 𝐫𝐢𝐚𝐩𝐫𝐢𝐫𝐞 𝐢𝐥 𝐩𝐚𝐧𝐧𝐞𝐥𝐥𝐨.')
+    }
   } catch (e) {
     console.error(e)
     try { await m.react('❌') } catch {}
-    return m.reply(`*❌ Errore:* ${e.message}`)
+    return m.reply(`*𝐄𝐫𝐫𝐨𝐫𝐞:* ${e.message}`)
   }
 }
 
-handler.help = ['effetti', 'fx', 'fxset', 'fxapply']
+handler.help = ['effetti', 'fx', 'fxset', 'fxapply', 'fxreset']
 handler.tags = ['strumenti']
-handler.command = /^(effetti|fx|fxset|fxapply|eco|basso|acuto|grave|radio|telefono|robot|alien|demone|vinile|nightcore|vibrato|tremolo|inverso)$/i
+handler.command = /^(effetti|fx|fxset|fxapply|fxreset|eco|basso|acuto|grave|radio|telefono|robot|alien|demone|vinile|nightcore|vibrato|tremolo|inverso|chipmunks|earrape|distorto|8d|flanger|coro|sottacqua|metallico|profondo|lento|veloce|cristallino)$/i
 
 export default handler
