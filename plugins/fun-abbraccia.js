@@ -1,4 +1,4 @@
-// plugins abbraccia by Bonzino
+/// plugins abbraccia by Bonzino
 const S = v => String(v || '')
 const tag = (jid = '') => '@' + S(jid).split('@')[0].split(':')[0]
 
@@ -51,7 +51,8 @@ let handler = async (m, { conn }) => {
   if (!target) {
     const q = buildContextMsg('*abbraccio*')
     await conn.sendMessage(chat, {
-      text: `${boldUnicode('*⚠️ Devi menzionare qualcuno o rispondere a un messaggio per abbracciarlo 🤗*')}\n\n${boldUnicode('Esempio:')}\n\`.abbraccia @utente\``
+      text: `${boldUnicode('*⚠️ Devi menzionare qualcuno o rispondere a un messaggio per abbracciarlo 🤗*')}\n\n${boldUnicode('Esempio:')}\n\`.abbraccia @utente\``,
+      ...global.rcanal
     }, { quoted: q })
     return
   }
@@ -61,11 +62,9 @@ let handler = async (m, { conn }) => {
 
   await conn.sendMessage(chat, {
     text: msg,
-    contextInfo: {
-      isForwarded: true,
-      forwardingScore: 1,
+    contextInfo: global.getRcanal({
       mentionedJid: [sender, target]
-    },
+    }),
     mentions: [sender, target]
   }, { quoted: q })
 }

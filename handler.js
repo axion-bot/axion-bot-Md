@@ -18,6 +18,16 @@ global.rcanal = {
     }
   }
 }
+global.getRcanal = (extra = {}) => ({
+  forwardingScore: 999,
+  isForwarded: true,
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363424041538498@newsletter',
+    newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+    serverMessageId: 1
+  },
+  ...extra
+})
 
 global.ignoredUsersGlobal = new Set()
 global.ignoredUsersGroup = {}
