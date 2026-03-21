@@ -11,13 +11,10 @@ global.rcanal = {
   contextInfo: {
     forwardingScore: 999,
     isForwarded: true,
-    externalAdReply: {
-      title: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-      body: '',
-      sourceUrl: 'https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d',
-      mediaType: 1,
-      renderLargerThumbnail: false,
-      showAdAttribution: false
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363424041538498@newsletter',
+      newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      serverMessageId: 1
     }
   }
 }
