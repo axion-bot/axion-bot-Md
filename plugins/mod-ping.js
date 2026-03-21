@@ -30,7 +30,7 @@ let handler = async (m, { conn, usedPrefix }) => {
         isForwarded: true,
         externalAdReply: {
           title: botName,
-          body: "",
+          body: "𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓",
           sourceUrl: "https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d",
           mediaType: 1,
           renderLargerThumbnail: false,
