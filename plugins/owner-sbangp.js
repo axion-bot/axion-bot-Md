@@ -17,6 +17,6 @@ let handler = async (m) => {
 
 handler.help = ['unbanchat'];
 handler.tags = ['owner'];
-handler.command = /^wakeywakey$/i;
+handler.command = /^unbanchat$/i;
 handler.rowner = true;
 export default handler;
