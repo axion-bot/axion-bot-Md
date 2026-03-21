@@ -1,6 +1,6 @@
 let handler = async (m) => {
   global.db.data.chats[m.chat].isBanned = false;
-  let message = '𝐌𝐨𝐝𝐚𝐥𝐢𝐭à 𝐀𝐅𝐊 𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚, 𝐬𝐨𝐧𝐨 𝐭𝐨𝐫𝐧𝐚𝐭𝐨 𝐑𝐈𝐊𝐊𝐈𝐎𝐍𝐈 ✓';
+  let message = '𝐌𝐨𝐝𝐚𝐥𝐢𝐭à 𝐀𝐅𝐊 𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚';
   await conn.sendMessage(m.chat, { 
       text: message,
       contextInfo: {
