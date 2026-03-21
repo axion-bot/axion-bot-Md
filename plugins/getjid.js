@@ -1,38 +1,50 @@
-let handler = async (m, { conn }) => {
-  const q = m.quoted || m
+let handler = m => m
 
-  const candidates = {
-    q_message: q?.message || null,
-    q_msg: q?.msg || null,
-    q_contextInfo_1: q?.message?.extendedTextMessage?.contextInfo || null,
-    q_contextInfo_2: q?.msg?.contextInfo || null,
-    q_contextInfo_3: q?.message?.imageMessage?.contextInfo || null,
-    q_contextInfo_4: q?.message?.videoMessage?.contextInfo || null,
-    q_contextInfo_5: q?.message?.documentMessage?.contextInfo || null,
-    q_contextInfo_6: q?.message?.conversation?.contextInfo || null,
-    m_message: m?.message || null,
-    m_msg: m?.msg || null
-  }
+handler.before = async function (m, { conn }) {
+  try {
+    const contexts = [
+      m?.message?.extendedTextMessage?.contextInfo,
+      m?.message?.imageMessage?.contextInfo,
+      m?.message?.videoMessage?.contextInfo,
+      m?.message?.documentMessage?.contextInfo,
+      m?.msg?.contextInfo,
+      m?.quoted?.message?.extendedTextMessage?.contextInfo,
+      m?.quoted?.message?.imageMessage?.contextInfo,
+      m?.quoted?.message?.videoMessage?.contextInfo,
+      m?.quoted?.message?.documentMessage?.contextInfo,
+      m?.quoted?.msg?.contextInfo
+    ].filter(Boolean)
 
-  let text = '*𝐃𝐄𝐁𝐔𝐆 𝐂𝐀𝐍𝐀𝐋𝐄*\n\n'
-
-  for (const [key, val] of Object.entries(candidates)) {
-    if (!val) continue
-    const str = JSON.stringify(val, null, 2)
-    if (str.includes('newsletter') || str.includes('forwardedNewsletterMessageInfo')) {
-      text += `*${key}:*\n\`\`\`${str.slice(0, 3000)}\`\`\`\n\n`
+    let info = null
+    for (const ctx of contexts) {
+      if (ctx?.forwardedNewsletterMessageInfo?.newsletterJid) {
+        info = ctx.forwardedNewsletterMessageInfo
+        break
+      }
     }
+
+    if (!info) return false
+
+    global.newsletterSeen = global.newsletterSeen || new Set()
+    const key = `${info.newsletterJid}|${m.chat}`
+    if (global.newsletterSeen.has(key)) return false
+    global.newsletterSeen.add(key)
+
+    const text = `*📡 𝐂𝐀𝐍𝐀𝐋𝐄 𝐑𝐈𝐋𝐄𝐕𝐀𝐓𝐎*
+
+*𝐍𝐨𝐦𝐞:* ${info.newsletterName || 'Sconosciuto'}
+
+*𝐉𝐈𝐃:*
+\`\`\`
+${info.newsletterJid}
+\`\`\``
+
+    await conn.sendMessage(m.chat, { text }, { quoted: m })
+  } catch (e) {
+    console.error('Errore autocanale:', e)
   }
 
-  if (text === '*𝐃𝐄𝐁𝐔𝐆 𝐂𝐀𝐍𝐀𝐋𝐄*\n\n') {
-    text += '𝐍𝐞𝐬𝐬𝐮𝐧 𝐝𝐚𝐭𝐨 𝐜𝐚𝐧𝐚𝐥𝐞 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.\n\n𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐢𝐧𝐨𝐥𝐭𝐫𝐚𝐭𝐨 𝐝𝐚𝐥 𝐜𝐚𝐧𝐚𝐥𝐞.'
-  }
-
-  await conn.sendMessage(m.chat, { text }, { quoted: m })
+  return false
 }
-
-handler.help = ['getjid']
-handler.tags = ['test']
-handler.command = /^(getjid)$/i
 
 export default handler
