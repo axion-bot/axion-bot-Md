@@ -235,8 +235,8 @@ function runFfmpeg(input, output, effectConfig) {
   return new Promise((resolve, reject) => {
     const cmd =
       effectConfig.type === 'filter_complex'
-        ? `ffmpeg -y -i "${input}" -filter_complex "${effectConfig.value}" "${output}"`
-        : `ffmpeg -y -i "${input}" -af "${effectConfig.value}" "${output}"`
+        ? `ffmpeg -y -i "${input}" -filter_complex "${effectConfig.value}" -c:a libopus -b:a 128k "${output}"`
+        : `ffmpeg -y -i "${input}" -af "${effectConfig.value}" -c:a libopus -b:a 128k "${output}"`
 
     exec(cmd, (err) => {
       if (err) return reject(err)
@@ -345,7 +345,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       const tempDir = ensureTempDir()
       const stamp = `${Date.now()}-${Math.floor(Math.random() * 9999)}`
       const input = join(tempDir, `${stamp}-input.ogg`)
-      const output = join(tempDir, `${stamp}-output.mp3`)
+      const output = join(tempDir, `${stamp}-output.ogg`)
 
       try {
         fs.writeFileSync(input, state.sourceBuffer)
@@ -359,7 +359,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
           m.chat,
           {
             audio: buff,
-            mimetype: 'audio/mp3',
+            mimetype: 'audio/ogg; codecs=opus',
             ptt: true
           },
           { quoted: m }
