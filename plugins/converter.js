@@ -2,6 +2,8 @@ import fs from 'fs'
 import { join } from 'path'
 import { exec } from 'child_process'
 
+global.converti = global.converti || {}
+
 function ensureTempDir() {
   const dir = join(process.cwd(), 'temp')
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
@@ -55,9 +57,13 @@ function getButtons(prefix, type) {
 
   return [
     { buttonId: `${prefix}convdo mp4`, buttonText: { displayText: '🎬 𝐌𝐏𝟒' }, type: 1 },
-    { buttonId: `${prefix}convdo mp3`, buttonText: { displayText: '🎵 𝐌𝐏𝟑' }, type: 1 },
-    { buttonId: `${prefix}convdo ogg`, buttonText: { displayText: '🎙️ 𝐎𝐆𝐆' }, type: 1 }
+      { buttonId: `${prefix}convdo mp3`, buttonText: { displayText: '🎵 𝐌𝐏𝟑' }, type: 1 },
+      { buttonId: `${prefix}convdo ogg`, buttonText: { displayText: '🎙️ 𝐎𝐆𝐆' }, type: 1 }
   ]
+}
+
+function saveState(sender, type, buffer) {
+  global.converti[sender] = { type, buffer }
 }
 
 function runCmd(cmd) {
@@ -73,7 +79,6 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
   try {
     const cmd = String(command || '').toLowerCase()
 
-    // 📌 apertura pannello
     if (cmd === 'converti') {
       const q = m.quoted || m
       const mime = getMime(q)
@@ -83,6 +88,9 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
         return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐨 𝐚 𝐮𝐧 𝐯𝐢𝐝𝐞𝐨.')
       }
 
+      const buffer = await q.download()
+      saveState(m.sender, type, buffer)
+
       return conn.sendMessage(m.chat, {
         text: getPanel(type),
         buttons: getButtons(usedPrefix, type),
@@ -90,17 +98,16 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
       }, { quoted: m })
     }
 
-    // 🔄 conversione diretta
     if (cmd === 'convdo') {
-      const q = m.quoted || m
-      const mime = getMime(q)
-      const type = detectSourceType(mime)
+      const state = global.converti[m.sender]
 
-      if (!type) {
-        return m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐚𝐮𝐝𝐢𝐨 𝐨 𝐚 𝐮𝐧 𝐯𝐢𝐝𝐞𝐨.')
+      if (!state || !state.type || !state.buffer) {
+        return m.reply(`*𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐀𝐩𝐫𝐢 𝐩𝐫𝐢𝐦𝐚 𝐢𝐥 𝐩𝐚𝐧𝐧𝐞𝐥𝐥𝐨 𝐜𝐨𝐧 ${usedPrefix}converti`)
       }
 
+      const { type, buffer } = state
       const action = String(args[0] || '').toLowerCase()
+
       const allowed = type === 'audio'
         ? ['mp3', 'ogg', 'aac']
         : ['mp4', 'mp3', 'ogg']
@@ -111,12 +118,9 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
 
       await m.react('⏳')
 
-      const buffer = await q.download()
-
       const tempDir = ensureTempDir()
       const stamp = `${Date.now()}-${Math.floor(Math.random() * 9999)}`
       const inputExt = type === 'audio' ? 'ogg' : 'mp4'
-
       const input = join(tempDir, `${stamp}-input.${inputExt}`)
       const output = join(tempDir, `${stamp}-output.${action}`)
 
@@ -188,7 +192,6 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
 
       return
     }
-
   } catch (e) {
     console.error(e)
     try { await m.react('❌') } catch {}
