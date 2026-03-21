@@ -1,4 +1,5 @@
 // plugins abbraccia by Bonzino
+
 const S = v => String(v || '')
 const tag = (jid = '') => '@' + S(jid).split('@')[0].split(':')[0]
 
@@ -13,6 +14,14 @@ function boldUnicode(s = '') {
   }
   return o
 }
+
+const buildContextMsg = title => ({
+  key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'CTX' },
+  message: {
+    locationMessage: { name: boldUnicode(title) }
+  },
+  participant: '0@s.whatsapp.net'
+})
 
 function resolveTarget(m) {
   const ctx = m.message?.extendedTextMessage?.contextInfo || {}
@@ -41,6 +50,7 @@ let handler = async (m, { conn }) => {
   const target = resolveTarget(m)
 
   if (!target) {
+    const q = buildContextMsg('*abbraccio*')
     await conn.sendMessage(chat, {
       text: `${boldUnicode('*⚠️ Devi menzionare qualcuno o rispondere a un messaggio per abbracciarlo 🤗*')}\n\n${boldUnicode('Esempio:')}\n\`.abbraccia @utente\``,
       contextInfo: {
@@ -52,11 +62,12 @@ let handler = async (m, { conn }) => {
           serverMessageId: 1
         }
       }
-    })
+    }, { quoted: q })
     return
   }
 
   const msg = `🤗 ${tag(sender)} ${boldUnicode('*ha abbracciato*')} ${tag(target)} 🫂`
+  const q = buildContextMsg('*abbraccio*')
 
   await conn.sendMessage(chat, {
     text: msg,
@@ -71,7 +82,7 @@ let handler = async (m, { conn }) => {
       mentionedJid: [sender, target]
     },
     mentions: [sender, target]
-  })
+  }, { quoted: q })
 }
 
 handler.help = ['abbraccia @utente']
