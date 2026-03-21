@@ -19,9 +19,9 @@ ${finalPhrase}
             forwardingScore: 0,
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-                newsletterJid: '0029Vb8MQ3U1CYoMEtU1832d@newsletter',
+                newsletterJid: '120363424041538498@newsletter',
                 serverMessageId: '',
-                newsletterName: `${conn.user.name}`
+                newsletterName: `𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
             }
         }
     };
