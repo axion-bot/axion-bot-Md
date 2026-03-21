@@ -1,4 +1,4 @@
-/// plugins abbraccia by Bonzino
+// plugins abbraccia by Bonzino
 const S = v => String(v || '')
 const tag = (jid = '') => '@' + S(jid).split('@')[0].split(':')[0]
 
@@ -62,9 +62,13 @@ let handler = async (m, { conn }) => {
 
   await conn.sendMessage(chat, {
     text: msg,
-    contextInfo: global.getRcanal({
-      mentionedJid: [sender, target]
-    }),
+    contextInfo: (typeof global.getRcanal === 'function'
+      ? global.getRcanal({
+          mentionedJid: [sender, target]
+        })
+      : {
+          mentionedJid: [sender, target]
+        }),
     mentions: [sender, target]
   }, { quoted: q })
 }
