@@ -14,14 +14,6 @@ function boldUnicode(s = '') {
   return o
 }
 
-const buildContextMsg = (title) => ({
-  key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'CTX' },
-  message: {
-    locationMessage: { name: boldUnicode(title) }
-  },
-  participant: '0@s.whatsapp.net'
-})
-
 function resolveTarget(m) {
   const ctx = m.message?.extendedTextMessage?.contextInfo || {}
 
@@ -51,7 +43,15 @@ let handler = async (m, { conn }) => {
   if (!target) {
     await conn.sendMessage(chat, {
       text: `${boldUnicode('*⚠️ Devi menzionare qualcuno o rispondere a un messaggio per abbracciarlo 🤗*')}\n\n${boldUnicode('Esempio:')}\n\`.abbraccia @utente\``,
-      ...global.rcanal
+      contextInfo: {
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: '120363424041538498@newsletter',
+          newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+          serverMessageId: 1
+        }
+      }
     })
     return
   }
@@ -60,13 +60,16 @@ let handler = async (m, { conn }) => {
 
   await conn.sendMessage(chat, {
     text: msg,
-    contextInfo: (typeof global.getRcanal === 'function'
-      ? global.getRcanal({
-          mentionedJid: [sender, target]
-        })
-      : {
-          mentionedJid: [sender, target]
-        }),
+    contextInfo: {
+      forwardingScore: 999,
+      isForwarded: true,
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: '120363424041538498@newsletter',
+        newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        serverMessageId: 1
+      },
+      mentionedJid: [sender, target]
+    },
     mentions: [sender, target]
   })
 }
