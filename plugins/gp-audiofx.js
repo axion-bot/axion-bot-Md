@@ -320,12 +320,12 @@ ${names}`
 
 function getButtons(prefix, effectKey) {
   return [
-    { buttonId: `${prefix}fxset ${effectKey} basso`, buttonText: { displayText: '🔹 𝐁𝐚𝐬𝐬𝐨' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} medio`, buttonText: { displayText: '🔸 𝐌𝐞𝐝𝐢𝐨' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} alto`, buttonText: { displayText: '🟠 𝐀𝐥𝐭𝐨' }, type: 1 },
-    { buttonId: `${prefix}fxset ${effectKey} massimo`, buttonText: { displayText: '🔴 𝐌𝐚𝐬𝐬𝐢𝐦𝐨' }, type: 1 },
-    { buttonId: `${prefix}fxapply`, buttonText: { displayText: '✅ 𝐀𝐩𝐩𝐥𝐢𝐜𝐚' }, type: 1 },
-    { buttonId: `${prefix}fxreset`, buttonText: { displayText: '❌ 𝐑𝐞𝐬𝐞𝐭' }, type: 1 }
+    { buttonId: `${prefix}fxset ${effectKey} basso`, buttonText: { displayText: '*🔹 𝐁𝐚𝐬𝐬𝐨*' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} medio`, buttonText: { displayText: '*🔸 𝐌𝐞𝐝𝐢𝐨*' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} alto`, buttonText: { displayText: '*🟠 𝐀𝐥𝐭𝐨*' }, type: 1 },
+    { buttonId: `${prefix}fxset ${effectKey} massimo`, buttonText: { displayText: '*🔴 𝐌𝐚𝐬𝐬𝐢𝐦𝐨*' }, type: 1 },
+    { buttonId: `${prefix}fxapply`, buttonText: { displayText: '*✅ 𝐀𝐩𝐩𝐥𝐢𝐜𝐚*' }, type: 1 },
+    { buttonId: `${prefix}fxreset`, buttonText: { displayText: '*❌ 𝐑𝐞𝐬𝐞𝐭*' }, type: 1 }
   ]
 }
 
