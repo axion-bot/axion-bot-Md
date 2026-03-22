@@ -12,7 +12,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
   const chat = chats[m.chat];
   const bot = settings[conn.user.jid];
 
-  // ================== RECUPERO IMMAGINE PROFILO ==================
+  // ================== FOTO PROFILO ==================
   let pp;
   try { 
     pp = await conn.profilePictureUrl(m.sender, 'image'); 
@@ -33,7 +33,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
 
   const profileBuffer = await getBuffer(pp);
 
-  // ================== GRAFICA 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 ==================
+  // ================== GRAFICA ==================
   const box = (title, stato, desc) => {
     return `
 『 𝚫𝐗𝐈𝐎𝐍 • 𝐂𝐎𝐑𝐄 』
@@ -72,7 +72,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
   let feature = args[0].toLowerCase();
   let result = '';
 
-  // ================== SWITCH FUNZIONI ==================
+  // ================== SWITCH ==================
   switch(feature) {
     case 'antilink':
       if (m.isGroup && !(isAdmin || isOwner || isROwner)) return m.reply(noAdmin);
@@ -163,17 +163,24 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
       return m.reply(box('ᴜɴᴋɴᴏᴡɴ', '⚠️ ᴡᴀʀɴɪɴɢ', 'Modulo non riconosciuto dal sistema Axion.'));
   }
 
-  // ================== INVIO FINALE ==================
+  // ================== INVIO CON CANALE ==================
   await conn.sendMessage(m.chat, {
     text: result,
     contextInfo: {
+      forwardingScore: 999,
+      isForwarded: true,
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: '120363424041538498@newsletter',
+        serverMessageId: '',
+        newsletterName: '𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓'
+      },
       externalAdReply: {
         title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌 𝐎𝐒',
         body: `Utenza: ${m.pushName}`,
         thumbnail: profileBuffer,
-        sourceUrl: '', 
+        sourceUrl: '',
         mediaType: 1,
-        renderLargerThumbnail: false 
+        renderLargerThumbnail: false
       }
     }
   }, { quoted: m });
