@@ -11,7 +11,7 @@ let handler = async (m, { conn, command, usedPrefix }) => {
         global.db.data.chats[m.chat] = chat
 
         // 1. Cambia Nome (Font Stylized)
-        let newName = `${chat.oldName} | 𝐒𝐕𝐓 𝐁𝐘 𝐍𝚵𝑿𝐒𝐔𝐒 𝚩𝚯𝐓`
+        let newName = `${chat.oldName} | 𝐒𝐕𝐓 𝐁𝐘 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
         await conn.groupUpdateSubject(m.chat, newName)
 
         // 2. Cambia Descrizione
@@ -57,7 +57,7 @@ ${link}
         await conn.groupSettingUpdate(m.chat, 'not_announcement')
 
         let resMsg = `
-✨ *𝐑𝐈𝐏𝐑𝐈𝐒𝐓𝐈𝐍𝐎 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐎* ✨
+ *𝐑𝐈𝐏𝐑𝐈𝐒𝐓𝐈𝐍𝐎 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐎* 
 ━━━━━━━━━━━━━━━━━━━━
 ✅ _Nome e descrizione tornati alla normalità._
 🔓 _Chat aperta a tutti i partecipanti._
