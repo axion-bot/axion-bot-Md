@@ -1,21 +1,19 @@
-//wm-sticker plugin by Deadly e Bonzino.
-
 import { addExif } from '../lib/sticker.js'
 
 let handler = async (m, { conn, text, usedPrefix }) => {
-  if (!m.quoted) return m.reply(`\`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐜𝐡𝐞 𝐯𝐮𝐨𝐢 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐞\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+  if (!m.quoted) return m.reply(`『 ✧ 』 - \`Rispondi allo sticker che vuoi personalizzare\``)
 
   let stiker = false
   try {
     if (!text) {
       let name = conn.getName(m.sender)
-      text = `${name}|𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+      text = `${name}|vare ❀ bot`
     }
 
     let [packname, ...author] = text.split('|')
     author = (author || []).join('|')
     let mime = m.quoted.mimetype || ''
-    if (!/webp/.test(mime)) return m.reply(`『 ◈ 』- \`𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫\``)
+    if (!/webp/.test(mime)) return m.reply(`『 ✧ 』- \`Rispondi a uno sticker\``)
 
     let img = await m.quoted.download()
     if (!img) return m.reply(`${global.errore}`)
@@ -35,6 +33,6 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 handler.help = ['wm']
 handler.tags = ['sticker', 'strumenti']
-handler.command = ['wm']
+handler.command = ['take', 'wm']
 
 export default handler
