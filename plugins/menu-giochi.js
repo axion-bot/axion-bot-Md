@@ -46,7 +46,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 
 ╭━━━〔 🛠️ sᴛʀᴜᴍᴇɴᴛɪ 〕━⬣
 ┃ 🔄 ${usedPrefix}converter
-┃ 🎛️ ${usedPrefix}audiofx
+┃ 🎛️ ${usedPrefix}audiofx (effetti audio)
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 💍 ғᴀᴍɪɢʟɪᴀ 〕━⬣
