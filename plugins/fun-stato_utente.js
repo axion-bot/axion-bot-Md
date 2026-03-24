@@ -18,38 +18,25 @@ function resolveTargetJid(m) {
   return m.sender || m.key?.participant || m.participant || null
 }
 
-async function getDisplayName(conn, jid) {
-  try {
-    return await conn.getName(jid)
-  } catch {
-    return '@' + bare(jid)
-  }
-}
-
 function getStato(user = {}) {
   const sposato = !!user.sposato
   const coniuge = user.coniuge || null
   const ex = Array.isArray(user.ex) ? user.ex : []
-  const figli = Array.isArray(user.figli) ? user.figli : []
 
   if (sposato && coniuge) {
-    return {
-      label: '𝐒𝐩𝐨𝐬𝐚𝐭𝐨',
-      icon: '💍'
-    }
+    return { label: '𝐒𝐩𝐨𝐬𝐚𝐭𝐨', icon: '💍' }
   }
 
   if (!sposato && ex.length > 0) {
-    return {
-      label: '𝐃𝐢𝐯𝐨𝐫𝐳𝐢𝐚𝐭𝐨',
-      icon: '💔'
-    }
+    return { label: '𝐃𝐢𝐯𝐨𝐫𝐳𝐢𝐚𝐭𝐨', icon: '💔' }
   }
 
-  return {
-    label: '𝐒𝐢𝐧𝐠𝐥𝐞',
-    icon: '✨'
-  }
+  return { label: '𝐒𝐢𝐧𝐠𝐥𝐞', icon: '✨' }
+}
+
+function formatList(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
+  return arr.map(j => '@' + bare(j)).join(', ')
 }
 
 let handler = async (m, { conn }) => {
@@ -57,35 +44,26 @@ let handler = async (m, { conn }) => {
   if (!target) return
 
   const user = global.db.data.users[target] || {}
+
   const stato = getStato(user)
 
   const coniuge = user.coniuge || null
   const ex = Array.isArray(user.ex) ? user.ex : []
   const figli = Array.isArray(user.figli) ? user.figli : []
+  const amici = Array.isArray(user.amici) ? user.amici : []
 
-  const nome = await getDisplayName(conn, target)
+  const nome = await conn.getName(target)
   const tag = '@' + bare(target)
 
-  let coniugeTxt = '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
   let mentions = [target]
 
-  if (coniuge) {
-    const nomeConiuge = await getDisplayName(conn, coniuge)
-    coniugeTxt = `@${bare(coniuge)} (${nomeConiuge})`
-    mentions.push(coniuge)
-  }
+  if (coniuge) mentions.push(coniuge)
+  mentions.push(...ex, ...figli, ...amici)
 
-  let exTxt = '0'
-  if (ex.length > 0) {
-    exTxt = `${ex.length}`
-    mentions.push(...ex)
-  }
-
-  let figliTxt = '0'
-  if (figli.length > 0) {
-    figliTxt = `${figli.length}`
-    mentions.push(...figli)
-  }
+  const coniugeTxt = coniuge ? `@${bare(coniuge)}` : '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
+  const exTxt = formatList(ex)
+  const figliTxt = formatList(figli)
+  const amiciTxt = formatList(amici)
 
   const text = `*╭━━━━━━━💍━━━━━━━╮*
    *✦ 𝐒𝐓𝐀𝐓𝐎 ✦*
@@ -96,11 +74,28 @@ let handler = async (m, { conn }) => {
 *${stato.icon} 𝐒𝐭𝐚𝐭𝐨:* ${stato.label}
 *❤️ 𝐂𝐨𝐧𝐢𝐮𝐠𝐞:* ${coniugeTxt}
 *💔 𝐄𝐱:* ${exTxt}
-*👶 𝐅𝐢𝐠𝐥𝐢:* ${figliTxt}`
+*👶 𝐅𝐢𝐠𝐥𝐢:* ${figliTxt}
+*🤝 𝐀𝐦𝐢𝐜𝐢:* ${amiciTxt}`
+
+  let pp = 'https://i.ibb.co/2kR7x9J/avatar.png'
+  try {
+    pp = await conn.profilePictureUrl(target, 'image')
+  } catch {}
 
   await conn.sendMessage(m.chat, {
     text,
-    mentions: [...new Set(mentions)]
+    mentions: [...new Set(mentions)],
+    contextInfo: {
+      ...(global.rcanal?.contextInfo || {}),
+      externalAdReply: {
+        title: nome,
+        body: '',
+        thumbnailUrl: pp,
+        mediaType: 1,
+        renderLargerThumbnail: false,
+        showAdAttribution: false
+      }
+    }
   }, { quoted: m })
 }
 
