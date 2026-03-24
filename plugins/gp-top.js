@@ -50,7 +50,6 @@ let handler = async (m, { conn, command, usedPrefix }) => {
   }, { quoted: m })
 }
 
-// --- LOGICA DI REGISTRAZIONE ---
 handler.before = async function (m) {
   if (!m.chat || !m.text || m.isBaileys || !m.isGroup) return
 
@@ -82,7 +81,6 @@ handler.before = async function (m) {
   archivio.utenti[m.sender].conteggio += 1
 }
 
-// --- RESET AUTOMATICO SICURO ---
 if (!global.topResetInterval) {
   global.topResetInterval = setInterval(async () => {
     try {
