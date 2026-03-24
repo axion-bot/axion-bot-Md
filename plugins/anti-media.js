@@ -1,85 +1,71 @@
-let handler = async (m, { conn, args }) => {
-  if (!m.isGroup) return
-
+let handler = async (m, { conn, command, text }) => {
   const chatId = m.chat
   global._antimedia = global._antimedia || {}
   if (!global._antimedia[chatId]) global._antimedia[chatId] = { enabled: false }
 
   const cfg = global._antimedia[chatId]
 
-  if (!args[0]) {
-    return conn.reply(
-      chatId,
-      `🛡️ Antimedia: *${cfg.enabled ? "ATTIVO ✅" : "DISATTIVO ❌"}*\n\nUso:\n.antimedia 1\n.antimedia 0`,
-      m
-    )
-  }
-
-  if (args[0] === "1") {
+  
+  if (command === '1') {
+    if (cfg.enabled) return conn.reply(chatId, "🛡️ L'Antimedia è già **ATTIVO**.", m)
     cfg.enabled = true
-    return conn.reply(chatId, "🛡️ Antimedia ATTIVATO ✅", m)
+    return conn.reply(chatId, "🛡️ Antimedia **ATTIVATO** ✅\nDa ora le foto/video normali verranno eliminati.", m)
   }
 
-  if (args[0] === "0") {
+  
+  if (command === '0') {
+    if (!cfg.enabled) return conn.reply(chatId, "🛡️ L'Antimedia è già **DISATTIVO**.", m)
     cfg.enabled = false
-    return conn.reply(chatId, "🛡️ Antimedia DISATTIVATO ❌", m)
+    return conn.reply(chatId, "🛡️ Antimedia **DISATTIVATO** ❌", m)
   }
-
-  return conn.reply(chatId, "Uso corretto: .antimedia 1 oppure .antimedia 0", m)
 }
 
-handler.command = ["antimedia"]
+
+handler.help = ['1 antimedia', '0 antimedia']
+handler.tags = ['group']
+handler.command = ['1', '0'] 
 handler.group = true
-handler.admin = true
-handler.tags = ["group"]
-handler.help = ["antimedia 1/0"]
+handler.admin = true 
+handler.owner = false 
 
 
-global._antimediaWarnedUsers = global._antimediaWarnedUsers || {} // { [chatId]: Set(jid) }
+handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
+  if (!m.isGroup || !m.message || m.fromMe) return
+  
+  const chatId = m.chat
+  if (!global._antimedia?.[chatId]?.enabled) return
 
-function isViewOnce(msg) {
-  return !!(msg.viewOnceMessage || msg.viewOnceMessageV2)
-}
+  
+  if (isAdmin || isOwner) return
 
-handler.before = async function (m, { conn }) {
-  try {
-    if (!m.isGroup || !m.message || m.fromMe) return
+  const msg = m.message
+  const isViewOnce = !!(msg.viewOnceMessage || msg.viewOnceMessageV2 || msg.viewOnceMessageV1)
+  const isMedia = !!(msg.imageMessage || msg.videoMessage)
 
-    const chatId = m.chat
-    if (!global._antimedia?.[chatId]?.enabled) return
 
-    const msg = m.message
+  if (isMedia && !isViewOnce) {
+    if (!isBotAdmin) return 
 
-    
-
-    const blockImageNormal = !!msg.imageMessage
-    const blockVideoNormal = !!msg.videoMessage
-
-    
-    if (isViewOnce(msg)) return
-    if (!blockImageNormal && !blockVideoNormal) return
     try {
+      
       await conn.sendMessage(chatId, { delete: m.key })
-    } catch {}
 
-    
-    global._antimediaWarnedUsers[chatId] = global._antimediaWarnedUsers[chatId] || new Set()
-    const warnedSet = global._antimediaWarnedUsers[chatId]
-
-    const sender = m.sender
-    if (warnedSet.has(sender)) return
-
-    warnedSet.add(sender)
-
-    try {
-      await conn.reply(
-        chatId,
-        " Siete pregati di non mandare foto o video se non sono a una visual. (antimedia attivo).",
-        m
-      )
-    } catch {}
-  } catch (e) {
-    console.error("Errore antimedia:", e)
+      
+      global._antimediaWarnedUsers = global._antimediaWarnedUsers || {}
+      global._antimediaWarnedUsers[chatId] = global._antimediaWarnedUsers[chatId] || new Set()
+      
+      if (!global._antimediaWarnedUsers[chatId].has(m.sender)) {
+        global._antimediaWarnedUsers[chatId].add(m.sender)
+        await conn.reply(
+          chatId,
+          `⚠️ @${m.sender.split('@')[0]}, in questo gruppo l'Antimedia è attivo. Sono ammessi solo media a **Visualizzazione Singola**.`,
+          m,
+          { mentions: [m.sender] }
+        )
+      }
+    } catch (e) {
+      console.error("Errore Antimedia:", e)
+    }
   }
 }
 
