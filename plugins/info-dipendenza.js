@@ -1,30 +1,54 @@
-//Dipendenze.js Plugin by Bonzino
 import fs from 'fs'
 import path from 'path'
+import { builtinModules, createRequire } from 'module'
 
-// estrae import e require dal codice
+const require = createRequire(import.meta.url)
+
+const builtins = new Set([
+  ...builtinModules,
+  ...builtinModules.map(m => `node:${m}`)
+])
+
 const getImports = (code) => {
   const imports = new Set()
 
   const importRegex = /import\s+(?:.*?\s+from\s+)?['"]([^'"]+)['"]/g
-  const requireRegex = /require\(['"]([^'"]+)['"]\)/g
+  const requireRegex = /require\(\s*['"]([^'"]+)['"]\s*\)/g
+  const dynamicImportRegex = /import\(\s*['"]([^'"]+)['"]\s*\)/g
 
   let match
 
-  while ((match = importRegex.exec(code))) {
-    imports.add(match[1])
-  }
-
-  while ((match = requireRegex.exec(code))) {
-    imports.add(match[1])
-  }
+  while ((match = importRegex.exec(code))) imports.add(match[1])
+  while ((match = requireRegex.exec(code))) imports.add(match[1])
+  while ((match = dynamicImportRegex.exec(code))) imports.add(match[1])
 
   return [...imports]
 }
 
-// controlla se è una dipendenza esterna
 const isExternal = (pkg) => {
-  return !pkg.startsWith('.') && !pkg.startsWith('/')
+  return !pkg.startsWith('.') && !pkg.startsWith('/') && !builtins.has(pkg)
+}
+
+const getBasePackageName = (pkg) => {
+  if (pkg.startsWith('@')) {
+    const parts = pkg.split('/')
+    return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : pkg
+  }
+  return pkg.split('/')[0]
+}
+
+const isInstalled = (pkg) => {
+  try {
+    require.resolve(pkg)
+    return true
+  } catch {
+    try {
+      require.resolve(getBasePackageName(pkg))
+      return true
+    } catch {
+      return false
+    }
+  }
 }
 
 let handler = async (m, { conn }) => {
@@ -33,14 +57,11 @@ let handler = async (m, { conn }) => {
   try {
     const pkgPath = path.join(process.cwd(), 'package.json')
     const pluginsDir = path.join(process.cwd(), 'plugins')
-    const nodeModules = path.join(process.cwd(), 'node_modules')
 
-    // controlla se esiste package.json
     if (!fs.existsSync(pkgPath)) {
       return conn.sendMessage(chat, { text: '❌ package.json non trovato.' }, { quoted: m })
     }
 
-    // legge package.json
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
     const deps = pkg.dependencies || {}
     const devDeps = pkg.devDependencies || {}
@@ -48,34 +69,27 @@ let handler = async (m, { conn }) => {
     let text = `📦 *DIPENDENZE BOT*\n\n`
     text += `🧠 *Node:* ${process.version}\n\n`
 
-    // lista dipendenze installate
     text += `📚 *Dipendenze installate:*\n`
-
     if (!Object.keys(deps).length) {
       text += `- Nessuna\n`
     } else {
       for (const [name, version] of Object.entries(deps)) {
-        const exists = fs.existsSync(path.join(nodeModules, name))
-        text += `${exists ? '✅' : '❌'} ${name} → ${version}\n`
+        text += `${isInstalled(name) ? '✅' : '❌'} ${name} → ${version}\n`
       }
     }
 
-    // lista devDependencies
     text += `\n🛠️ *Dipendenze di sviluppo:*\n`
-
     if (!Object.keys(devDeps).length) {
       text += `- Nessuna\n`
     } else {
       for (const [name, version] of Object.entries(devDeps)) {
-        const exists = fs.existsSync(path.join(nodeModules, name))
-        text += `${exists ? '✅' : '❌'} ${name} → ${version}\n`
+        text += `${isInstalled(name) ? '✅' : '❌'} ${name} → ${version}\n`
       }
     }
 
-    // oggetto dipendenze mancanti
-    let missing = {}
+    const missing = {}
+    const used = {}
 
-    // scansione plugin
     if (fs.existsSync(pluginsDir)) {
       const files = fs.readdirSync(pluginsDir)
 
@@ -84,31 +98,43 @@ let handler = async (m, { conn }) => {
 
         const fullPath = path.join(pluginsDir, file)
         const code = fs.readFileSync(fullPath, 'utf8')
-
         const imports = getImports(code)
 
         for (const imp of imports) {
           if (!isExternal(imp)) continue
 
-          const exists = fs.existsSync(path.join(nodeModules, imp))
+          const baseName = getBasePackageName(imp)
 
-          if (!exists) {
-            if (!missing[imp]) missing[imp] = []
-            missing[imp].push(file)
+          if (!used[baseName]) used[baseName] = []
+          used[baseName].push(file)
+
+          if (!isInstalled(imp)) {
+            if (!missing[baseName]) missing[baseName] = []
+            missing[baseName].push(file)
           }
         }
       }
     }
 
-    // stampa dipendenze mancanti nei plugin
-    text += `\n⚠️ *Dipendenze mancanti nei plugin:*\n`
+    text += `\n📌 *Dipendenze usate nei plugin:*\n`
+    if (Object.keys(used).length === 0) {
+      text += `- Nessuna rilevata\n`
+    } else {
+      for (const [depName, files] of Object.entries(used)) {
+        const uniqueFiles = [...new Set(files)]
+        text += `• ${depName}\n`
+        text += `   ↳ ${uniqueFiles.join(', ')}\n`
+      }
+    }
 
+    text += `\n⚠️ *Dipendenze mancanti nei plugin:*\n`
     if (Object.keys(missing).length === 0) {
       text += `✅ Nessun problema rilevato\n`
     } else {
       for (const [depName, files] of Object.entries(missing)) {
+        const uniqueFiles = [...new Set(files)]
         text += `❌ *${depName}*\n`
-        text += `   ↳ usata in: ${files.join(', ')}\n`
+        text += `   ↳ usata in: ${uniqueFiles.join(', ')}\n`
       }
     }
 
