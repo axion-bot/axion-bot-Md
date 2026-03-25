@@ -10,6 +10,9 @@ const RIGHT_SLOT = { x: 944, y: 272, size: 500 }
 
 global.flameSessions = global.flameSessions || {}
 
+const S = v => String(v || '')
+const bare = j => S(j).split('@')[0].split(':')[0]
+
 let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
   if (!m.isGroup) {
     return m.reply(`╭━━━━━━━🔥━━━━━━━╮
@@ -22,7 +25,7 @@ let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
   if (command === 'stopflame') {
     const active = global.flameSessions[m.chat]
 
-    if (!active) {
+    if (!active?.battleActive) {
       return m.reply(`╭━━━━━━━🛑━━━━━━━╮
 ✦ 𝐒𝐓𝐎𝐏 𝐅𝐋𝐀𝐌𝐄 ✦
 ╰━━━━━━━🛑━━━━━━━╯
@@ -30,7 +33,7 @@ let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
 ⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐟𝐥𝐚𝐦𝐞 𝐚𝐭𝐭𝐢𝐯𝐚 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨`)
     }
 
-    const botNumber = ((conn.user.id || conn.user.jid || '').split(':')[0]) + '@s.whatsapp.net'
+    const botNumber = bare(conn.user.id || conn.user.jid || '') + '@s.whatsapp.net'
     const isOwner = Array.isArray(global.owner) && global.owner
       .map(o => Array.isArray(o) ? String(o[0]) : String(o))
       .map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
@@ -50,6 +53,9 @@ let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
     if (active.firstAttackTimeout) clearTimeout(active.firstAttackTimeout)
     if (active.endTimeout) clearTimeout(active.endTimeout)
 
+    const finalCount = active.flameCount || 0
+    const finalWho = active.who
+
     delete global.flameSessions[m.chat]
 
     return conn.sendMessage(m.chat, {
@@ -58,8 +64,8 @@ let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
 ╰━━━━━━━🛑━━━━━━━╯
 
 👮 𝐋𝐚 𝐟𝐥𝐚𝐦𝐞 è 𝐬𝐭𝐚𝐭𝐚 𝐟𝐞𝐫𝐦𝐚𝐭𝐚
-📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${active.flameCount}`,
-      mentions: active.who ? [active.who] : []
+📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${finalCount}`,
+      mentions: finalWho ? [finalWho] : []
     }, { quoted: m })
   }
 
@@ -86,8 +92,8 @@ let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
 ${usedPrefix + command} @utente`)
   }
 
-  const botNumber = ((conn.user.id || conn.user.jid || '').split(':')[0]) + '@s.whatsapp.net'
-  if (who === botNumber) {
+  const botNumber = bare(conn.user.id || conn.user.jid || '') + '@s.whatsapp.net'
+  if (bare(who) === bare(botNumber)) {
     return m.reply(`╭━━━━━━━😏━━━━━━━╮
 ✦ 𝐅𝐋𝐀𝐌𝐄 ✦
 ╰━━━━━━━😏━━━━━━━╯
@@ -95,8 +101,8 @@ ${usedPrefix + command} @utente`)
 🚫 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐟𝐥𝐚𝐦𝐦𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭`)
   }
 
-  const victimName = '@' + who.split('@')[0]
-  const attackerName = '@' + m.sender.split('@')[0]
+  const victimName = '@' + bare(who)
+  const attackerName = '@' + bare(m.sender)
 
   let vsBuffer
   try {
@@ -122,8 +128,14 @@ ${usedPrefix + command} @utente`)
     mentions: [m.sender, who]
   }, { quoted: m })
 
-  let flameCount = 0
-  let battleActive = true
+  global.flameSessions[m.chat] = {
+    who,
+    flameCount: 0,
+    battleActive: true,
+    battleHandler: null,
+    firstAttackTimeout: null,
+    endTimeout: null
+  }
 
   const generateFlame = (target) => {
     const flames = [
@@ -142,32 +154,37 @@ ${usedPrefix + command} @utente`)
   }
 
   const battleHandler = async (chatUpdate) => {
-    if (!battleActive) return
+    const session = global.flameSessions[m.chat]
+    if (!session?.battleActive) return
 
     const m2 = chatUpdate.messages?.[0]
     if (!m2?.message || m2.key.fromMe) return
 
     const sender = m2.key.participant || m2.key.remoteJid
-    if (sender !== who || m2.key.remoteJid !== m.chat) return
+    if (bare(sender) !== bare(who) || m2.key.remoteJid !== m.chat) return
 
-    flameCount++
-    if (global.flameSessions[m.chat]) global.flameSessions[m.chat].flameCount = flameCount
-
+    session.flameCount++
     const reply = generateFlame(victimName)
 
     await new Promise(res => setTimeout(res, 1000))
+
+    const stillActive = global.flameSessions[m.chat]
+    if (!stillActive?.battleActive) return
+
     await conn.sendMessage(m.chat, {
       text: reply,
       mentions: [who]
     }, { quoted: m2 })
   }
 
+  global.flameSessions[m.chat].battleHandler = battleHandler
   conn.ev.on('messages.upsert', battleHandler)
 
   const firstAttackTimeout = setTimeout(() => {
-    if (!battleActive) return
-    flameCount++
-    if (global.flameSessions[m.chat]) global.flameSessions[m.chat].flameCount = flameCount
+    const session = global.flameSessions[m.chat]
+    if (!session?.battleActive) return
+
+    session.flameCount++
 
     conn.sendMessage(m.chat, {
       text: generateFlame(victimName),
@@ -175,12 +192,16 @@ ${usedPrefix + command} @utente`)
     }, { quoted: m })
   }, 2000)
 
+  global.flameSessions[m.chat].firstAttackTimeout = firstAttackTimeout
+
   const endTimeout = setTimeout(async () => {
-    if (!battleActive) return
+    const session = global.flameSessions[m.chat]
+    if (!session?.battleActive) return
 
-    battleActive = false
-    conn.ev.off('messages.upsert', battleHandler)
+    session.battleActive = false
+    conn.ev.off('messages.upsert', session.battleHandler)
 
+    const finalCount = session.flameCount
     delete global.flameSessions[m.chat]
 
     const endMsg = `╭━━━━━━━⏱️━━━━━━━╮
@@ -188,7 +209,7 @@ ${usedPrefix + command} @utente`)
 ╰━━━━━━━⏱️━━━━━━━╯
 
 🥊 𝐈𝐥 𝐛𝐨𝐭 𝐯𝐢𝐧𝐜𝐞 𝐩𝐞𝐫 𝐊𝐎 𝐭𝐞𝐜𝐧𝐢𝐜𝐨
-📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${flameCount}`
+📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${finalCount}`
 
     await conn.sendMessage(m.chat, {
       text: endMsg,
@@ -196,14 +217,7 @@ ${usedPrefix + command} @utente`)
     }, { quoted: m })
   }, 180000)
 
-  global.flameSessions[m.chat] = {
-    who,
-    flameCount,
-    battleActive,
-    battleHandler,
-    firstAttackTimeout,
-    endTimeout
-  }
+  global.flameSessions[m.chat].endTimeout = endTimeout
 }
 
 handler.help = ['flame', 'stopflame']
