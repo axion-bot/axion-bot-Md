@@ -20,25 +20,20 @@ function resolveTargetJid(m) {
   return m.sender || m.key?.participant || m.participant || null
 }
 
+function formatList(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
+  return arr.map(j => '@' + bare(j)).join(', ')
+}
+
 function getStato(user = {}) {
   const sposato = !!user.sposato
   const coniuge = user.coniuge || null
   const ex = Array.isArray(user.ex) ? user.ex : []
 
-  if (sposato && coniuge) {
-    return { label: '𝐒𝐩𝐨𝐬𝐚𝐭𝐨', icon: '💍' }
-  }
-
-  if (!sposato && ex.length > 0) {
-    return { label: '𝐃𝐢𝐯𝐨𝐫𝐳𝐢𝐚𝐭𝐨', icon: '💔' }
-  }
+  if (sposato && coniuge) return { label: '𝐒𝐩𝐨𝐬𝐚𝐭𝐨', icon: '💍' }
+  if (!sposato && ex.length > 0) return { label: '𝐃𝐢𝐯𝐨𝐫𝐳𝐢𝐚𝐭𝐨', icon: '💔' }
 
   return { label: '𝐒𝐢𝐧𝐠𝐥𝐞', icon: '✨' }
-}
-
-function formatList(arr) {
-  if (!Array.isArray(arr) || arr.length === 0) return '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
-  return arr.map(j => '@' + bare(j)).join(', ')
 }
 
 let handler = async (m, { conn }) => {
@@ -47,6 +42,9 @@ let handler = async (m, { conn }) => {
 
   const user = global.db.data.users[target] || {}
 
+  const nome = await conn.getName(target)
+  const tag = '@' + bare(target)
+
   const stato = getStato(user)
 
   const coniuge = user.coniuge || null
@@ -54,11 +52,7 @@ let handler = async (m, { conn }) => {
   const figli = Array.isArray(user.figli) ? user.figli : []
   const amici = Array.isArray(user.amici) ? user.amici : []
 
-  const nome = await conn.getName(target)
-  const tag = '@' + bare(target)
-
   let mentions = [target]
-
   if (coniuge) mentions.push(coniuge)
   mentions.push(...ex, ...figli, ...amici)
 
@@ -82,9 +76,11 @@ let handler = async (m, { conn }) => {
 
 *👤 𝐍𝐨𝐦𝐞:* ${nome}
 *🆔 𝐈𝐃:* ${tag}
+
 *${stato.icon} 𝐒𝐭𝐚𝐭𝐨:* ${stato.label}
 *❤️ 𝐂𝐨𝐧𝐢𝐮𝐠𝐞:* ${coniugeTxt}
 *💔 𝐄𝐱:* ${exTxt}
+
 *👶 𝐅𝐢𝐠𝐥𝐢:* ${figliTxt}
 *🤝 𝐀𝐦𝐢𝐜𝐢:* ${amiciTxt}`
 

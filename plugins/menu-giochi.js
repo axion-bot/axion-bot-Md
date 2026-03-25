@@ -23,6 +23,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🤣 ${usedPrefix}meme
 ┃ 🍣 ${usedPrefix}cibo
 ┃ 🚩 ${usedPrefix}bandiera
+┃ 🏆 ${usedPrefix}classificabandiera
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🎲 ғᴜɴ 〕━⬣
@@ -44,14 +45,21 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 📰 ${usedPrefix}dox
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 🛠️ sᴛʀᴜᴍᴇɴᴛɪ 〕━⬣
-┃ 🔄 ${usedPrefix}converter
-┃ 🎛️ ${usedPrefix}audiofx (effetti audio)
-╰━━━━━━━━━━━━━━━━⬣
-
 ╭━━━〔 💍 ғᴀᴍɪɢʟɪᴀ 〕━⬣
+┃ 💫 ${usedPrefix}stato
+┃ 🏠 ${usedPrefix}famiglia
 ┃ 👰 ${usedPrefix}sposa
 ┃ 💔 ${usedPrefix}divorzia
+┃ 🤝 ${usedPrefix}amicizia <reply/tag>
+┃ 👩 ${usedPrefix}madre <reply/tag>
+┃ 👨 ${usedPrefix}padre <reply/tag>
+┃ 👶 ${usedPrefix}figlio <reply/tag>
+┃ 🧑‍🤝‍🧑 ${usedPrefix}fratello <reply/tag>
+┃ 👭 ${usedPrefix}sorella <reply/tag>
+┃ 👴 ${usedPrefix}nonno <reply/tag>
+┃ 👵 ${usedPrefix}nonna <reply/tag>
+┃ 👬 ${usedPrefix}cugino <reply/tag>
+┃ 👭 ${usedPrefix}cugina <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
