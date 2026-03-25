@@ -1,4 +1,5 @@
 // plugin by Bonzino
+console.log('PLUGIN OFF/ON CARICATO')
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
