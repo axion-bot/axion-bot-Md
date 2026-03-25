@@ -12,9 +12,9 @@ const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 const moduleCache = new NodeCache({ stdTTL: 300 });
 
 global.owner = [
-['212778494602', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
-['212781816909', 'Luxifer', true],
-['639350468907', 'bonzino', true],
+  ['212778494602', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
+  ['212781816909', 'Luxifer', true],
+  ['639350468907', 'bonzino', true],
 ]
 global.mods = ['xxxxxxxxxx', 'xxxxxxxxxx']
 global.prems = ['xxxxxxxxxx', 'xxxxxxxxxx']
@@ -26,11 +26,10 @@ global.autore    = '𝕯𝖊ⱥ𝖉𝖑𝐲'
 global.dev       = '𝕯𝖊ⱥ𝖉𝖑𝐲'
 global.versione  = pkg.version
 global.testobot  = `AXION-CORE-V${pkg.version}`
+global.errore    = '⚠️ *[SYSTEM ERROR]* Usa `.segnala` per inviare il log allo staff.'
 
-// 🌐 LINK
-global.repobot   = 'https://github.com/axion-bot/axion-bot-Md'
+global.repobot   = 'https://github.com/axion-bot/axion-bot'
 global.canale    = 'https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d'
-global.insta     = 'https://www.instagram.com/darius._.n'
 
 global.cheerio   = cheerio
 global.fs        = fs
@@ -39,37 +38,37 @@ global.axios     = axios
 global.moment    = moment
 
 global.APIKeys = {
-spotifyclientid: 'axion',
-spotifysecret:   'axion',
-browserless:     'axion',
-screenshotone:   'axion',
-tmdb:            'axion',
-gemini:          'axion',
-ocrspace:        'axion',
-assemblyai:      'axion',
-google:          'axion',
-googlex:         'axion',
-googleCX:        'axion',
-genius:          'axion',
-unsplash:        'axion',
-removebg:        'FEx4CYmYN1QRQWD1mbZp87jV',
-openrouter:      'axion',
-lastfm:          '36f859a1fc4121e7f0e931806507d5f9',
+    spotifyclientid: 'axion',
+    spotifysecret:   'axion',
+    browserless:     'axion',
+    screenshotone:   'axion',
+    tmdb:            'axion',
+    gemini:          'axion',
+    ocrspace:        'axion',
+    assemblyai:      'axion',
+    google:          'axion',
+    googlex:         'axion',
+    googleCX:        'axion',
+    genius:          'axion',
+    unsplash:        'axion',
+    removebg:        'FEx4CYmYN1QRQWD1mbZp87jV',
+    openrouter:      'axion',
+    lastfm:          '36f859a1fc4121e7f0e931806507d5f9',
 }
 
 let filePath = fileURLToPath(import.meta.url)
 let fileUrl = pathToFileURL(filePath).href
 
 const reloadConfig = async () => {
-const cached = moduleCache.get(fileUrl);
-if (cached) return cached;
-
-unwatchFile(filePath)
-console.log(chalk.bgCyan.black(" SYSTEM ") + chalk.cyan(` File 'config.js' aggiornato con successo.`))
-
-const module = await import(${fileUrl}?update=${Date.now()})
-moduleCache.set(fileUrl, module, { ttl: 300 });
-return module;
+  const cached = moduleCache.get(fileUrl);
+  if (cached) return cached;
+  
+  unwatchFile(filePath)
+  console.log(chalk.bgCyan.black(" SYSTEM ") + chalk.cyan(` File 'config.js' aggiornato con successo.`))
+  
+  const module = await import(`${fileUrl}?update=${Date.now()}`)
+  moduleCache.set(fileUrl, module, { ttl: 300 });
+  return module;
 }
 
 watchFile(filePath, reloadConfig)
