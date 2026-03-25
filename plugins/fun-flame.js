@@ -1,43 +1,56 @@
-
-
 let handler = async (m, { conn, usedPrefix, command }) => {
-  
-  if (!m.isGroup) return m.reply('⚠️ Le fiamme ardono solo nei gruppi!');
+  if (!m.isGroup) {
+    return m.reply(`╭━━━━━━━🔥━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━🔥━━━━━━━╯
 
-  
-  let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null);
-  
-  if (!who) {
-    return m.reply(`🔥 *FLAME ACTIVATED* 🔥\n\nTaggala persona o rispondi a un suo messaggio per iniziare!\n\nEsempio: ${usedPrefix + command} @utente`);
+⚠️ 𝐋𝐞 𝐟𝐢𝐚𝐦𝐦𝐞 𝐚𝐫𝐝𝐨𝐧𝐨 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢`)
   }
 
-  
-  const botNumber = conn.user.id.split(':')[0] + '@s.whatsapp.net';
-  if (who === botNumber) return m.reply('😏 Non puoi flammare me. Finiresti arrosto prima di subito!');
+  let who = m.mentionedJid && m.mentionedJid[0]
+    ? m.mentionedJid[0]
+    : (m.quoted ? m.quoted.sender : null)
 
-  
-  const victimName = '@' + who.split('@')[0];
-  const attackerName = '@' + m.sender.split('@')[0];
+  if (!who) {
+    return m.reply(`╭━━━━━━━🔥━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━🔥━━━━━━━╯
 
-  const startMsg = `
-╔══════════════════════╗
-   🔥 *FLAME WAR INIZIATA* 🔥
-╚══════════════════════╝
+👤 𝐓𝐚𝐠𝐠𝐚 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐬𝐮𝐨 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨
 
-👊 *Sfidante:* ${attackerName}
-🎯 *Vittima:* ${victimName}
+📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:
+${usedPrefix + command} @utente`)
+  }
 
-⏱️ *Durata:* 3 minuti
-💬 *Il bot attacca per primo!*`;
+  const botNumber = conn.user.id.split(':')[0] + '@s.whatsapp.net'
+  if (who === botNumber) {
+    return m.reply(`╭━━━━━━━😏━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━😏━━━━━━━╯
+
+🚫 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐟𝐥𝐚𝐦𝐦𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭`)
+  }
+
+  const victimName = '@' + who.split('@')[0]
+  const attackerName = '@' + m.sender.split('@')[0]
+
+  const startMsg = `╭━━━━━━━🔥━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 𝐖𝐀𝐑 ✦
+╰━━━━━━━🔥━━━━━━━╯
+
+👊 𝐒𝐟𝐢𝐝𝐚𝐧𝐭𝐞: ${attackerName}
+🎯 𝐁𝐞𝐫𝐬𝐚𝐠𝐥𝐢𝐨: ${victimName}
+
+⏱️ 𝐃𝐮𝐫𝐚𝐭𝐚: 3 𝐦𝐢𝐧𝐮𝐭𝐢
+💬 𝐈𝐥 𝐛𝐨𝐭 𝐚𝐭𝐭𝐚𝐜𝐜𝐚 𝐩𝐞𝐫 𝐩𝐫𝐢𝐦𝐨`
 
   await conn.sendMessage(m.chat, {
     text: startMsg,
     mentions: [m.sender, who]
-  }, { quoted: m });
+  }, { quoted: m })
 
-  
-  let flameCount = 0;
-  let battleActive = true;
+  let flameCount = 0
+  let battleActive = true
 
   const generateFlame = (target) => {
     const flames = [
@@ -51,59 +64,66 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       `💅 ${target}, anche i sassi hanno conversazioni più interessanti delle tue!`,
       `📉 ${target}, la tua dignità sta scendendo più velocemente delle azioni di una banca in crisi!`,
       `🧟 ${target}, ti hanno mai detto che hai il carisma di un router spento?`
-    ];
-    return flames[Math.floor(Math.random() * flames.length)];
-  };
+    ]
+    return flames[Math.floor(Math.random() * flames.length)]
+  }
 
-  
   const battleHandler = async (chatUpdate) => {
-    if (!battleActive) return;
-    const m2 = chatUpdate.messages[0];
-    if (!m2.message || m2.key.fromMe) return;
+    if (!battleActive) return
 
-    const sender = m2.key.participant || m2.key.remoteJid;
-    
-    
+    const m2 = chatUpdate.messages?.[0]
+    if (!m2?.message || m2.key.fromMe) return
+
+    const sender = m2.key.participant || m2.key.remoteJid
+
     if (sender === who && m2.key.remoteJid === m.chat) {
-      flameCount++;
-      const reply = generateFlame(victimName);
-      
-      await new Promise(res => setTimeout(res, 1000)); 
-      await conn.sendMessage(m.chat, { text: reply, mentions: [who] }, { quoted: m2 });
+      flameCount++
+      const reply = generateFlame(victimName)
+      await new Promise(res => setTimeout(res, 1000))
+      await conn.sendMessage(m.chat, {
+        text: reply,
+        mentions: [who]
+      }, { quoted: m2 })
     }
-  };
+  }
 
-  
-  conn.ev.on('messages.upsert', battleHandler);
+  conn.ev.on('messages.upsert', battleHandler)
 
-  
   setTimeout(() => {
-    if (battleActive) conn.sendMessage(m.chat, { text: generateFlame(victimName), mentions: [who] });
-  }, 2000);
-
-  
-  setTimeout(async () => {
     if (battleActive) {
-      battleActive = false;
-      conn.ev.off('messages.upsert', battleHandler); // Rimuove il listener per non sprecare RAM
-      
-      const endMsg = `
-╔══════════════════════╗
-   ⏱️ *TEMPO SCADUTO!* ⏱️
-╚══════════════════════╝
-🥊 Il bot vince per KO tecnico!
-📊 Insulti totali scagliati: ${flameCount + 1}
-
-*Vuoi scappare?* Corri per 2,5km (ovvero **3.750 passi**)!`;
-      
-      await conn.sendMessage(m.chat, { text: endMsg, mentions: [who] });
+      conn.sendMessage(m.chat, {
+        text: generateFlame(victimName),
+        mentions: [who]
+      }, { quoted: m })
     }
-  }, 180000);
-};
+  }, 2000)
 
-handler.help = ['flame'];
-handler.tags = ['giochi'];
-handler.command = /^(flame)$/i;
-handler.group = true;
+  setTimeout(async () => {
+    if (!battleActive) return
 
-export default handler;
+    battleActive = false
+    conn.ev.off('messages.upsert', battleHandler)
+
+    const endMsg = `╭━━━━━━━⏱️━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 𝐂𝐎𝐍𝐂𝐋𝐔𝐒𝐀 ✦
+╰━━━━━━━⏱️━━━━━━━╯
+
+🥊 𝐈𝐥 𝐛𝐨𝐭 𝐯𝐢𝐧𝐜𝐞 𝐩𝐞𝐫 𝐊𝐎 𝐭𝐞𝐜𝐧𝐢𝐜𝐨
+📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${flameCount + 1}
+
+🏃 𝐏𝐞𝐫 𝐬𝐜𝐚𝐩𝐩𝐚𝐫𝐞 𝐝𝐨𝐯𝐫𝐚𝐢 𝐜𝐨𝐫𝐫𝐞𝐫𝐞 2,5 𝐤𝐦
+👣 𝐎𝐯𝐯𝐞𝐫𝐨 3.750 𝐩𝐚𝐬𝐬𝐢`
+
+    await conn.sendMessage(m.chat, {
+      text: endMsg,
+      mentions: [who]
+    }, { quoted: m })
+  }, 180000)
+}
+
+handler.help = ['flame']
+handler.tags = ['giochi']
+handler.command = /^(flame)$/i
+handler.group = true
+
+export default handler
