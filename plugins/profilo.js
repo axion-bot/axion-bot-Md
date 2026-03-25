@@ -18,6 +18,7 @@ let handler = async (m, { conn }) => {
   const nome = await conn.getName(target)
   const totalMessages = user.messages || 0
   const monete = user.euro || 0
+  const dailyStreak = Number(user.dailyStreak || 0)
   const lvl = getLevelFull(totalMessages)
 
   const instagram = user.profile?.instagram
@@ -42,6 +43,7 @@ let handler = async (m, { conn }) => {
 *📈 𝐏𝐫𝐨𝐠𝐫𝐞𝐬𝐬𝐨:* ${lvl.bar} ${lvl.percent}%
 *⬆️ 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨:* ${lvl.isMax ? '*𝐌𝐀𝐗*' : `${lvl.nextName} (${lvl.remaining} msg)`}
 *🪙 𝐌𝐨𝐧𝐞𝐭𝐞:* ${monete}
+*🎁 𝐒𝐭𝐫𝐞𝐚𝐤 𝐃𝐚𝐢𝐥𝐲:* ${dailyStreak} 𝐠𝐢𝐨𝐫𝐧𝐢
 *📸 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦:* ${instagram}`
 
   await conn.sendMessage(m.chat, {
