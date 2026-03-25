@@ -39,11 +39,17 @@ const u = global.db.data.users[user]
 
 if(command==="shop"){
 
-let txt=`🛍️ *BENVENUTO ALLO SHOP*\n\n`
-txt+=`1️⃣ Supermarket\n`
-txt+=`2️⃣ Tech Store\n`
-txt+=`3️⃣ Game Shop\n\n`
-txt+=`*_Scrivi il numero del negozio._*\n\n_Con .zaino vedi gli oggetti che hai comprato_`
+let txt=`╭━━━━━━━🛍️━━━━━━━╮
+✦ 𝐒𝐇𝐎𝐏 ✦
+╰━━━━━━━🛍️━━━━━━━╯
+
+1️⃣ Supermarket
+2️⃣ Tech Store
+3️⃣ Game Shop
+
+📝 Scrivi il numero del negozio
+
+🎒 Usa .zaino per vedere i tuoi oggetti`
 
 global.shopSession[user]={step:"shop"}
 
@@ -55,12 +61,16 @@ return conn.reply(m.chat,txt,m)
 if(command==="zaino"){
 
 if(!u.inventory || u.inventory.length===0)
-return conn.reply(m.chat,"🎒 Il tuo zaino è vuoto!",m)
+return conn.reply(m.chat,"🎒 𝐈𝐥 𝐭𝐮𝐨 𝐳𝐚𝐢𝐧𝐨 è 𝐯𝐮𝐨𝐭𝐨!",m)
 
-let msg="🎒 *IL TUO ZAINO*\n\n"
+let msg=`╭━━━━━━━🎒━━━━━━━╮
+✦ 𝐙𝐀𝐈𝐍𝐎 ✦
+╰━━━━━━━🎒━━━━━━━╯
+
+`
 
 u.inventory.forEach((item,i)=>{
-msg+=`${i+1}. ${item.nome} - ${item.prezzo}€\n`
+msg+=`${i+1}. ${item.nome} - 💸 ${item.prezzo}\n`
 })
 
 return conn.reply(m.chat,msg,m)
@@ -73,10 +83,10 @@ if(command==="vendioggetto"){
 let index=parseInt(args[0])-1
 
 if(!u.inventory || u.inventory.length===0)
-return conn.reply(m.chat,"🎒 Zaino vuoto!",m)
+return conn.reply(m.chat,"🎒 𝐙𝐚𝐢𝐧𝐨 𝐯𝐮𝐨𝐭𝐨!",m)
 
 if(isNaN(index) || index<0 || index>=u.inventory.length)
-return conn.reply(m.chat,"❌ Numero oggetto non valido",m)
+return conn.reply(m.chat,"❌ 𝐍𝐮𝐦𝐞𝐫𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨",m)
 
 let item=u.inventory.splice(index,1)[0]
 let price=Math.floor(item.prezzo*0.7)
@@ -84,9 +94,13 @@ let price=Math.floor(item.prezzo*0.7)
 u.euro+=price
 
 return conn.reply(m.chat,
-`💰 Hai venduto ${item.nome}
-💶 Guadagnato: ${price} €
-💵 Totale: ${u.euro} €`,m)
+`╭━━━━━━━💸━━━━━━━╮
+✦ 𝐕𝐄𝐍𝐃𝐈𝐓𝐀 ✦
+╰━━━━━━━💸━━━━━━━╯
+
+💰 Hai venduto ${item.nome}
+💸 Guadagnato: ${price}
+💼 Totale: ${u.euro}`,m)
 }
 
 }
@@ -110,13 +124,17 @@ const shop=shops[input]
 session.step="items"
 session.shop=input
 
-let txt=`🏪 *${shop.nome}*\n\n`
+let txt=`╭━━━━━━━🏪━━━━━━━╮
+✦ ${shop.nome} ✦
+╰━━━━━━━🏪━━━━━━━╯
+
+`
 
 shop.items.forEach((item,i)=>{
-txt+=`${i+1}️⃣ ${item.nome} - ${item.prezzo}€\n`
+txt+=`${i+1}️⃣ ${item.nome} - 💸 ${item.prezzo}\n`
 })
 
-txt+=`\n💰 Soldi: ${u.euro}€`
+txt+=`\n💸 Denaro: ${u.euro}`
 
 return conn.reply(m.chat,txt,m)
 }
@@ -127,7 +145,7 @@ const shop=shops[session.shop]
 const item=shop.items[input-1]
 
 if(u.euro<item.prezzo)
-return conn.reply(m.chat,"❌ Non hai abbastanza soldi!",m)
+return conn.reply(m.chat,"❌ 𝐍𝐨𝐧 𝐡𝐚𝐢 𝐚𝐛𝐛𝐚𝐬𝐭𝐚𝐧𝐳𝐚 𝐝𝐞𝐧𝐚𝐫𝐨!",m)
 
 u.euro-=item.prezzo
 
@@ -138,9 +156,13 @@ u.inventory.push(item)
 delete global.shopSession[user]
 
 return conn.reply(m.chat,
-`✅ Comprato ${item.nome}
-💶 Pagato: ${item.prezzo}€
-💰 Rimasti: ${u.euro}€`,m)
+`╭━━━━━━━🛍️━━━━━━━╮
+✦ 𝐀𝐂𝐐𝐔𝐈𝐒𝐓𝐎 ✦
+╰━━━━━━━🛍️━━━━━━━╯
+
+✅ Comprato: ${item.nome}
+💸 Pagato: ${item.prezzo}
+💰 Rimasti: ${u.euro}`,m)
 }
 
 }

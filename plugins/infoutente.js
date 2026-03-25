@@ -81,7 +81,7 @@ let handler = async (m, { conn }) => {
   const tag = '@' + bare(target)
 
   const totalMessages = user.messages || 0
-  const monete = user.euro || 0
+  const denaro = user.euro || 0
   const warn = user.warn || 0
   const muted = !!user.muto
   const device = mapDeviceName(getDevice(getMessageId(m)))
@@ -112,7 +112,7 @@ let handler = async (m, { conn }) => {
 📱 𝐃𝐞𝐯𝐢𝐜𝐞: ${device}
 💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢: ${totalMessages}
 📅 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐨𝐠𝐠𝐢: ${oggiCount}
-🪙 𝐌𝐨𝐧𝐞𝐭𝐞: ${monete}
+💸 𝐃𝐞𝐧𝐚𝐫𝐨: ${monete}
 📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚: ${joinedAt}
 ⚠️ 𝐖𝐚𝐫𝐧: ${warn}/3
 🔇 𝐌𝐮𝐭𝐞: ${muted ? '𝐒𝐢' : '𝐍𝐨'}`

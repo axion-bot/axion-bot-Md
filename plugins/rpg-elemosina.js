@@ -14,7 +14,7 @@ txt:"👦 Un bambino ti offre delle monete.\n\n1️⃣ Accetti con gratitudine\n
 bonus:[randomNum(2,10),0]
 },
 {
-txt:"💼 Una persona ti offre una banconota grande.\n\n1️⃣ Accetto\n2️⃣ Rifiuto",
+txt:"💼 Una persona ti offre una banconota grande.\n\n1️⃣ Accetti\n2️⃣ Rifiuti",
 bonus:[randomNum(15,30),0]
 }
 ]
@@ -28,6 +28,10 @@ global.db.data.users[user] = {euro:0,xp:0,level:1}
 
 const u = global.db.data.users[user]
 
+if (typeof u.euro !== 'number') u.euro = 0
+if (typeof u.xp !== 'number') u.xp = 0
+if (typeof u.level !== 'number') u.level = 1
+
 if(command === "elemosina" || command === "beg"){
 
 let ev = scenarios[Math.floor(Math.random()*scenarios.length)]
@@ -37,18 +41,21 @@ step:"choice",
 event:ev
 }
 
-let txt = `🙏 *ELEMOSINA*\n\n`
-txt += `${ev.txt}\n\n`
-txt += `💰 Soldi: ${u.euro}€\n`
-txt += `_Scrivi 1 o 2_`
+let txt = `╭━━━━━━━🙏━━━━━━━╮
+✦ 𝐄𝐋𝐄𝐌𝐎𝐒𝐈𝐍𝐀 ✦
+╰━━━━━━━🙏━━━━━━━╯
+
+${ev.txt}
+
+💸 𝐃𝐞𝐧𝐚𝐫𝐨: ${formatNumber(u.euro)}
+
+📝 𝐒𝐜𝐫𝐢𝐯𝐢 1 𝐨 2`
 
 return conn.reply(m.chat,txt,m)
 
 }
 
 }
-
-/* ===== RISPOSTA ===== */
 
 handler.before = async (m,{conn})=>{
 
@@ -63,7 +70,7 @@ const u = global.db.data.users[user]
 if(session.step === "choice" && /^[12]$/.test(input)){
 
 let ev = session.event
-let choice = input-1
+let choice = Number(input) - 1
 let bonus = ev.bonus[choice]
 
 u.euro += bonus
@@ -81,12 +88,19 @@ lvlUp = true
 
 delete global.begSession[user]
 
-let msg = `💰 Hai ricevuto *${bonus}€*\n\n`
-msg += `💶 Soldi totali: ${u.euro}€\n`
-msg += `🏅 Livello: ${u.level}\n`
-msg += `⭐ XP: ${u.xp}/${u.level*50}`
+let msg = `╭━━━━━━━💰━━━━━━━╮
+✦ 𝐑𝐈𝐒𝐔𝐋𝐓𝐀𝐓𝐎 ✦
+╰━━━━━━━💰━━━━━━━╯
 
-if(lvlUp) msg += `\n\n🎉 *LEVEL UP!*`
+💸 𝐇𝐚𝐢 𝐫𝐢𝐜𝐞𝐯𝐮𝐭𝐨: ${formatNumber(bonus)}
+
+💼 𝐃𝐞𝐧𝐚𝐫𝐨 𝐭𝐨𝐭𝐚𝐥𝐞: ${formatNumber(u.euro)}
+🏅 𝐋𝐢𝐯𝐞𝐥𝐥𝐨: ${u.level}
+⭐ 𝐄𝐗𝐏: ${formatNumber(u.xp)}/${formatNumber(u.level*50)}`
+
+if(lvlUp) msg += `
+
+🎉 𝐋𝐄𝐕𝐄𝐋 𝐔𝐏!`
 
 return conn.reply(m.chat,msg,m)
 
@@ -100,4 +114,8 @@ export default handler
 
 function randomNum(min,max){
 return Math.floor(Math.random()*(max-min+1))+min
+}
+
+function formatNumber(num){
+return new Intl.NumberFormat('it-IT').format(num)
 }
