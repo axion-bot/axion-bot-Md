@@ -8,13 +8,69 @@ const FALLBACK_AVATAR = 'https://i.ibb.co/2kR7x9J/avatar.png'
 const LEFT_SLOT = { x: 91, y: 272, size: 500 }
 const RIGHT_SLOT = { x: 944, y: 272, size: 500 }
 
-let handler = async (m, { conn, usedPrefix, command }) => {
+global.flameSessions = global.flameSessions || {}
+
+let handler = async (m, { conn, usedPrefix, command, isAdmin }) => {
   if (!m.isGroup) {
     return m.reply(`╭━━━━━━━🔥━━━━━━━╮
 ✦ 𝐅𝐋𝐀𝐌𝐄 ✦
 ╰━━━━━━━🔥━━━━━━━╯
 
 ⚠️ 𝐋𝐞 𝐟𝐢𝐚𝐦𝐦𝐞 𝐚𝐫𝐝𝐨𝐧𝐨 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢`)
+  }
+
+  if (command === 'stopflame') {
+    const active = global.flameSessions[m.chat]
+
+    if (!active) {
+      return m.reply(`╭━━━━━━━🛑━━━━━━━╮
+✦ 𝐒𝐓𝐎𝐏 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━🛑━━━━━━━╯
+
+⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐟𝐥𝐚𝐦𝐞 𝐚𝐭𝐭𝐢𝐯𝐚 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨`)
+    }
+
+    const botNumber = ((conn.user.id || conn.user.jid || '').split(':')[0]) + '@s.whatsapp.net'
+    const isOwner = Array.isArray(global.owner) && global.owner
+      .map(o => Array.isArray(o) ? String(o[0]) : String(o))
+      .map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
+      .includes(m.sender)
+
+    if (!isAdmin && !isOwner && m.sender !== botNumber) {
+      return m.reply(`╭━━━━━━━🛑━━━━━━━╮
+✦ 𝐒𝐓𝐎𝐏 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━🛑━━━━━━━╯
+
+⚠️ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐟𝐞𝐫𝐦𝐚𝐫𝐥𝐚`)
+    }
+
+    active.battleActive = false
+    conn.ev.off('messages.upsert', active.battleHandler)
+
+    if (active.firstAttackTimeout) clearTimeout(active.firstAttackTimeout)
+    if (active.endTimeout) clearTimeout(active.endTimeout)
+
+    delete global.flameSessions[m.chat]
+
+    return conn.sendMessage(m.chat, {
+      text: `╭━━━━━━━🛑━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 𝐈𝐍𝐓𝐄𝐑𝐑𝐎𝐓𝐓𝐀 ✦
+╰━━━━━━━🛑━━━━━━━╯
+
+👮 𝐋𝐚 𝐟𝐥𝐚𝐦𝐞 è 𝐬𝐭𝐚𝐭𝐚 𝐟𝐞𝐫𝐦𝐚𝐭𝐚
+📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${active.flameCount}`,
+      mentions: active.who ? [active.who] : []
+    }, { quoted: m })
+  }
+
+  if (global.flameSessions[m.chat]?.battleActive) {
+    return m.reply(`╭━━━━━━━🔥━━━━━━━╮
+✦ 𝐅𝐋𝐀𝐌𝐄 ✦
+╰━━━━━━━🔥━━━━━━━╯
+
+⚠️ 𝐂'è 𝐠𝐢à 𝐮𝐧𝐚 𝐟𝐥𝐚𝐦𝐞 𝐚𝐭𝐭𝐢𝐯𝐚
+
+🛑 𝐔𝐬𝐚 ${usedPrefix}stopflame 𝐩𝐞𝐫 𝐟𝐞𝐫𝐦𝐚𝐫𝐥𝐚`)
   }
 
   let who = m.mentionedJid?.[0] || m.quoted?.sender || null
@@ -60,7 +116,9 @@ ${usedPrefix + command} @utente`)
 🎯 𝐁𝐞𝐫𝐬𝐚𝐠𝐥𝐢𝐨: ${victimName}
 
 ⏱️ 𝐃𝐮𝐫𝐚𝐭𝐚: 3 𝐦𝐢𝐧𝐮𝐭𝐢
-💬 𝐈𝐥 𝐛𝐨𝐭 𝐚𝐭𝐭𝐚𝐜𝐜𝐚 𝐩𝐞𝐫 𝐩𝐫𝐢𝐦𝐨`,
+💬 𝐈𝐥 𝐛𝐨𝐭 𝐚𝐭𝐭𝐚𝐜𝐜𝐚 𝐩𝐞𝐫 𝐩𝐫𝐢𝐦𝐨
+
+🛑 𝐏𝐞𝐫 𝐟𝐞𝐫𝐦𝐚𝐫𝐥𝐚: ${usedPrefix}stopflame`,
     mentions: [m.sender, who]
   }, { quoted: m })
 
@@ -93,6 +151,8 @@ ${usedPrefix + command} @utente`)
     if (sender !== who || m2.key.remoteJid !== m.chat) return
 
     flameCount++
+    if (global.flameSessions[m.chat]) global.flameSessions[m.chat].flameCount = flameCount
+
     const reply = generateFlame(victimName)
 
     await new Promise(res => setTimeout(res, 1000))
@@ -104,26 +164,31 @@ ${usedPrefix + command} @utente`)
 
   conn.ev.on('messages.upsert', battleHandler)
 
-  setTimeout(() => {
+  const firstAttackTimeout = setTimeout(() => {
     if (!battleActive) return
+    flameCount++
+    if (global.flameSessions[m.chat]) global.flameSessions[m.chat].flameCount = flameCount
+
     conn.sendMessage(m.chat, {
       text: generateFlame(victimName),
       mentions: [who]
     }, { quoted: m })
   }, 2000)
 
-  setTimeout(async () => {
+  const endTimeout = setTimeout(async () => {
     if (!battleActive) return
 
     battleActive = false
     conn.ev.off('messages.upsert', battleHandler)
+
+    delete global.flameSessions[m.chat]
 
     const endMsg = `╭━━━━━━━⏱️━━━━━━━╮
 ✦ 𝐅𝐋𝐀𝐌𝐄 𝐂𝐎𝐍𝐂𝐋𝐔𝐒𝐀 ✦
 ╰━━━━━━━⏱️━━━━━━━╯
 
 🥊 𝐈𝐥 𝐛𝐨𝐭 𝐯𝐢𝐧𝐜𝐞 𝐩𝐞𝐫 𝐊𝐎 𝐭𝐞𝐜𝐧𝐢𝐜𝐨
-📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${flameCount + 1}
+📊 𝐅𝐥𝐚𝐦𝐞 𝐭𝐨𝐭𝐚𝐥𝐢: ${flameCount}
 
 🏃 𝐏𝐞𝐫 𝐬𝐜𝐚𝐩𝐩𝐚𝐫𝐞 𝐝𝐨𝐯𝐫𝐚𝐢 𝐜𝐨𝐫𝐫𝐞𝐫𝐞 2,5 𝐤𝐦
 👣 𝐎𝐯𝐯𝐞𝐫𝐨 3.750 𝐩𝐚𝐬𝐬𝐢`
@@ -133,11 +198,20 @@ ${usedPrefix + command} @utente`)
       mentions: [who]
     }, { quoted: m })
   }, 180000)
+
+  global.flameSessions[m.chat] = {
+    who,
+    flameCount,
+    battleActive,
+    battleHandler,
+    firstAttackTimeout,
+    endTimeout
+  }
 }
 
-handler.help = ['flame']
+handler.help = ['flame', 'stopflame']
 handler.tags = ['giochi']
-handler.command = /^(flame)$/i
+handler.command = /^(flame|stopflame)$/i
 handler.group = true
 
 export default handler
