@@ -34,8 +34,9 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🤗 ${usedPrefix}abbraccia <reply/tag>
 ┃ 😏 ${usedPrefix}sega <reply/tag>
 ┃ 🤟 ${usedPrefix}ditalino <reply/tag>
-┃ 🏷️ ${usedPrefix}sticker
-┃ ✨ ${usedPrefix}wm <rinomina sticker>
+┃ 🏷️ ${usedPrefix}sticker / ${usedPrefix}s
+┃ 🛑 ${usedPrefix}ia <messaggio>
+┃ ✨ ${usedPrefix}wm <messaggio>
 ┃ 🎶 ${usedPrefix}cur
 ┃ 🩵 ${usedPrefix}onlyfans <nome>
 ┃ 💼 ${usedPrefix}curriculum
