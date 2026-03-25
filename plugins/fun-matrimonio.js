@@ -13,6 +13,34 @@ function ensureUser(user) {
   if (typeof user.coniuge !== 'string') user.coniuge = ''
 }
 
+function getButtonId(m) {
+  try {
+    if (m.text) return m.text
+
+    const msg = m.message || {}
+
+    if (msg.buttonsResponseMessage?.selectedButtonId) {
+      return msg.buttonsResponseMessage.selectedButtonId
+    }
+
+    if (msg.templateButtonReplyMessage?.selectedId) {
+      return msg.templateButtonReplyMessage.selectedId
+    }
+
+    const native = msg.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson
+    if (native) {
+      const parsed = JSON.parse(native)
+      if (parsed?.id) return parsed.id
+    }
+
+    if (msg.listResponseMessage?.singleSelectReply?.selectedRowId) {
+      return msg.listResponseMessage.singleSelectReply.selectedRowId
+    }
+  } catch {}
+
+  return ''
+}
+
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   const sender = m.sender
   const mentioned = m.mentionedJid?.[0] || m.quoted?.sender || null
@@ -104,13 +132,15 @@ handler.before = async function (m) {
 
   if (!pending) return
 
+  const txt = getButtonId(m)
+
   const response =
-    m.text === 'matrimonio_si' || /^matrimonio_si$/i.test(m.text || '') ||
-    m.text === 'Si' || /^si$/i.test(m.text || '')
+    txt === 'matrimonio_si' || /^matrimonio_si$/i.test(txt) ||
+    txt === 'Si' || /^si$/i.test(txt)
 
   const reject =
-    m.text === 'matrimonio_no' || /^matrimonio_no$/i.test(m.text || '') ||
-    m.text === 'No' || /^no$/i.test(m.text || '')
+    txt === 'matrimonio_no' || /^matrimonio_no$/i.test(txt) ||
+    txt === 'No' || /^no$/i.test(txt)
 
   if (!response && !reject) return
 
