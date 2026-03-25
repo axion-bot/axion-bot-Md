@@ -38,6 +38,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🌙 ${usedPrefix}banchat
 ┃ ☀️ ${usedPrefix}unbanchat
 ┃ 🗂️ ${usedPrefix}getpl
+┃ 📥 ${usedPrefix}dipendenze <installa moduli mancanti>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
