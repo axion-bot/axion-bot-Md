@@ -1,3 +1,13 @@
+import fs from 'fs'
+import sharp from 'sharp'
+import fetch from 'node-fetch'
+
+const TEMPLATE_PATH = './media/flame.png'
+const FALLBACK_AVATAR = 'https://i.ibb.co/2kR7x9J/avatar.png'
+
+const LEFT_SLOT = { x: 91, y: 272, size: 500 }
+const RIGHT_SLOT = { x: 944, y: 272, size: 500 }
+
 let handler = async (m, { conn, usedPrefix, command }) => {
   if (!m.isGroup) {
     return m.reply(`╭━━━━━━━🔥━━━━━━━╮
@@ -7,9 +17,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 ⚠️ 𝐋𝐞 𝐟𝐢𝐚𝐦𝐦𝐞 𝐚𝐫𝐝𝐨𝐧𝐨 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢`)
   }
 
-  let who = m.mentionedJid && m.mentionedJid[0]
-    ? m.mentionedJid[0]
-    : (m.quoted ? m.quoted.sender : null)
+  let who = m.mentionedJid?.[0] || m.quoted?.sender || null
 
   if (!who) {
     return m.reply(`╭━━━━━━━🔥━━━━━━━╮
@@ -22,7 +30,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 ${usedPrefix + command} @utente`)
   }
 
-  const botNumber = conn.user.id.split(':')[0] + '@s.whatsapp.net'
+  const botNumber = ((conn.user.id || conn.user.jid || '').split(':')[0]) + '@s.whatsapp.net'
   if (who === botNumber) {
     return m.reply(`╭━━━━━━━😏━━━━━━━╮
 ✦ 𝐅𝐋𝐀𝐌𝐄 ✦
@@ -34,7 +42,17 @@ ${usedPrefix + command} @utente`)
   const victimName = '@' + who.split('@')[0]
   const attackerName = '@' + m.sender.split('@')[0]
 
-  const startMsg = `╭━━━━━━━🔥━━━━━━━╮
+  let vsBuffer
+  try {
+    vsBuffer = await makeFlameVsImage(conn, m.sender, who)
+  } catch (e) {
+    console.error('[FLAME] errore composizione:', e)
+    vsBuffer = fs.readFileSync(TEMPLATE_PATH)
+  }
+
+  await conn.sendMessage(m.chat, {
+    image: vsBuffer,
+    caption: `╭━━━━━━━🔥━━━━━━━╮
 ✦ 𝐅𝐋𝐀𝐌𝐄 𝐖𝐀𝐑 ✦
 ╰━━━━━━━🔥━━━━━━━╯
 
@@ -42,22 +60,8 @@ ${usedPrefix + command} @utente`)
 🎯 𝐁𝐞𝐫𝐬𝐚𝐠𝐥𝐢𝐨: ${victimName}
 
 ⏱️ 𝐃𝐮𝐫𝐚𝐭𝐚: 3 𝐦𝐢𝐧𝐮𝐭𝐢
-💬 𝐈𝐥 𝐛𝐨𝐭 𝐚𝐭𝐭𝐚𝐜𝐜𝐚 𝐩𝐞𝐫 𝐩𝐫𝐢𝐦𝐨`
-
-  await conn.sendMessage(m.chat, {
-    text: startMsg,
-    mentions: [m.sender, who],
-    contextInfo: {
-      ...(global.rcanal?.contextInfo || {}),
-      externalAdReply: {
-        title: '🔥 𝐅𝐥𝐚𝐦𝐞 𝐖𝐚𝐫',
-        body: '𝐀𝐱𝐢𝐨𝐧 𝐁𝐨𝐭',
-        thumbnailUrl: 'https://i.ibb.co/2kR7x9J/avatar.png',
-        mediaType: 1,
-        renderLargerThumbnail: false,
-        showAdAttribution: false
-      }
-    }
+💬 𝐈𝐥 𝐛𝐨𝐭 𝐚𝐭𝐭𝐚𝐜𝐜𝐚 𝐩𝐞𝐫 𝐩𝐫𝐢𝐦𝐨`,
+    mentions: [m.sender, who]
   }, { quoted: m })
 
   let flameCount = 0
@@ -86,29 +90,26 @@ ${usedPrefix + command} @utente`)
     if (!m2?.message || m2.key.fromMe) return
 
     const sender = m2.key.participant || m2.key.remoteJid
+    if (sender !== who || m2.key.remoteJid !== m.chat) return
 
-    if (sender === who && m2.key.remoteJid === m.chat) {
-      flameCount++
-      const reply = generateFlame(victimName)
-      await new Promise(res => setTimeout(res, 1000))
-      await conn.sendMessage(m.chat, {
-        text: reply,
-        mentions: [who],
-        contextInfo: global.rcanal?.contextInfo || {}
-      }, { quoted: m2 })
-    }
+    flameCount++
+    const reply = generateFlame(victimName)
+
+    await new Promise(res => setTimeout(res, 1000))
+    await conn.sendMessage(m.chat, {
+      text: reply,
+      mentions: [who]
+    }, { quoted: m2 })
   }
 
   conn.ev.on('messages.upsert', battleHandler)
 
   setTimeout(() => {
-    if (battleActive) {
-      conn.sendMessage(m.chat, {
-        text: generateFlame(victimName),
-        mentions: [who],
-        contextInfo: global.rcanal?.contextInfo || {}
-      }, { quoted: m })
-    }
+    if (!battleActive) return
+    conn.sendMessage(m.chat, {
+      text: generateFlame(victimName),
+      mentions: [who]
+    }, { quoted: m })
   }, 2000)
 
   setTimeout(async () => {
@@ -129,18 +130,7 @@ ${usedPrefix + command} @utente`)
 
     await conn.sendMessage(m.chat, {
       text: endMsg,
-      mentions: [who],
-      contextInfo: {
-        ...(global.rcanal?.contextInfo || {}),
-        externalAdReply: {
-          title: '🏁 𝐅𝐥𝐚𝐦𝐞 𝐂𝐨𝐧𝐜𝐥𝐮𝐬𝐨',
-          body: '𝐀𝐱𝐢𝐨𝐧 𝐁𝐨𝐭',
-          thumbnailUrl: 'https://i.ibb.co/2kR7x9J/avatar.png',
-          mediaType: 1,
-          renderLargerThumbnail: false,
-          showAdAttribution: false
-        }
-      }
+      mentions: [who]
     }, { quoted: m })
   }, 180000)
 }
@@ -151,3 +141,56 @@ handler.command = /^(flame)$/i
 handler.group = true
 
 export default handler
+
+async function makeFlameVsImage(conn, leftJid, rightJid) {
+  const template = fs.readFileSync(TEMPLATE_PATH)
+
+  const [leftAvatar, rightAvatar] = await Promise.all([
+    getAvatarBuffer(conn, leftJid),
+    getAvatarBuffer(conn, rightJid)
+  ])
+
+  const [leftCircle, rightCircle] = await Promise.all([
+    makeCircularAvatar(leftAvatar, LEFT_SLOT.size),
+    makeCircularAvatar(rightAvatar, RIGHT_SLOT.size)
+  ])
+
+  return await sharp(template)
+    .composite([
+      { input: leftCircle, left: LEFT_SLOT.x, top: LEFT_SLOT.y },
+      { input: rightCircle, left: RIGHT_SLOT.x, top: RIGHT_SLOT.y }
+    ])
+    .png()
+    .toBuffer()
+}
+
+async function getAvatarBuffer(conn, jid) {
+  let url
+  try {
+    url = await conn.profilePictureUrl(jid, 'image')
+  } catch {
+    url = FALLBACK_AVATAR
+  }
+
+  const res = await fetch(url)
+  if (!res.ok) {
+    const fallbackRes = await fetch(FALLBACK_AVATAR)
+    return Buffer.from(await fallbackRes.arrayBuffer())
+  }
+
+  return Buffer.from(await res.arrayBuffer())
+}
+
+async function makeCircularAvatar(inputBuffer, size) {
+  const mask = Buffer.from(
+    `<svg width="${size}" height="${size}">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/>
+    </svg>`
+  )
+
+  return await sharp(inputBuffer)
+    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .composite([{ input: mask, blend: 'dest-in' }])
+    .png()
+    .toBuffer()
+}
