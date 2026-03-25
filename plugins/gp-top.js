@@ -1,4 +1,3 @@
-
 let handler = async (m, { conn, command, usedPrefix }) => {
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
 
@@ -67,18 +66,23 @@ let handler = async (m, { conn, command, usedPrefix }) => {
     totaleMessaggi = dati.totali
 
     classifica = Object.entries(dati.utenti || {})
+      .filter(u => (u[1].conteggio || 0) > 0)
       .sort((a, b) => b[1].conteggio - a[1].conteggio)
       .slice(0, limite)
   }
 
-  while (classifica.length < limite) {
-    classifica.push([null, { conteggio: 0 }])
+  if (!classifica.length) {
+    return m.reply(`╭━━━━━━━📊━━━━━━━╮
+✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦
+╰━━━━━━━📊━━━━━━━╯
+
+❌ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐚𝐭𝐭𝐢𝐯𝐨`)
   }
 
   const medaglie = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅', '🏅', '🏅', '🏅', '🏅']
   const titolo = isAll
-    ? `𝐓𝐎𝐏 ${limite} 𝐓𝐎𝐓𝐀𝐋𝐄`
-    : `𝐓𝐎𝐏 ${limite} 𝐃𝐈 𝐎𝐆𝐆𝐈`
+    ? `𝐓𝐎𝐏 ${classifica.length} 𝐓𝐎𝐓𝐀𝐋𝐄`
+    : `𝐓𝐎𝐏 ${classifica.length} 𝐃𝐈 𝐎𝐆𝐆𝐈`
 
   let testo = `╭━━━━━━━📊━━━━━━━╮
 ✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦
@@ -91,12 +95,6 @@ let handler = async (m, { conn, command, usedPrefix }) => {
   let menzioni = classifica.map(u => u[0]).filter(Boolean)
 
   classifica.forEach((u, i) => {
-    if (!u[0]) {
-      testo += `${medaglie[i]} —\n`
-      testo += `   0 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢\n\n`
-      return
-    }
-
     testo += `${medaglie[i]} @${u[0].split('@')[0]}\n`
     testo += `   ${u[1].conteggio} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢\n\n`
   })
@@ -184,6 +182,6 @@ handler.before = async function (m) {
 handler.command = /^(top|top5|top10|topall|topall5|topall10|resettp)$/i
 handler.group = true
 handler.tags = ['group']
-handler.help = ['top', 'top5', 'top10', 'topall', 'resettp']
+handler.help = ['top', 'top5', 'top10', 'topall', 'topall5', 'topall10', 'resettp']
 
 export default handler
