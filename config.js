@@ -25,7 +25,7 @@ global.wm        = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
 global.autore    = '𝕯𝖊ⱥ𝖉𝖑𝐲'
 global.dev       = '𝕯𝖊ⱥ𝖉𝖑𝐲'
 global.versione  = pkg.version
-global.testobot  = AXION-CORE-V${pkg.version}
+global.testobot  = `AXION-CORE-V${pkg.version}`
 
 // 🌐 LINK
 global.repobot   = 'https://github.com/axion-bot/axion-bot-Md'
