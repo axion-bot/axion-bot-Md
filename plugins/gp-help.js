@@ -82,21 +82,6 @@ let handler = async (m, { conn, text }) => {
     motivo,
     createdAt: now
   })
-
-  for (let jid of staff) {
-    try {
-      await conn.sendMessage(jid, {
-        text: `*╭━━━〔 🆘 𝐀𝐕𝐕𝐈𝐒𝐎 𝐒𝐓𝐀𝐅𝐅 〕━━━⬣*
-┃ 𝐄̀ 𝐬𝐭𝐚𝐭𝐚 𝐚𝐩𝐞𝐫𝐭𝐚 𝐮𝐧𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐝𝐢 𝐚𝐢𝐮𝐭𝐨
-┃
-┃ *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${requesterTag}
-┃ *📍 𝐆𝐫𝐮𝐩𝐩𝐨:* ${meta.subject}
-┃ *📝 𝐌𝐨𝐭𝐢𝐯𝐨:* ${motivo}
-*╰━━━━━━━━━━━━━━━━⬣*`,
-        mentions: [m.sender]
-      })
-    } catch {}
-  }
 }
 
 handler.before = async function (m) {
@@ -150,16 +135,6 @@ handler.before = async function (m) {
 *╰━━━━━━━━━━━━━━━━⬣*`,
     mentions: [m.sender, req.requester]
   }, { quoted: m })
-
-  try {
-    await this.sendMessage(req.requester, {
-      text: `*╭━━━〔 ✅ 𝐀𝐆𝐆𝐈𝐎𝐑𝐍𝐀𝐌𝐄𝐍𝐓𝐎 〕━━━⬣*
-┃ 𝐋𝐚 𝐭𝐮𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐞̀ 𝐬𝐭𝐚𝐭𝐚 𝐜𝐡𝐢𝐮𝐬𝐚 𝐝𝐚𝐥𝐥𝐨 𝐬𝐭𝐚𝐟𝐟
-┃
-┃ *📍 𝐆𝐫𝐮𝐩𝐩𝐨:* ${meta.subject}
-*╰━━━━━━━━━━━━━━━━⬣*`
-    })
-  } catch {}
 
   return true
 }
