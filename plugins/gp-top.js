@@ -43,7 +43,15 @@ let handler = async (m, { conn, command, usedPrefix }) => {
       .slice(0, limite)
   }
 
+<<<<<<< HEAD
   const medaglie = ['🥇','🥈','🥉','🏅','🏅','🏅','🏅','🏅','🏅','🏅']
+=======
+  while (classifica.length < limite) {
+    classifica.push([null, { conteggio: 0 }])
+  }
+
+  const medaglie = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅', '🏅', '🏅', '🏅', '🏅']
+>>>>>>> b5faefb (update)
   const titolo = isAll ? `𝐓𝐎𝐏 ${limite} 𝐓𝐎𝐓𝐀𝐋𝐄` : `𝐓𝐎𝐏 ${limite} 𝐃𝐈 𝐎𝐆𝐆𝐈`
 
   let testo = `╭━〔 📊 *𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀* 📊 〕━⬣\n`
@@ -51,8 +59,19 @@ let handler = async (m, { conn, command, usedPrefix }) => {
   testo += `╰━━━━━━━━━━━━━━━━━⬣\n\n`
   testo += `🏆 *${titolo}*\n\n`
 
+<<<<<<< HEAD
   let menzioni = classifica.map(u => u[0])
+=======
+  let menzioni = classifica.map(u => u[0]).filter(Boolean)
+
+>>>>>>> b5faefb (update)
   classifica.forEach((u, i) => {
+    if (!u[0]) {
+      testo += `${medaglie[i]} —\n`
+      testo += `   0 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢\n\n`
+      return
+    }
+
     testo += `${medaglie[i]} @${u[0].split("@")[0]}\n`
     testo += `   ${u[1].conteggio} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢\n\n`
   })
