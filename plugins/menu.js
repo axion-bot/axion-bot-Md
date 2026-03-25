@@ -31,10 +31,11 @@ const buttons = [
 ];
 
     await conn.sendMessage(message.chat, {
-        text: menuBody,
+        image: { url: './media/main-menu.jpeg' },
+        caption: menuBody,
         footer: 'sᴇʟᴇᴢɪᴏɴᴀ ᴜɴ ᴍᴏᴅᴜʟᴏ ᴅᴀʟʟ\'ɪɴᴛᴇʀғᴀᴄᴄɪᴀ',
         buttons: buttons,
-        headerType: 1,
+        headerType: 4,
         mentions: [userId]
     }, { quoted: message });
 };
