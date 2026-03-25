@@ -6,141 +6,98 @@ const helpRequests = new Map()
 const S = v => String(v || '')
 const bare = j => S(j).split('@')[0].split(':')[0]
 
-function getCooldownKey(chat, sender) {
-  return `${chat}:${sender}`
+function getButtonId(m) {
+  try {
+    if (m.text) return m.text
+    const msg = m.message || {}
+
+    if (msg.buttonsResponseMessage?.selectedButtonId)
+      return msg.buttonsResponseMessage.selectedButtonId
+
+    if (msg.templateButtonReplyMessage?.selectedId)
+      return msg.templateButtonReplyMessage.selectedId
+
+    const native = msg.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson
+    if (native) {
+      const parsed = JSON.parse(native)
+      if (parsed?.id) return parsed.id
+    }
+
+    if (msg.listResponseMessage?.singleSelectReply?.selectedRowId)
+      return msg.listResponseMessage.singleSelectReply.selectedRowId
+  } catch {}
+
+  return ''
 }
 
-function formatTime(ms) {
-  const sec = Math.ceil(ms / 1000)
-  if (sec < 60) return `${sec}s`
-  const min = Math.ceil(sec / 60)
-  return `${min}m`
-}
-
-function isStaffParticipant(p) {
-  return p?.admin === 'admin' || p?.admin === 'superadmin' || p?.isAdmin === true || p?.isSuperAdmin === true
+function isStaff(p) {
+  return p?.admin === 'admin' || p?.admin === 'superadmin'
 }
 
 let handler = async (m, { conn, text }) => {
-  if (!m.isGroup) {
-    return m.reply('*⚠️ 𝐔𝐬𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨 𝐬𝐨𝐥𝐨 𝐢𝐧 𝐮𝐧 𝐠𝐫𝐮𝐩𝐩𝐨*')
-  }
+  if (!m.isGroup) return m.reply('*⚠️ Solo nei gruppi*')
 
-  const key = getCooldownKey(m.chat, m.sender)
+  const key = `${m.chat}:${m.sender}`
   const now = Date.now()
-  const waitMs = 2 * 60 * 1000
-  const last = cooldowns.get(key) || 0
+  const wait = 2 * 60 * 1000
 
-  if (now - last < waitMs) {
-    return m.reply(`*⏳ 𝐑𝐢𝐩𝐫𝐨𝐯𝐚 𝐭𝐫𝐚 ${formatTime(waitMs - (now - last))}*`)
+  if (cooldowns.get(key) && now - cooldowns.get(key) < wait) {
+    return m.reply('*⏳ Riprova dopo*')
   }
 
-  let meta
-  try {
-    meta = await conn.groupMetadata(m.chat)
-  } catch {
-    return m.reply('*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥 𝐫𝐞𝐜𝐮𝐩𝐞𝐫𝐨 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*')
-  }
-
-  const participants = Array.isArray(meta?.participants) ? meta.participants : []
-  const staff = participants
-    .filter(isStaffParticipant)
-    .map(p => p.id || p.jid)
-    .filter(Boolean)
-
-  if (!staff.length) {
-    return m.reply('*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐨 𝐬𝐭𝐚𝐟𝐟 𝐭𝐫𝐨𝐯𝐚𝐭𝐨*')
-  }
+  const meta = await conn.groupMetadata(m.chat)
+  const staff = meta.participants.filter(isStaff).map(p => p.id)
 
   cooldowns.set(key, now)
 
-  const motivo = text?.trim() || '𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
-  const requesterTag = '@' + bare(m.sender)
+  const motivo = text || 'Nessun motivo'
+  const tag = '@' + bare(m.sender)
 
-  const msg = `*╭━━━〔 🆘 𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎 〕━━━⬣*
-┃ ${requesterTag} 𝐡𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐨 𝐥'𝐚𝐢𝐮𝐭𝐨 𝐝𝐞𝐥𝐥𝐨 𝐬𝐭𝐚𝐟𝐟
+  const msg = `*╭━━━〔 🆘 SUPPORTO 〕━━━⬣*
+┃ ${tag} ha richiesto aiuto
 ┃
-┃ *📝 𝐌𝐨𝐭𝐢𝐯𝐨:*
-┃ ${motivo}
+┃ 📝 ${motivo}
 *╰━━━━━━━━━━━━━━━━⬣*`
 
   const sent = await conn.sendMessage(m.chat, {
     text: msg,
     mentions: [m.sender, ...staff],
-    footer: '𝐒𝐨𝐥𝐨 𝐥𝐨 𝐬𝐭𝐚𝐟𝐟 𝐩𝐮𝐨̀ 𝐜𝐡𝐢𝐮𝐝𝐞𝐫𝐞 𝐥𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚',
     buttons: [
       { buttonId: 'help_risolto', buttonText: { displayText: '✅ Risolto' }, type: 1 }
     ],
     headerType: 1
   }, { quoted: m })
 
-  const requestId = sent?.key?.id || `${m.chat}:${m.sender}:${Date.now()}`
-  helpRequests.set(requestId, {
-    chat: m.chat,
-    requester: m.sender,
-    staff,
-    motivo,
-    createdAt: now
+  helpRequests.set(sent.key.id, {
+    requester: m.sender
   })
 }
 
 handler.before = async function (m) {
-  const txt = m.text || ''
-  const isResolve = txt === 'help_risolto' || /^help_risolto$/i.test(txt)
-  if (!isResolve) return
+  const txt = getButtonId(m)
+  if (!/^help_risolto$/i.test(txt)) return
 
-  if (!m.isGroup) {
-    await this.sendMessage(m.chat, {
-      text: '*⚠️ 𝐐𝐮𝐞𝐬𝐭𝐚 𝐚𝐳𝐢𝐨𝐧𝐞 𝐞̀ 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢*'
-    }, { quoted: m })
-    return true
+  const meta = await this.groupMetadata(m.chat)
+  const actor = meta.participants.find(p => p.id === m.sender)
+
+  if (!isStaff(actor)) {
+    return this.sendMessage(m.chat, { text: '*⚠️ Solo admin*' }, { quoted: m })
   }
 
-  let meta
-  try {
-    meta = await this.groupMetadata(m.chat)
-  } catch {
-    return true
-  }
+  const id = m.quoted?.id || m.quoted?.key?.id
+  const req = helpRequests.get(id)
+  if (!req) return
 
-  const participants = Array.isArray(meta?.participants) ? meta.participants : []
-  const actor = participants.find(p => (p.id || p.jid) === m.sender)
-  const isStaff = isStaffParticipant(actor)
-
-  if (!isStaff) {
-    await this.sendMessage(m.chat, {
-      text: '*⚠️ 𝐒𝐨𝐥𝐨 𝐥𝐨 𝐬𝐭𝐚𝐟𝐟 𝐩𝐮𝐨̀ 𝐜𝐡𝐢𝐮𝐝𝐞𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚*'
-    }, { quoted: m })
-    return true
-  }
-
-  const requestId = m.message?.buttonsResponseMessage?.contextInfo?.stanzaId || m.quoted?.id || m.quoted?.key?.id || null
-  const req = requestId ? helpRequests.get(requestId) : null
-
-  if (!req) {
-    await this.sendMessage(m.chat, {
-      text: '*⚠️ 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐚 𝐨 𝐠𝐢𝐚̀ 𝐜𝐡𝐢𝐮𝐬𝐚*'
-    }, { quoted: m })
-    return true
-  }
-
-  helpRequests.delete(requestId)
+  helpRequests.delete(id)
 
   await this.sendMessage(m.chat, {
-    text: `*╭━━━〔 ✅ 𝐑𝐈𝐒𝐎𝐋𝐓𝐎 〕━━━⬣*
-┃ 𝐋𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐝𝐢 𝐚𝐢𝐮𝐭𝐨 𝐞̀ 𝐬𝐭𝐚𝐭𝐚 𝐜𝐡𝐢𝐮𝐬𝐚
-┃
-┃ *🛡️ 𝐒𝐭𝐚𝐟𝐟:* @${bare(m.sender)}
-┃ *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* @${bare(req.requester)}
-*╰━━━━━━━━━━━━━━━━⬣*`,
+    text: `*✅ Richiesta chiusa da @${bare(m.sender)}*`,
     mentions: [m.sender, req.requester]
   }, { quoted: m })
 
   return true
 }
 
-handler.help = ['help <motivo>']
-handler.tags = ['fun']
 handler.command = /^(help)$/i
 handler.group = true
 
