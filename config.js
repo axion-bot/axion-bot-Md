@@ -73,5 +73,3 @@ return module;
 }
 
 watchFile(filePath, reloadConfig)
-
-se si toglie moment-timezone succede qualcosa?
