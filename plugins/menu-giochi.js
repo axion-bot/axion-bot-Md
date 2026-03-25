@@ -62,6 +62,10 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 👭 ${usedPrefix}cugina <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
+╭━━━〔 🆘 sᴜᴘᴘᴏʀᴛᴏ 〕━⬣
+┃ 🆘 ${usedPrefix}help <motivo>
+╰━━━━━━━━━━━━━━━━⬣
+
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
 ┃ ᴠᴇʀsɪᴏɴᴇ: 1.0
 ┃ sᴛᴀᴛᴜs: ᴏɴʟɪɴᴇ ⚡
