@@ -65,7 +65,7 @@ const cached = moduleCache.get(fileUrl);
 if (cached) return cached;
 
 unwatchFile(filePath)
-console.log(chalk.bgCyan.black(" SYSTEM ") + chalk.cyan( File 'config.js' aggiornato con successo.))
+console.log(chalk.bgCyan.black(" SYSTEM ") + chalk.cyan(` File 'config.js' aggiornato con successo.`))
 
 const module = await import(${fileUrl}?update=${Date.now()})
 moduleCache.set(fileUrl, module, { ttl: 300 });
