@@ -1,4 +1,3 @@
-Certo — te lo rimando completo, stesso stile del bot, con i bottoni Top 5 / Top 10 sia per top che per topall.
 
 let handler = async (m, { conn, command, usedPrefix }) => {
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
