@@ -108,7 +108,7 @@ let handler = async (m, { conn }) => {
 
 👤 𝐍𝐨𝐦𝐞: ${nome}
 🆔 𝐈𝐃: ${tag}
-🎭 𝐑𝐮𝐨𝐥𝐨: ${ruolo}
+🛠 𝐑𝐮𝐨𝐥𝐨: ${ruolo}
 📱 𝐃𝐞𝐯𝐢𝐜𝐞: ${device}
 💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢: ${totalMessages}
 📅 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐨𝐠𝐠𝐢: ${oggiCount}
