@@ -162,21 +162,20 @@ handler.command = /^(top|top5|top10|topall|topall5|topall10|resettp)$/i
 
 handler.run = async (m, { command }) => {
   if (command === 'resettp') {
-    let chats = global.db.data.chats
-    let oggi = new Date().toDateString()
+  let chats = global.db.data.chats
+  let oggi = new Date().toDateString()
 
-    for (let jid in chats) {
-      if (!jid.endsWith('@g.us')) continue
+  for (let jid in chats) {
+    if (!jid.endsWith('@g.us')) continue
 
-      chats[jid].archivioMessaggi = {
-        totali: 0,
-        utenti: {},
-        ultimoReset: oggi
-      }
+    chats[jid].archivioMessaggi = {
+      totali: 0,
+      utenti: {},
+      ultimoReset: oggi
     }
-
-    return m.reply("🔄 *𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐡𝐞 𝐬𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐞 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐭𝐞*")
   }
+
+  return m.reply("🔄 *𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐡𝐞 𝐬𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐞 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐭𝐞*")
 }
 
 handler.group = true
