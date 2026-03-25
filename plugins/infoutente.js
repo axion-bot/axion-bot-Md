@@ -27,17 +27,44 @@ function getMessageId(m) {
 
 function mapDeviceName(device) {
   switch (String(device || '').toLowerCase()) {
-    case 'ios': return '🍏 *𝐢𝐎𝐒*'
-    case 'android': return '📱 *𝐀𝐧𝐝𝐫𝐨𝐢𝐝*'
-    case 'web': return '💻 *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐖𝐞𝐛*'
-    case 'desktop': return '🖥️ *𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐃𝐞𝐬𝐤𝐭𝐨𝐩*'
-    default: return '❓ *𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨*'
+    case 'ios': return '🍏 𝐢𝐎𝐒'
+    case 'android': return '📱 𝐀𝐧𝐝𝐫𝐨𝐢𝐝'
+    case 'web': return '💻 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐖𝐞𝐛'
+    case 'desktop': return '🖥️ 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐃𝐞𝐬𝐤𝐭𝐨𝐩'
+    default: return '❓ 𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨'
   }
 }
 
 function formatDate(ts) {
   if (!ts || isNaN(ts)) return '𝐍𝐨𝐧 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞'
   return new Date(ts).toLocaleString('it-IT')
+}
+
+function isOwner(jid) {
+  try {
+    const num = bare(jid)
+    if (!Array.isArray(global.owner)) return false
+
+    return global.owner
+      .map(o => Array.isArray(o) ? o[0] : o)
+      .map(v => bare(v))
+      .includes(num)
+  } catch {
+    return false
+  }
+}
+
+function getRole(target, participants = [], user = {}, chatId) {
+  if (isOwner(target)) return '👑 𝐃𝐢𝐨'
+
+  const p = participants.find(x => (x.id || x.jid) === target)
+
+  if (p?.admin === 'admin') return '🛡️ 𝐀𝐝𝐦𝐢𝐧'
+
+  const isModerator = !!user.premium && user.premiumGroup === chatId
+  if (isModerator) return '👮 𝐌𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞'
+
+  return '👤 𝐌𝐞𝐦𝐛𝐫𝐨'
 }
 
 let handler = async (m, { conn }) => {
@@ -48,7 +75,6 @@ let handler = async (m, { conn }) => {
   const chat = global.db.data.chats?.[m.chat] || {}
 
   const oggiCount = chat?.archivioMessaggi?.utenti?.[target]?.conteggio || 0
-  const messaggiGruppo = chat?.users?.[target]?.messages || 0
 
   const nome = await conn.getName(target)
   const tag = '@' + bare(target)
@@ -60,6 +86,14 @@ let handler = async (m, { conn }) => {
   const device = mapDeviceName(getDevice(getMessageId(m)))
   const joinedAt = formatDate(user.regTime || user.firstTime)
 
+  let meta
+  try {
+    meta = await conn.groupMetadata(m.chat)
+  } catch {}
+
+  const participants = Array.isArray(meta?.participants) ? meta.participants : []
+  const ruolo = getRole(target, participants, user, m.chat)
+
   const profilo = await conn.profilePictureUrl(target, 'image')
     .catch(() => 'https://i.ibb.co/2kR7x9J/avatar.png')
 
@@ -67,20 +101,20 @@ let handler = async (m, { conn }) => {
     ? await (await fetch(profilo)).buffer()
     : profilo
 
-  const text = `*╭━━━━━━━📌━━━━━━━╮*
-   *✦ 𝐈𝐍𝐅𝐎 𝐔𝐓𝐄𝐍𝐓𝐄 ✦*
-*╰━━━━━━━📌━━━━━━━╯*
+  const text = `╭━━━━━━━📌━━━━━━━╮
+✦ 𝐈𝐍𝐅𝐎 𝐔𝐓𝐄𝐍𝐓𝐄 ✦
+╰━━━━━━━📌━━━━━━━╯
 
-*👤 𝐍𝐨𝐦𝐞:* ${nome}
-*🆔 𝐈𝐃:* ${tag}
-*📱 𝐃𝐞𝐯𝐢𝐜𝐞:* ${device}
-*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* ${totalMessages}
-*📅 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐨𝐠𝐠𝐢:* ${oggiCount}
-*🫂 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐠𝐫𝐮𝐩𝐩𝐨:* ${messaggiGruppo}
-*🪙 𝐌𝐨𝐧𝐞𝐭𝐞:* ${monete}
-*📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚:* ${joinedAt}
-*⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/3
-*🔇 𝐌𝐮𝐭𝐞:* ${muted ? '*𝐒𝐢*' : '*𝐍𝐨*'}`
+👤 𝐍𝐨𝐦𝐞: ${nome}
+🆔 𝐈𝐃: ${tag}
+🎭 𝐑𝐮𝐨𝐥𝐨: ${ruolo}
+📱 𝐃𝐞𝐯𝐢𝐜𝐞: ${device}
+💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢: ${totalMessages}
+📅 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐨𝐠𝐠𝐢: ${oggiCount}
+🪙 𝐌𝐨𝐧𝐞𝐭𝐞: ${monete}
+📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚: ${joinedAt}
+⚠️ 𝐖𝐚𝐫𝐧: ${warn}/3
+🔇 𝐌𝐮𝐭𝐞: ${muted ? '𝐒𝐢' : '𝐍𝐨'}`
 
   await conn.sendMessage(m.chat, {
     text,
