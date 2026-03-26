@@ -30,10 +30,11 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🔇 ᴄᴏɴᴛʀᴏʟʟᴏ 〕━⬣
-┃ 🤫 ${usedPrefix}muta
-┃ 🔊 ${usedPrefix}smuta
-┃ 🏹 ${usedPrefix}tag
-┃ 🚨 ${usedPrefix}setname
+┃ 🤫 ${usedPrefix}muta <reply/tag>
+┃ 🔊 ${usedPrefix}smuta <reply/tag>
+┃ 🏹 ${usedPrefix}tag <messaggio>
+┃ 📖 ${usedPrefix}setbio <messaggio>
+┃ 🚨 ${usedPrefix}setname <messaggio>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🔒 ɪᴍᴘᴏsᴛᴀᴢɪᴏɴɪ 〕━⬣
