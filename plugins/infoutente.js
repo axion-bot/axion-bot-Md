@@ -102,9 +102,9 @@ let handler = async (m, { conn }) => {
     ? await (await fetch(profilo)).buffer()
     : profilo
     
-const text = `*╭━━━━━━━📌━━━━━━━╮
+const text = `╭━━━━━━━📌━━━━━━━╮
 ✦ 𝐈𝐍𝐅𝐎 𝐔𝐓𝐄𝐍𝐓𝐄 ✦
-╰━━━━━━━📌━━━━━━━╯*
+╰━━━━━━━📌━━━━━━━╯
 
 *👤 𝐍𝐨𝐦𝐞:* ${nome}
 *🆔 𝐉𝐈𝐃:* ${jid}

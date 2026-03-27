@@ -1,3 +1,12 @@
+Ecco il tuo file sistemato con:
+
+✔ Math.max per coerenza
+
+✔ formato Messaggi: totali (oggi: X)
+
+✔ tutto in * coerente
+
+
 // by Bonzino
 
 import fetch from 'node-fetch'
@@ -15,8 +24,9 @@ let handler = async (m, { conn }) => {
   const chat = global.db.data.chats?.[m.chat] || {}
 
   const oggiCount = chat?.archivioMessaggi?.utenti?.[target]?.conteggio || 0
+  const totalMessages = Math.max(user.messages || 0, oggiCount)
+
   const nome = await conn.getName(target)
-  const totalMessages = user.messages || 0
   const monete = user.euro || 0
   const dailyStreak = Number(user.dailyStreak || 0)
   const lvl = getLevelFull(totalMessages)
@@ -32,13 +42,12 @@ let handler = async (m, { conn }) => {
     ? await (await fetch(profilo)).buffer()
     : profilo
 
-  const text = `*╭━━━━━━━✨━━━━━━━╮*
-   *✦ 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 ✦*
-*╰━━━━━━━✨━━━━━━━╯*
+  const text = `╭━━━━━━━✨━━━━━━━╮*
+*✦ 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 ✦*
+*╰━━━━━━━✨━━━━━━━╯
 
 *👤 𝐍𝐨𝐦𝐞:* ${nome}
-*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* ${totalMessages}
-*📅 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐨𝐠𝐠𝐢:* ${oggiCount}
+*💬 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* ${totalMessages} *(𝐨𝐠𝐠𝐢: ${oggiCount})*
 *🧠 𝐋𝐢𝐯𝐞𝐥𝐥𝐨:* ${lvl.level} (${lvl.icon} ${lvl.name})
 *📈 𝐏𝐫𝐨𝐠𝐫𝐞𝐬𝐬𝐨:* ${lvl.percent}%
 *⬆️ 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨:* ${lvl.isMax ? '*𝐌𝐀𝐗*' : `${lvl.nextName} (${lvl.remaining} msg)`}
