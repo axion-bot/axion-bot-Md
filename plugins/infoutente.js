@@ -114,7 +114,7 @@ const text = `╭━━━━━━━📌━━━━━━━╮
 *💸 𝐃𝐞𝐧𝐚𝐫𝐨:* ${denaro}
 *📅 𝐄𝐧𝐭𝐫𝐚𝐭𝐚:* ${joinedAt}
 *⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/3
-*🔇 𝐌𝐮𝐭𝐞:* ${muted ? '𝐒𝐢' : '𝐍𝐨'}*`
+*🔇 𝐌𝐮𝐭𝐞:* ${muted ? '𝐒𝐢' : '𝐍𝐨'}`
 
   await conn.sendMessage(m.chat, {
     text,
