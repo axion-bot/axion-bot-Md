@@ -70,14 +70,14 @@ let handler = async (m, { conn }) => {
     ? await (await fetch(pp)).buffer()
     : pp
 
-  const text = `*╭━━━━━━━💍━━━━━━━╮*
-   *✦ 𝐒𝐓𝐀𝐓𝐎 ✦*
-*╰━━━━━━━💍━━━━━━━╯*
+  const text = `*╭━━━━━━━❤️━━━━━━━╮*
+   *✦ 𝐒𝐓𝐀𝐓𝐎 𝐂𝐈𝐕𝐈𝐋𝐄 ✦*
+*╰━━━━━━━❤️━━━━━━━╯*
 
 *👤 𝐍𝐨𝐦𝐞:* ${nome}
 *🆔 𝐈𝐃:* ${tag}
 
-*${stato.icon} 𝐒𝐭𝐚𝐭𝐨:* ${stato.label}
+*${stato.icon} 𝐒𝐭𝐚𝐭𝐨 𝐂𝐢𝐯𝐢𝐥𝐞:* ${stato.label}
 *❤️ 𝐂𝐨𝐧𝐢𝐮𝐠𝐞:* ${coniugeTxt}
 *💔 𝐄𝐱:* ${exTxt}
 
@@ -101,8 +101,8 @@ let handler = async (m, { conn }) => {
   }, { quoted: m })
 }
 
-handler.help = ['stato']
+handler.help = ['statocivile']
 handler.tags = ['fun']
-handler.command = /^(stato)$/i
+handler.command = /^(statocivile|stato)$/i
 
 export default handler

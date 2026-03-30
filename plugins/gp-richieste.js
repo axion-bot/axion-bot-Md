@@ -1,23 +1,27 @@
+// by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
+
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 let richiestaInAttesa = {}
 
 var handler = async (m, { conn, isAdmin, isBotAdmin, args, usedPrefix, command }) => {
   if (!m.isGroup) return
+
   const groupId = m.chat
 
-  if (!isBotAdmin) return m.reply("❌ Devo essere admin per gestire richieste.")
-  if (!isAdmin) return m.reply("❌ Solo admin possono usare questo comando.")
+  if (!isBotAdmin) return m.reply('*⚠️ 𝐃𝐞𝐯𝐨 𝐞𝐬𝐬𝐞𝐫𝐞 𝐚𝐝𝐦𝐢𝐧 𝐩𝐞𝐫 𝐠𝐞𝐬𝐭𝐢𝐫𝐞 𝐥𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞.*')
+  if (!isAdmin) return m.reply('*⚠️ 𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*')
 
   const pending = await conn.groupRequestParticipantsList(groupId)
 
-  // risposta manuale numero
+  // risposta manuale
   if (richiestaInAttesa[m.sender]) {
     const input = (m.text || '').trim()
     delete richiestaInAttesa[m.sender]
 
-    if (!/^\d+$/.test(input))
-      return m.reply("❌ Invia un numero valido.")
+    if (!/^\d+$/.test(input)) {
+      return m.reply('*⚠️ 𝐈𝐧𝐯𝐢𝐚 𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨 𝐯𝐚𝐥𝐢𝐝𝐨.*')
+    }
 
     const numero = parseInt(input)
     const daAccettare = pending.slice(0, numero)
@@ -26,81 +30,78 @@ var handler = async (m, { conn, isAdmin, isBotAdmin, args, usedPrefix, command }
     await delay(2000)
     await toggleApproval(conn, groupId, true)
 
-    return m.reply(`✅ Ho accettato *${daAccettare.length} richieste*.`)
+    return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${daAccettare.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞.*`)
   }
 
-  if (!pending.length)
-    return m.reply("✅ Non ci sono richieste in sospeso.")
+  if (!pending.length) {
+    return m.reply('*✅ 𝐍𝐨𝐧 𝐜𝐢 𝐬𝐨𝐧𝐨 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐢𝐧 𝐬𝐨𝐬𝐩𝐞𝐬𝐨.*')
+  }
 
   // menu
   if (!args[0]) {
-    return conn.sendMessage(groupId,{
-      text:`📨 Richieste in sospeso: *${pending.length}*\n\nScegli cosa fare:`,
-      footer:'Gestione richieste gruppo',
-      buttons:[
-        {buttonId:`${usedPrefix}${command} accetta`,buttonText:{displayText:"✅ Accetta tutte"},type:1},
-        {buttonId:`${usedPrefix}${command} rifiuta`,buttonText:{displayText:"❌ Rifiuta tutte"},type:1},
-        {buttonId:`${usedPrefix}${command} accetta39`,buttonText:{displayText:"🇮🇹 Accetta +39"},type:1},
-        {buttonId:`${usedPrefix}${command} gestisci`,buttonText:{displayText:"📥 Gestisci numero"},type:1}
+    return conn.sendMessage(groupId, {
+      text: `*📨 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐢𝐧 𝐬𝐨𝐬𝐩𝐞𝐬𝐨:* ${pending.length}\n\n*𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐟𝐚𝐫𝐞:*`,
+      footer: 'Gestione richieste gruppo',
+      buttons: [
+        { buttonId: `${usedPrefix}${command} accetta`, buttonText: { displayText: '✅ Accetta tutte' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} rifiuta`, buttonText: { displayText: '❌ Rifiuta tutte' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} accetta39`, buttonText: { displayText: '🇮🇹 Accetta +39' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} gestisci`, buttonText: { displayText: '📥 Gestisci numero' }, type: 1 }
       ],
-      headerType:1
-    },{quoted:m})
+      headerType: 1
+    }, { quoted: m })
   }
 
   // accetta tutte
   if (args[0] === 'accetta') {
-
     await toggleApproval(conn, groupId, false)
     await delay(2000)
     await toggleApproval(conn, groupId, true)
 
-    return m.reply(`✅ Ho accettato *${pending.length} richieste*.`)
+    return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${pending.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞.*`)
   }
 
   // rifiuta tutte
   if (args[0] === 'rifiuta') {
-
     const jidList = pending.map(p => p.jid)
 
     await conn.groupRequestParticipantsUpdate(groupId, jidList, 'reject')
 
-    return m.reply(`❌ Rifiutate *${jidList.length} richieste*.`)
+    return m.reply(`*❌ 𝐇𝐨 𝐫𝐢𝐟𝐢𝐮𝐭𝐚𝐭𝐨 ${jidList.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞.*`)
   }
 
   // accetta +39
   if (args[0] === 'accetta39') {
-
     const italiani = pending.filter(p => p.jid.startsWith('39'))
 
     await toggleApproval(conn, groupId, false)
     await delay(2000)
     await toggleApproval(conn, groupId, true)
 
-    return m.reply(`✅ Accettate *${italiani.length} richieste con prefisso +39*.`)
+    return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${italiani.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐜𝐨𝐧 𝐩𝐫𝐞𝐟𝐢𝐬𝐬𝐨 +39.*`)
   }
 
   // gestione numero
   if (args[0] === 'gestisci') {
-
     richiestaInAttesa[m.sender] = true
 
-    return conn.sendMessage(groupId,{
-      text:`🔮 Quante richieste vuoi accettare?\n\nScrivi un numero in chat.`,
-      footer:'Gestione richieste',
-      buttons:[
-        {buttonId:`${usedPrefix}${command} accettane 10`,buttonText:{displayText:"10"},type:1},
-        {buttonId:`${usedPrefix}${command} accettane 20`,buttonText:{displayText:"20"},type:1},
-        {buttonId:`${usedPrefix}${command} accettane 50`,buttonText:{displayText:"50"},type:1},
-        {buttonId:`${usedPrefix}${command} accettane 100`,buttonText:{displayText:"100"},type:1}
+    return conn.sendMessage(groupId, {
+      text: '*❓ 𝐐𝐮𝐚𝐧𝐭𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐯𝐮𝐨𝐢 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐫𝐞?*\n\n*🔢 𝐒𝐜𝐫𝐢𝐯𝐢 𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨 𝐢𝐧 𝐜𝐡𝐚𝐭.*',
+      footer: 'Gestione richieste',
+      buttons: [
+        { buttonId: `${usedPrefix}${command} accettane 10`, buttonText: { displayText: '10' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} accettane 20`, buttonText: { displayText: '20' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} accettane 50`, buttonText: { displayText: '50' }, type: 1 },
+        { buttonId: `${usedPrefix}${command} accettane 100`, buttonText: { displayText: '100' }, type: 1 }
       ],
-      headerType:1
-    },{quoted:m})
+      headerType: 1
+    }, { quoted: m })
   }
 
+  // accetta numero
   if (args[0] === 'accettane') {
-
     const numero = parseInt(args[1])
-    if (isNaN(numero)) return m.reply("❌ Numero non valido.")
+    if (isNaN(numero)) return m.reply('*⚠️ 𝐍𝐮𝐦𝐞𝐫𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*')
 
     const daAccettare = pending.slice(0, numero)
 
@@ -108,37 +109,33 @@ var handler = async (m, { conn, isAdmin, isBotAdmin, args, usedPrefix, command }
     await delay(2000)
     await toggleApproval(conn, groupId, true)
 
-    return m.reply(`✅ Ho accettato *${daAccettare.length} richieste*.`)
+    return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${daAccettare.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞.*`)
   }
-
 }
 
-// funzione toggle approvazione
+// toggle approvazione
 async function toggleApproval(conn, chat, stato) {
-
   await conn.query({
-    tag:'iq',
-    attrs:{
-      to:chat,
-      type:'set',
-      xmlns:'w:g2'
+    tag: 'iq',
+    attrs: {
+      to: chat,
+      type: 'set',
+      xmlns: 'w:g2'
     },
-    content:[{
-      tag:'membership_approval_mode',
-      attrs:{},
-      content:[{
-        tag:'group_join',
-        attrs:{ state: stato ? 'on' : 'off' }
+    content: [{
+      tag: 'membership_approval_mode',
+      attrs: {},
+      content: [{
+        tag: 'group_join',
+        attrs: { state: stato ? 'on' : 'off' }
       }]
     }]
   })
-
 }
 
 handler.command = ['richieste']
 handler.tags = ['gruppo']
 handler.help = ['richieste']
-
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

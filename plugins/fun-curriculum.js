@@ -1,212 +1,202 @@
+// by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
+
 global.curriculumGame = global.curriculumGame || {}
 
-const random = (arr) => arr[Math.floor(Math.random() * arr.length)]
+const random = arr => arr[Math.floor(Math.random() * arr.length)]
+const S = v => String(v || '')
 
-// 💼 LAVORI
 const lavori = [
-    { nome: "Web Developer", paga: 2500 },
-    { nome: "Data Scientist", paga: 3000 },
-    { nome: "Graphic Designer", paga: 1800 },
-    { nome: "Marketing Specialist", paga: 2100 },
-    { nome: "AI Engineer", paga: 3500 }
+  { nome: 'Web Developer', paga: 2500 },
+  { nome: 'Data Scientist', paga: 3000 },
+  { nome: 'Graphic Designer', paga: 1800 },
+  { nome: 'Marketing Specialist', paga: 2100 },
+  { nome: 'AI Engineer', paga: 3500 }
 ]
 
-// 🏢 AZIENDE
 const aziende = [
-    { nome: "Google", reputazione: 90, bonus: 1.3 },
-    { nome: "Meta", reputazione: 80, bonus: 1.2 },
-    { nome: "Amazon", reputazione: 75, bonus: 1.15 },
-    { nome: "Tesla", reputazione: 85, bonus: 1.25 },
-    { nome: "OpenAI", reputazione: 95, bonus: 1.4 },
-    { nome: "Startup SRL", reputazione: 60, bonus: 1.1 }
+  { nome: 'Google', reputazione: 90, bonus: 1.3 },
+  { nome: 'Meta', reputazione: 80, bonus: 1.2 },
+  { nome: 'Amazon', reputazione: 75, bonus: 1.15 },
+  { nome: 'Tesla', reputazione: 85, bonus: 1.25 },
+  { nome: 'OpenAI', reputazione: 95, bonus: 1.4 },
+  { nome: 'Startup SRL', reputazione: 60, bonus: 1.1 }
 ]
 
-// 🎲 EVENTI
 const eventi = [
-    { testo: "🎉 Bonus ricevuto!", effetto: (u) => u.euro += 500 },
-    { testo: "😓 Errore costoso...", effetto: (u) => u.euro -= 300 },
-    { testo: "🚀 Promozione!", effetto: (u) => u.euro += 1000 },
-    { testo: "💀 Licenziato!", effetto: (u) => { u.lavoro = null; u.azienda = null } },
-    { testo: "😌 Giornata tranquilla.", effetto: (u) => {} }
+  { testo: '🎉 𝐁𝐨𝐧𝐮𝐬 𝐫𝐢𝐜𝐞𝐯𝐮𝐭𝐨!', effetto: u => u.euro += 500 },
+  { testo: '😓 𝐄𝐫𝐫𝐨𝐫𝐞 𝐜𝐨𝐬𝐭𝐨𝐬𝐨...', effetto: u => u.euro -= 300 },
+  { testo: '🚀 𝐏𝐫𝐨𝐦𝐨𝐳𝐢𝐨𝐧𝐞!', effetto: u => u.euro += 1000 },
+  { testo: '💀 𝐋𝐢𝐜𝐞𝐧𝐳𝐢𝐚𝐭𝐨!', effetto: u => { u.lavoro = null; u.azienda = null } },
+  { testo: '😌 𝐆𝐢𝐨𝐫𝐧𝐚𝐭𝐚 𝐭𝐫𝐚𝐧𝐪𝐮𝐢𝐥𝐥𝐚.', effetto: u => {} }
 ]
 
-// 🧠 DATI CV
-const skillList = ["JavaScript","Python","UI/UX","AI","Marketing","SEO","Data Analysis"]
-const lingue = ["Italiano","Inglese","Spagnolo","Francese"]
-const certificazioni = ["Google Certified","AWS","Meta Ads","Azure","OpenAI Expert"]
-const livelliExp = ["Junior","Mid","Senior","Esperto"]
+const skillList = ['JavaScript', 'Python', 'UI/UX', 'AI', 'Marketing', 'SEO', 'Data Analysis']
+const lingue = ['Italiano', 'Inglese', 'Spagnolo', 'Francese']
+const certificazioni = ['Google Certified', 'AWS', 'Meta Ads', 'Azure', 'OpenAI Expert']
+const livelliExp = ['Junior', 'Mid', 'Senior', 'Esperto']
 
-// 🔘 BOTTONI
-const buttonsCurriculum = (prefix) => [
-    { buttonId: `${prefix}cercalavoro`, buttonText: { displayText: '💼 Cerca Lavoro' }, type: 1 },
-    { buttonId: `${prefix}profilowork`, buttonText: { displayText: '👤 Profilo' }, type: 1 }
+const buttonsCurriculum = prefix => [
+  { buttonId: `${prefix}cercalavoro`, buttonText: { displayText: '💼 Cerca Lavoro' }, type: 1 },
+  { buttonId: `${prefix}profilowork`, buttonText: { displayText: '👤 Profilo' }, type: 1 }
 ]
 
-const buttonProfilo = (prefix) => [
-    { buttonId: `${prefix}profilowork`, buttonText: { displayText: '👤 Profilo' }, type: 1 }
+const buttonProfilo = prefix => [
+  { buttonId: `${prefix}profilowork`, buttonText: { displayText: '👤 Profilo' }, type: 1 }
 ]
 
 let handler = async (m, { conn, command, usedPrefix }) => {
-    const chat = m.chat
-    const user = m.sender
-    const nome = await conn.getName(user)
+  const chat = m.chat
+  const user = m.sender
+  const nome = await conn.getName(user)
 
-    global.curriculumGame[chat] = global.curriculumGame[chat] || {}
+  global.curriculumGame[chat] = global.curriculumGame[chat] || {}
 
-    let u = global.db.data.users[user]
-    if (!u.euro) u.euro = 0
-    if (!u.lavoro) u.lavoro = null
-    if (!u.azienda) u.azienda = null
-    if (!u.reputazioneAzienda) u.reputazioneAzienda = 0
+  let u = global.db.data.users[user]
+  if (!u.euro) u.euro = 0
+  if (!u.lavoro) u.lavoro = null
+  if (!u.azienda) u.azienda = null
+  if (!u.reputazioneAzienda) u.reputazioneAzienda = 0
 
-    // 📄 CURRICULUM
-    if (command === "curriculum") {
+  if (command === 'curriculum') {
+    let skills = Array.from({ length: 3 }, () => random(skillList)).join(', ')
+    let lingua = random(lingue)
+    let cert = random(certificazioni)
+    let exp = random(livelliExp)
+    let ruolo = random(lavori).nome
 
-        let skills = Array.from({ length: 3 }, () => random(skillList)).join(", ")
-        let lingua = random(lingue)
-        let cert = random(certificazioni)
-        let exp = random(livelliExp)
+    let txt = `*╭━━━━━━━📄━━━━━━━╮*
+*✦ 𝐂𝐔𝐑𝐑𝐈𝐂𝐔𝐋𝐔𝐌 ✦*
+*╰━━━━━━━📄━━━━━━━╯*
 
-        let txt = `╔═══ 📄 *CURRICULUM* ═══╗
+*👤 𝐍𝐨𝐦𝐞:* ${nome}
+*💼 𝐑𝐮𝐨𝐥𝐨:* ${ruolo}
+*📊 𝐋𝐢𝐯𝐞𝐥𝐥𝐨:* ${exp}
 
-👤 ${nome}
+*🧠 𝐂𝐨𝐦𝐩𝐞𝐭𝐞𝐧𝐳𝐞:*
+${skills}
 
-💼 Ruolo: ${random(lavori).nome}
-📊 Livello: ${exp}
+*🌍 𝐋𝐢𝐧𝐠𝐮𝐞:*
+${lingua}
 
-🧠 Competenze:
-→ ${skills}
+*🏆 𝐂𝐞𝐫𝐭𝐢𝐟𝐢𝐜𝐚𝐳𝐢𝐨𝐧𝐢:*
+${cert}
 
-🌍 Lingue:
-→ ${lingua}
+*🎯 𝐎𝐛𝐢𝐞𝐭𝐭𝐢𝐯𝐨:*
+𝐆𝐮𝐚𝐝𝐚𝐠𝐧𝐚𝐫𝐞 𝐬𝐞𝐦𝐩𝐫𝐞 𝐝𝐢 𝐩𝐢𝐮̀ 💸`
 
-🏆 Certificazioni:
-→ ${cert}
+    return await conn.sendMessage(chat, {
+      text: txt,
+      footer: '𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐟𝐚𝐫𝐞',
+      buttons: buttonsCurriculum(usedPrefix),
+      headerType: 1
+    }, { quoted: m })
+  }
 
-🎯 Obiettivo:
-→ Guadagnare sempre di più 💸
+  if (command === 'cercalavoro') {
+    let lista = []
+    let used = new Set()
 
-╚══════════════════╝`
+    let txt = `*╭━━━━━━━💼━━━━━━━╮*
+*✦ 𝐎𝐅𝐅𝐄𝐑𝐓𝐄 𝐃𝐈 𝐋𝐀𝐕𝐎𝐑𝐎 ✦*
+*╰━━━━━━━💼━━━━━━━╯*
 
-        return await conn.sendMessage(chat, {
-            text: txt,
-            footer: "Scegli cosa fare",
-            buttons: buttonsCurriculum(usedPrefix),
-            headerType: 1
-        }, { quoted: m })
-    }
-
-    // 💼 CERCA LAVORO
-    if (command === "cercalavoro") {
-        let lista = []
-        let used = new Set()
-
-        let txt = `╔═══ 💼 *LAVORO* ═══╗
-
-_Rispondi con 1-5_
+*𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐜𝐨𝐧 𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐚 𝟏 𝐚 𝟓.*
 
 `
 
-        let i = 1
-        while (used.size < 5) {
-            let job = random(lavori)
-            if (!used.has(job.nome)) {
-                used.add(job.nome)
+    let i = 1
+    while (used.size < 5) {
+      let job = random(lavori)
+      if (!used.has(job.nome)) {
+        used.add(job.nome)
 
-                let az = random(aziende)
-                let paga = Math.floor(job.paga * az.bonus)
+        let az = random(aziende)
+        let paga = Math.floor(job.paga * az.bonus)
 
-                lista.push({
-                    ...job,
-                    azienda: az.nome,
-                    reputazione: az.reputazione,
-                    pagaFinale: paga
-                })
+        lista.push({
+          ...job,
+          azienda: az.nome,
+          reputazione: az.reputazione,
+          pagaFinale: paga
+        })
 
-                txt += `┌─ *${i}. ${job.nome}*
-│ 🏢 ${az.nome}
-│ ⭐ ${az.reputazione}/100
-│ 💰 ${paga}€
-└──────────\n\n`
+        txt += `*${i}. 𝐑𝐮𝐨𝐥𝐨:* ${job.nome}
+*🏢 𝐀𝐳𝐢𝐞𝐧𝐝𝐚:* ${az.nome}
+*⭐ 𝐑𝐞𝐩𝐮𝐭𝐚𝐳𝐢𝐨𝐧𝐞:* ${az.reputazione}/100
+*💰 𝐒𝐭𝐢𝐩𝐞𝐧𝐝𝐢𝐨:* ${paga}€
 
-                i++
-            }
-        }
+`
 
-        global.curriculumGame[chat][user] = { proposte: lista }
-
-        return conn.reply(chat, txt, m)
+        i++
+      }
     }
 
-    // 👤 PROFILO
-    if (command === "profilowork") {
-        let txt = `╔═══ 👤 *PROFILO LAVORO* ═══╗
+    global.curriculumGame[chat][user] = { proposte: lista }
 
-💼 ${u.lavoro || "Disoccupato"}
-🏢 ${u.azienda || "-"}
-⭐ ${u.reputazioneAzienda}/100
+    return conn.reply(chat, txt.trim(), m)
+  }
 
-💰 ${u.euro}€
+  if (command === 'profilowork') {
+    let txt = `*╭━━━━━━━👤━━━━━━━╮*
+*✦ 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 𝐋𝐀𝐕𝐎𝐑𝐎 ✦*
+*╰━━━━━━━👤━━━━━━━╯*
 
-╚══════════════════════╝`
+*💼 𝐋𝐚𝐯𝐨𝐫𝐨:* ${u.lavoro || '𝐃𝐢𝐬𝐨𝐜𝐜𝐮𝐩𝐚𝐭𝐨'}
+*🏢 𝐀𝐳𝐢𝐞𝐧𝐝𝐚:* ${u.azienda || '-'}
+*⭐ 𝐑𝐞𝐩𝐮𝐭𝐚𝐳𝐢𝐨𝐧𝐞:* ${u.reputazioneAzienda || 0}/100
+*💰 𝐄𝐮𝐫𝐨:* ${u.euro || 0}€`
 
-        return conn.reply(chat, txt, m)
-    }
+    return conn.reply(chat, txt, m)
+  }
 }
 
-// 🎯 SCELTA LAVORO
 handler.before = async (m, { conn, usedPrefix }) => {
-    const chat = m.chat
-    const user = m.sender
+  const chat = m.chat
+  const user = m.sender
 
-    if (!global.curriculumGame?.[chat]?.[user]) return
-    if (!/^[1-5]$/.test(m.text)) return
+  if (!global.curriculumGame?.[chat]?.[user]) return
+  if (!/^[1-5]$/.test(S(m.text).trim())) return
 
-    let u = global.db.data.users[user]
-    const scelta = global.curriculumGame[chat][user].proposte[m.text - 1]
-    const nome = await conn.getName(user)
+  let u = global.db.data.users[user]
+  const scelta = global.curriculumGame[chat][user].proposte[Number(m.text) - 1]
+  if (!scelta) return
 
-    u.lavoro = scelta.nome
-    u.azienda = scelta.azienda
-    u.reputazioneAzienda = scelta.reputazione
-    u.euro += scelta.pagaFinale
+  const nome = await conn.getName(user)
 
-    // 🎲 EVENTO
-    let evento
-    if (u.reputazioneAzienda >= 85) {
-        evento = random([eventi[0], eventi[2], eventi[4]])
-    } else if (u.reputazioneAzienda >= 70) {
-        evento = random(eventi)
-    } else {
-        evento = random([eventi[1], eventi[3], eventi[4]])
-    }
+  u.lavoro = scelta.nome
+  u.azienda = scelta.azienda
+  u.reputazioneAzienda = scelta.reputazione
+  u.euro += scelta.pagaFinale
 
-    evento.effetto(u)
+  let evento
+  if (u.reputazioneAzienda >= 85) evento = random([eventi[0], eventi[2], eventi[4]])
+  else if (u.reputazioneAzienda >= 70) evento = random(eventi)
+  else evento = random([eventi[1], eventi[3], eventi[4]])
 
-    let txt = `╔═══ 🎮 *CARRIERA* ═══╗
+  evento.effetto(u)
 
-👤 ${nome}
-💼 ${u.lavoro || "Disoccupato"}
-🏢 ${u.azienda || "-"}
+  let txt = `*╭━━━━━━━🎮━━━━━━━╮*
+*✦ 𝐂𝐀𝐑𝐑𝐈𝐄𝐑𝐀 ✦*
+*╰━━━━━━━🎮━━━━━━━╯*
 
-⭐ ${u.reputazioneAzienda}/100
-💰 ${u.euro}€
+*👤 𝐍𝐨𝐦𝐞:* ${nome}
+*💼 𝐋𝐚𝐯𝐨𝐫𝐨:* ${u.lavoro || '𝐃𝐢𝐬𝐨𝐜𝐜𝐮𝐩𝐚𝐭𝐨'}
+*🏢 𝐀𝐳𝐢𝐞𝐧𝐝𝐚:* ${u.azienda || '-'}
+*⭐ 𝐑𝐞𝐩𝐮𝐭𝐚𝐳𝐢𝐨𝐧𝐞:* ${u.reputazioneAzienda || 0}/100
+*💰 𝐄𝐮𝐫𝐨:* ${u.euro || 0}€
 
-━━━━━━━━━━━━━━
-🎲 ${evento.testo}
+*🎲 𝐄𝐯𝐞𝐧𝐭𝐨:* ${evento.testo}`
 
-╚══════════════════╝`
+  await conn.sendMessage(chat, {
+    text: txt,
+    footer: '𝐕𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚 𝐢𝐥 𝐭𝐮𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨',
+    buttons: buttonProfilo(usedPrefix),
+    headerType: 1
+  }, { quoted: m })
 
-    // ✅ Bottone solo “Profilo” dopo assunzione
-    await conn.sendMessage(chat, {
-        text: txt,
-        footer: "Visualizza il tuo profilo",
-        buttons: buttonProfilo(usedPrefix),
-        headerType: 1
-    }, { quoted: m })
-
-    delete global.curriculumGame[chat][user]
+  delete global.curriculumGame[chat][user]
 }
 
 handler.command = /^(curriculum|cercalavoro|profilowork)$/i
+
 export default handler

@@ -1,42 +1,64 @@
+// by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
+
 let handler = async (m, { conn, text }) => {
   try {
-    let who;
+    let who
 
     if (text && /^\d{7,15}$/.test(text)) {
-      who = text.replace(/\D/g, '') + '@s.whatsapp.net';
+      who = text.replace(/\D/g, '') + '@s.whatsapp.net'
     } else if (m.quoted) {
-      who = m.quoted.sender;
+      who = m.quoted.sender
     } else if (m.mentionedJid && m.mentionedJid.length > 0) {
-      who = m.mentionedJid[0];
+      who = m.mentionedJid[0]
     } else {
-      who = m.fromMe ? conn.user.jid : m.sender;
+      who = m.fromMe ? conn.user.jid : m.sender
     }
 
-    let name = await conn.getName(who);
+    const name = await conn.getName(who)
 
-    let pp;
+    let pp
     try {
-      pp = await conn.profilePictureUrl(who, 'image');
+      pp = await conn.profilePictureUrl(who, 'image')
     } catch {
-      pp = null;
+      pp = null
     }
 
     if (!pp) {
-      await conn.reply(m.chat, `『 🚫 』 *${name} non ha una foto profilo.*`, m, fake);
-      return;
+      return conn.reply(
+        m.chat,
+        '*⚠️ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐮𝐧𝐚 𝐟𝐨𝐭𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨.*',
+        m
+      )
     }
 
-    await conn.sendFile(m.chat, pp, 'profile.jpg', `『 🖼️ 』 *Foto profilo di ${name}*`, m);
+    const caption = `*╭━━━━━━━🖼️━━━━━━━╮*
+*✦ 𝐅𝐎𝐓𝐎 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 ✦*
+*╰━━━━━━━🖼️━━━━━━━╯*
+
+*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${name}`
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        image: { url: pp },
+        caption,
+        mentions: [who]
+      },
+      { quoted: m }
+    )
 
   } catch (err) {
-    console.error('Errore nel comando .pfp:', err);
-    await conn.reply(m.chat, `${global.errore}`, m);
+    console.error('Errore .pfp:', err)
+    await conn.reply(
+      m.chat,
+      '*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥 𝐫𝐞𝐜𝐮𝐩𝐞𝐫𝐨 𝐝𝐞𝐥𝐥𝐚 𝐟𝐨𝐭𝐨.*',
+      m
+    )
   }
-};
+}
 
-handler.help = ['pfp [@tag|reply|numero]'];
-handler.tags = ['gruppo'];
-handler.command = ['pfp', 'fotoprofilo', 'pic'];
-handler.admin = false; // <--- Modificato qui (tutti possono usarlo)
+handler.help = ['pfp @utente / reply / numero']
+handler.tags = ['tools']
+handler.command = ['pfp', 'fotoprofilo', 'pic']
 
-export default handler;
+export default handler

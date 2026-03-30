@@ -1,60 +1,79 @@
-var handler = async (m, { conn, text, command }) => {
-  let action, icon, title, effect
-  let sender = m.sender
+// by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
 
-  // Identificazione utenti (Tag, Quoted o Numero)
-  let users = m.mentionedJid && m.mentionedJid.length > 0 
-    ? m.mentionedJid 
+import fetch from 'node-fetch'
+
+const S = v => String(v || '')
+
+var handler = async (m, { conn, text, command }) => {
+  let action, title, icon
+  const sender = m.sender
+
+  let users = m.mentionedJid && m.mentionedJid.length > 0
+    ? m.mentionedJid
     : (m.quoted ? [m.quoted.sender] : [])
 
   if (!users.length && text) {
-    let numbers = text.split(/[\s,]+/).filter(v => !isNaN(v))
+    const numbers = S(text).split(/[\s,]+/).filter(v => !isNaN(v))
     users = numbers.map(n => n + '@s.whatsapp.net')
   }
 
   if (!users.length) {
-    return conn.reply(m.chat, '⚠️ 𝚫𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 • 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐛𝐞𝐫𝐬𝐚𝐠𝐥𝐢𝐨 𝐩𝐞𝐫 𝐢𝐥 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.', m)
+    return conn.reply(m.chat, '*⚠️ 𝐈𝐧𝐝𝐢𝐜𝐚 𝐚𝐥𝐦𝐞𝐧𝐨 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞.*', m)
   }
 
-  // Configurazione Azione
   if (['promote', 'promuovi', 'p', 'p2'].includes(command)) {
     action = 'promote'
-    icon = '⛩️'
-    title = '𝐄𝐋𝐄𝐕𝐀𝐙𝐈𝐎𝐍𝐄'
+    icon = '👑'
+    title = '𝐏𝐑𝐎𝐌𝐎𝐙𝐈𝐎𝐍𝐄'
   } else {
     action = 'demote'
-    icon = '⚙️'
-    title = '𝐑𝐄𝐕𝐎𝐂𝐀𝐓𝐎'
-    effect = '𝐏𝐎𝐓𝐄𝐑𝐄 𝐑𝐄𝐕𝐎𝐂𝐀𝐓𝐎'
+    icon = '🙇‍♂️'
+    title = '𝐑𝐄𝐓𝐑𝐎𝐂𝐄𝐒𝐒𝐈𝐎𝐍𝐄'
   }
 
   try {
     await conn.groupParticipantsUpdate(m.chat, users, action)
-    
-    let tagList = users.map(u => ' @' + u.split('@')[0]).join('\n│ 👥 ')
 
-    let axionMsg = `
-┏━━━━━━━━━━━━━━━━━━┓
-┃    🔱  𝚫𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌  🔱
-┗━━━━━━━━━━━━━━━━━━┛
-│
-│ 🛠️ 𝐎𝐏𝐄𝐑𝐀𝐙𝐈𝐎𝐍𝐄: ${title}
-│ 📊 𝐒𝐓𝐀𝐓𝐔𝐒: 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐎
-│
-│ 👤 𝐄𝐒𝐄𝐂𝐔𝐓𝐎𝐑𝐄: @${sender.split('@')[0]}
-│ 👥 𝐁𝐄𝐑𝐒𝐀𝐆𝐋𝐈:
-│ 👥 ${tagList}
-│
-┃ 🔗 𝚫𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 
-┗━━━━━━━━━━━━━━━━━━┛`.trim()
+    let thumb = 'https://i.ibb.co/2kR7x9J/avatar.png'
+    try {
+      thumb = await conn.profilePictureUrl(m.chat, 'image')
+    } catch {}
+
+    const thumbnailBuffer = typeof thumb === 'string'
+      ? await (await fetch(thumb)).buffer()
+      : thumb
+
+    const tagList = users.map(u => `• @${u.split('@')[0]}`).join('\n')
+
+    const msg = `*╭━━━━━━━${icon}━━━━━━━╮*
+*✦ ${title} ✦*
+*╰━━━━━━━${icon}━━━━━━━╯*
+
+*👤 𝐄𝐬𝐞𝐜𝐮𝐭𝐨𝐫𝐞:* @${sender.split('@')[0]}
+*📌 𝐀𝐳𝐢𝐨𝐧𝐞:* ${title}
+*✅ 𝐄𝐬𝐢𝐭𝐨:* 𝐂𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨
+
+*👥 𝐔𝐭𝐞𝐧𝐭𝐢:*
+${tagList}`
 
     await conn.sendMessage(m.chat, {
-      text: axionMsg,
-      mentions: [sender, ...users]
+      text: msg,
+      mentions: [sender, ...users],
+      contextInfo: {
+        ...(global.rcanal?.contextInfo || {}),
+        externalAdReply: {
+          title: 'Gestione permessi gruppo',
+          body: ' ',
+          thumbnail: thumbnailBuffer,
+          mediaType: 1,
+          renderLargerThumbnail: false,
+          showAdAttribution: false
+        }
+      }
     }, { quoted: m })
 
   } catch (e) {
-    conn.reply(m.chat, `❌ 𝚫𝐗𝐈𝚶𝐍 𝐄𝐑𝐑𝐎𝐑: 𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚𝐑𝐞 𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢.`, m)
+    conn.reply(m.chat, '*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥𝐥𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚 𝐝𝐞𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢.*', m)
   }
 }
 
