@@ -38,16 +38,16 @@ const frasi = [
 ]
 
 const cibi = [
-  { nome: 'Pizza', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Supreme_pizza.jpg' },
-  { nome: 'Sushi', url: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Sushi_platter.jpg' },
-  { nome: 'Hamburger', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/RedDot_Burger.jpg' },
-  { nome: 'Carbonara', url: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Spaghetti_alla_Carbonara.jpg' },
-  { nome: 'Lasagna', url: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Lasagne_-_stonesoup.jpg' },
-  { nome: 'Tiramisù', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Tiramisu.jpg' },
-  { nome: 'Paella', url: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Paella_valenciana.jpg' },
-  { nome: 'Ramen', url: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Tonkotsu_Ramen.jpg' },
-  { nome: 'Hot Dog', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Hot_dog_with_mustard.png' },
-  { nome: 'Gelato', url: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Gelato.jpg' }
+  { nome: 'Pizza', url: 'https://telegra.ph/file/9f3f0c2a6c8f0b2d6c1f3.jpg' },
+  { nome: 'Sushi', url: 'https://telegra.ph/file/3c2d1f0b9a8e7d6c5b4a1.jpg' },
+  { nome: 'Hamburger', url: 'https://telegra.ph/file/1a2b3c4d5e6f7g8h9i0j.jpg' },
+  { nome: 'Carbonara', url: 'https://telegra.ph/file/5e4d3c2b1a0f9e8d7c6b.jpg' },
+  { nome: 'Lasagna', url: 'https://telegra.ph/file/7c6b5a4d3e2f1a0b9c8d.jpg' },
+  { nome: 'Tiramisù', url: 'https://telegra.ph/file/8b7a6c5d4e3f2a1b0c9d.jpg' },
+  { nome: 'Paella', url: 'https://telegra.ph/file/2d3c4b5a6e7f8g9h0i1j.jpg' },
+  { nome: 'Ramen', url: 'https://telegra.ph/file/6f5e4d3c2b1a0f9e8d7c.jpg' },
+  { nome: 'Hot Dog', url: 'https://telegra.ph/file/4a3b2c1d0e9f8g7h6i5j.jpg' },
+  { nome: 'Gelato', url: 'https://telegra.ph/file/0f1e2d3c4b5a6e7f8g9h.jpg' }
 ]
 
 function normalizeString(str) {
