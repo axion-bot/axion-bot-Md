@@ -2,6 +2,9 @@
 
 global.ciboGame = global.ciboGame || {}
 global.cooldowns = global.cooldowns || {}
+global.db = global.db || { data: { users: {} } }
+global.db.data = global.db.data || {}
+global.db.data.users = global.db.data.users || {}
 
 const S = v => String(v || '')
 const random = arr => arr[Math.floor(Math.random() * arr.length)]
@@ -14,6 +17,17 @@ const playAgainButtons = prefix => [
   }
 ]
 
+async function sendWithRetry(conn, chat, content, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await conn.sendMessage(chat, content, options)
+    } catch (e) {
+      if (i === retries - 1) throw e
+      await new Promise(r => setTimeout(r, 1000))
+    }
+  }
+}
+
 const frasi = [
   '🍽️ *𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐈𝐋 𝐂𝐈𝐁𝐎!*',
   '😋 *𝐒𝐚𝐢 𝐜𝐡𝐞 𝐩𝐢𝐚𝐭𝐭𝐨 è 𝐪𝐮𝐞𝐬𝐭𝐨?*',
@@ -24,16 +38,16 @@ const frasi = [
 ]
 
 const cibi = [
-  { nome: 'Pizza', url: 'https://images.unsplash.com/photo-1601924582975-7e7eaa20f9c4' },
-  { nome: 'Sushi', url: 'https://images.unsplash.com/photo-1553621042-f6e147245754' },
-  { nome: 'Hamburger', url: 'https://images.unsplash.com/photo-1550547660-d9450f859349' },
-  { nome: 'Carbonara', url: 'https://images.unsplash.com/photo-1589307004391-1c6b6f77c9d1' },
-  { nome: 'Lasagna', url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b' },
-  { nome: 'Tiramisù', url: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9' },
-  { nome: 'Paella', url: 'https://images.unsplash.com/photo-1604908176997-4318a4f4b0c8' },
-  { nome: 'Ramen', url: 'https://images.unsplash.com/photo-1604908554025-15b0c37f3c5e' },
-  { nome: 'Hot Dog', url: 'https://images.unsplash.com/photo-1550547660-8d7f5f1c36c5' },
-  { nome: 'Gelato', url: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625' }
+  { nome: 'Pizza', url: 'https://source.unsplash.com/600x400/?pizza' },
+  { nome: 'Sushi', url: 'https://source.unsplash.com/600x400/?sushi' },
+  { nome: 'Hamburger', url: 'https://source.unsplash.com/600x400/?burger' },
+  { nome: 'Carbonara', url: 'https://source.unsplash.com/600x400/?carbonara' },
+  { nome: 'Lasagna', url: 'https://source.unsplash.com/600x400/?lasagna' },
+  { nome: 'Tiramisù', url: 'https://source.unsplash.com/600x400/?tiramisu' },
+  { nome: 'Paella', url: 'https://source.unsplash.com/600x400/?paella' },
+  { nome: 'Ramen', url: 'https://source.unsplash.com/600x400/?ramen' },
+  { nome: 'Hot Dog', url: 'https://source.unsplash.com/600x400/?hotdog' },
+  { nome: 'Gelato', url: 'https://source.unsplash.com/600x400/?gelato' }
 ]
 
 function normalizeString(str) {
@@ -49,19 +63,15 @@ let handler = async (m, { conn, usedPrefix, isAdmin, command }) => {
   const chat = m.chat
 
   if (command === 'skipcibo') {
-    if (!m.isGroup) return m.reply('*𝐐𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐚 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢.*')
-    if (!global.ciboGame?.[chat]) return m.reply('*𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚.*')
-    if (!isAdmin && !m.fromMe) return m.reply('*𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐢𝐧𝐭𝐞𝐫𝐫𝐨𝐦𝐩𝐞𝐫𝐞 𝐢𝐥 𝐠𝐢𝐨𝐜𝐨.*')
+    if (!m.isGroup) return m.reply('*Solo nei gruppi.*')
+    if (!global.ciboGame?.[chat]) return m.reply('*Nessuna partita attiva.*')
+    if (!isAdmin && !m.fromMe) return m.reply('*Solo admin.*')
 
     clearTimeout(global.ciboGame[chat].timeout)
 
     await conn.sendMessage(chat, {
-      text: `*╭━━━━━━━🛑━━━━━━━╮*
-*✦ 𝐆𝐈𝐎𝐂𝐎 𝐈𝐍𝐓𝐄𝐑𝐑𝐎𝐓𝐓𝐎 ✦*
-*╰━━━━━━━🛑━━━━━━━╯*
-
-*🍽️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚:* ${global.ciboGame[chat].rispostaOriginale}`,
-      footer: '𝐆𝐢𝐨𝐜𝐚 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨',
+      text: `🛑 *GIOCO INTERROTTO*\n\n🍽️ Era: ${global.ciboGame[chat].rispostaOriginale}`,
+      footer: 'Gioca di nuovo',
       buttons: playAgainButtons(usedPrefix),
       headerType: 1
     }, { quoted: m })
@@ -71,93 +81,91 @@ let handler = async (m, { conn, usedPrefix, isAdmin, command }) => {
   }
 
   if (global.ciboGame?.[chat]) {
-    return m.reply('*𝐂’è 𝐠𝐢à 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚.*')
+    return m.reply('*C’è già una partita attiva.*')
   }
 
-  const cooldownKey = `cibo_${chat}`
+  const key = `cibo_${chat}`
   const now = Date.now()
-  const lastGame = global.cooldowns[cooldownKey] || 0
-  const cooldownTime = 10000
+  const last = global.cooldowns[key] || 0
 
-  if (now - lastGame < cooldownTime) {
-    const remaining = Math.ceil((cooldownTime - (now - lastGame)) / 1000)
-    return m.reply(`*⏳ 𝐀𝐬𝐩𝐞𝐭𝐭𝐚 𝐚𝐧𝐜𝐨𝐫𝐚 ${remaining} 𝐬𝐞𝐜𝐨𝐧𝐝𝐢.*`)
+  if (now - last < 10000) {
+    const sec = Math.ceil((10000 - (now - last)) / 1000)
+    return m.reply(`⏳ Aspetta ${sec}s`)
   }
 
-  global.cooldowns[cooldownKey] = now
+  global.cooldowns[key] = now
 
   const scelta = random(cibi)
   const frase = random(frasi)
 
   try {
-    const msg = await conn.sendMessage(chat, {
+    const msg = await sendWithRetry(conn, chat, {
       image: { url: scelta.url },
       caption: `${frase}
 
-*🍽️ 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐜𝐨𝐧 𝐢𝐥 𝐧𝐨𝐦𝐞 𝐝𝐞𝐥 𝐜𝐢𝐛𝐨!*
-*⏱️ 𝐓𝐞𝐦𝐩𝐨 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞:* 30 𝐬𝐞𝐜𝐨𝐧𝐝𝐢
-
-> 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino`,
+🍽️ Rispondi con il nome!
+⏱️ Tempo: 30s`
     }, { quoted: m })
+
+    const hintTimeout = setTimeout(() => {
+      if (!global.ciboGame?.[chat]) return
+      conn.sendMessage(chat, {
+        text: `💡 Suggerimento: inizia con *${scelta.nome[0]}*`
+      })
+    }, 10000)
 
     global.ciboGame[chat] = {
       id: msg.key.id,
       risposta: scelta.nome.toLowerCase(),
       rispostaOriginale: scelta.nome,
       tentativi: {},
-      suggerito: false,
-      startTime: Date.now(),
       timeout: setTimeout(async () => {
         if (!global.ciboGame?.[chat]) return
 
         await conn.sendMessage(chat, {
-          text: `*╭━━━━━━━⏳━━━━━━━╮*
-*✦ 𝐓𝐄𝐌𝐏𝐎 𝐒𝐂𝐀𝐃𝐔𝐓𝐎 ✦*
-*╰━━━━━━━⏳━━━━━━━╯*
-
-*🍽️ 𝐄𝐫𝐚:* ${scelta.nome}`,
-          footer: '𝐆𝐢𝐨𝐜𝐚 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨',
+          text: `⏳ Tempo scaduto!\n🍽️ Era: ${scelta.nome}`,
+          footer: 'Gioca di nuovo',
           buttons: playAgainButtons(usedPrefix),
           headerType: 1
         }, { quoted: msg })
 
         delete global.ciboGame[chat]
-      }, 30000)
+      }, 30000),
+      hintTimeout
     }
+
   } catch (e) {
-    console.error(e)
-    m.reply(`*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥𝐥’𝐚𝐯𝐯𝐢𝐨 𝐝𝐞𝐥 𝐠𝐢𝐨𝐜𝐨.*`)
+    console.error('CIBO ERROR:', e)
+    m.reply(`❌ Errore:\n${e.message}`)
   }
 }
 
-handler.before = async (m, { conn, usedPrefix }) => {
+handler.before = async (m, { conn }) => {
   const game = global.ciboGame?.[m.chat]
   if (!game || !m.quoted || m.quoted.id !== game.id || m.key.fromMe) return
 
-  const userAnswer = normalizeString(m.text)
-  const correctAnswer = normalizeString(game.risposta)
-  if (!userAnswer) return
+  const user = normalizeString(m.text)
+  const correct = normalizeString(game.risposta)
+  if (!user) return
 
-  if (userAnswer === correctAnswer) {
+  if (user === correct) {
     clearTimeout(game.timeout)
+    clearTimeout(game.hintTimeout)
 
     const reward = Math.floor(Math.random() * 31) + 20
     const exp = 500
 
-    if (!global.db.data.users[m.sender]) global.db.data.users[m.sender] = {}
+    global.db.data.users[m.sender] = global.db.data.users[m.sender] || {}
 
-    global.db.data.users[m.sender].euro = (global.db.data.users[m.sender].euro || 0) + reward
-    global.db.data.users[m.sender].exp = (global.db.data.users[m.sender].exp || 0) + exp
+    global.db.data.users[m.sender].euro =
+      (global.db.data.users[m.sender].euro || 0) + reward
+
+    global.db.data.users[m.sender].exp =
+      (global.db.data.users[m.sender].exp || 0) + exp
 
     await conn.sendMessage(m.chat, {
-      text: `*╭━━━━━━━🎉━━━━━━━╮*
-*✦ 𝐑𝐈𝐒𝐏𝐎𝐒𝐓𝐀 𝐂𝐎𝐑𝐑𝐄𝐓𝐓𝐀 ✦*
-*╰━━━━━━━🎉━━━━━━━╯*
-
-*🍽️ 𝐄𝐫𝐚:* ${game.rispostaOriginale}
-*🎁 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚:* +${reward} 💰
-*🆙 𝐄𝐗𝐏:* +${exp}`,
-      footer: '𝐆𝐢𝐨𝐜𝐚 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨',
+      text: `🎉 Corretto!\n\n🍽️ Era: ${game.rispostaOriginale}\n💰 +${reward}\n🆙 +${exp} EXP`,
+      footer: 'Gioca di nuovo',
       buttons: playAgainButtons(usedPrefix),
       headerType: 1
     }, { quoted: m })
@@ -167,23 +175,19 @@ handler.before = async (m, { conn, usedPrefix }) => {
   }
 
   game.tentativi[m.sender] = (game.tentativi[m.sender] || 0) + 1
-  const rimasti = 3 - game.tentativi[m.sender]
+  const left = 3 - game.tentativi[m.sender]
 
-  if (rimasti <= 0) {
+  if (left <= 0) {
     await conn.sendMessage(m.chat, {
-      text: `*╭━━━━━━━❌━━━━━━━╮*
-*✦ 𝐓𝐄𝐍𝐓𝐀𝐓𝐈𝐕𝐈 𝐅𝐈𝐍𝐈𝐓𝐈 ✦*
-*╰━━━━━━━❌━━━━━━━╯*
-
-*🍽️ 𝐄𝐫𝐚:* ${game.rispostaOriginale}`,
-      footer: '𝐆𝐢𝐨𝐜𝐚 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨',
+      text: `❌ Tentativi finiti!\n🍽️ Era: ${game.rispostaOriginale}`,
+      footer: 'Gioca di nuovo',
       buttons: playAgainButtons(usedPrefix),
       headerType: 1
     }, { quoted: m })
 
     delete global.ciboGame[m.chat]
   } else {
-    await conn.reply(m.chat, `*❌ 𝐒𝐛𝐚𝐠𝐥𝐢𝐚𝐭𝐨!*\n*𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢 𝐫𝐢𝐦𝐚𝐬𝐭𝐢:* ${rimasti}`, m)
+    conn.reply(m.chat, `❌ Sbagliato! Tentativi: ${left}`, m)
   }
 }
 
