@@ -1,110 +1,86 @@
 const handler = async (m, { conn, command, text, isAdmin }) => {
-  const BOT_OWNERS = (global.owner || []).map(o => {
-    const raw = Array.isArray(o) ? o[0] : o
-    return String(raw).replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-  })
+  // Ottieni l'elenco degli owner globali del bot
+  const BOT_OWNERS = (global.owner || []).map(o => o[0] + '@s.whatsapp.net');
 
-  let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender || null
+  // Estrai l'utente da tag o numero
+  let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender;
 
   if (!mentionedJid && text) {
     if (text.endsWith('@s.whatsapp.net') || text.endsWith('@c.us')) {
-      mentionedJid = text.trim()
+      mentionedJid = text.trim();
     } else {
-      let number = text.replace(/[^0-9]/g, '')
+      let number = text.replace(/[^0-9]/g, '');
       if (number.length >= 8 && number.length <= 15) {
-        mentionedJid = number + '@s.whatsapp.net'
+        mentionedJid = number + '@s.whatsapp.net';
       }
     }
   }
 
-  const chatId = m.chat
-  const botNumber = conn.user.jid
+  const chatId = m.chat;
+  const botNumber = conn.user.jid;
 
-  let groupOwner = null
+  // Ottieni owner del gruppo
+  let groupOwner = null;
   try {
-    const metadata = await conn.groupMetadata(chatId)
-    groupOwner = metadata.owner
-  } catch {
-    groupOwner = null
-  }
+    const metadata = await conn.groupMetadata(chatId);
+    groupOwner = metadata.owner;
+  } catch { groupOwner = null }
 
-  if (!isAdmin) {
-    throw `╭━━━━━━━❌━━━━━━━╮
-✦ 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎 ✦
-╰━━━━━━━❌━━━━━━━╯
+  if (!isAdmin)
+    throw '╭━━━❌━━━╮\n 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎\n╰━━━❌━━━╯\n\nSolo gli admin possono usare questo comando.';
 
-🛡️ 𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨`
-  }
-
-  if (!mentionedJid) {
+  if (!mentionedJid)
     return conn.reply(
       chatId,
-      `╭━━━━━━━⚠️━━━━━━━╮
-✦ 𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎 ✦
-╰━━━━━━━⚠️━━━━━━━╯
-
-👤 𝐓𝐚𝐠𝐠𝐚 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐝𝐚 ${command === 'muta' ? '𝐦𝐮𝐭𝐚𝐫𝐞 🔇' : '𝐬𝐦𝐮𝐭𝐚𝐫𝐞 🔊'}`,
+      `╭━━━⚠️━━━╮\n 𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎\n╰━━━⚠️━━━╯\nTagga un utente da ${
+        command === 'muta' ? 'mutare 🔇' : 'smutare 🔊'
+      }`,
       m
-    )
-  }
+    );
 
-  if ([groupOwner, botNumber, ...BOT_OWNERS].includes(mentionedJid)) {
-    throw `╭━━━━━━━👑━━━━━━━╮
-✦ 𝐔𝐓𝐄𝐍𝐓𝐄 𝐏𝐑𝐎𝐓𝐄𝐓𝐓𝐎 ✦
-╰━━━━━━━👑━━━━━━━╯
+  // Protezioni
+  if ([groupOwner, botNumber, ...BOT_OWNERS].includes(mentionedJid))
+    throw '╭━━━👑━━━╮\n 𝐏𝐑𝐎𝐓𝐄𝐓𝐓𝐎\n╰━━━👑━━━╯\nNon puoi mutare questo utente (owner/creator/bot).';
 
-🚫 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐦𝐮𝐭𝐚𝐫𝐞 𝐨 𝐬𝐦𝐮𝐭𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞`
-  }
-
-  if (!global.db.data.users[mentionedJid]) global.db.data.users[mentionedJid] = {}
-
-  const user = global.db.data.users[mentionedJid]
-  const isMute = command === 'muta'
-  const tag = '@' + mentionedJid.split('@')[0]
+  // Prepara dati utente nel db
+  const user = global.db.data.users[mentionedJid];
+  const isMute = command === 'muta';
+  const tag = '@' + mentionedJid.split('@')[0];
 
   if (isMute) {
-    if (user.muto) throw `╭━━━━━━━⚠️━━━━━━━╮
-✦ 𝐌𝐔𝐓𝐄 ✦
-╰━━━━━━━⚠️━━━━━━━╯
-
-🔇 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐠𝐢à 𝐦𝐮𝐭𝐚𝐭𝐨`
-
-    user.muto = true
+    if (user.muto) throw '⚠️ L’utente è già mutato.';
+    user.muto = true;
 
     return conn.sendMessage(chatId, {
       text: `╭━━━━━━━🔇━━━━━━━╮
-✦ 𝐌𝐔𝐓𝐄 𝐀𝐓𝐓𝐈𝐕𝐀𝐓𝐎 ✦
+   ✦ 𝐌𝐔𝐓𝐄 𝐀𝐓𝐓𝐈𝐕𝐀𝐓𝐎 ✦
 ╰━━━━━━━🔇━━━━━━━╯
 
-👤 𝐔𝐭𝐞𝐧𝐭𝐞: ${tag}
-🔒 𝐒𝐭𝐚𝐭𝐨: 𝐌𝐮𝐭𝐚𝐭𝐨
-⏳ 𝐃𝐮𝐫𝐚𝐭𝐚: 𝐅𝐢𝐧𝐨 𝐚 .𝐬𝐦𝐮𝐭𝐚`,
+👤 Utente: ${tag}
+🔒 Stato: Mutato
+⏳ Durata: Fino a .smuta`,
       mentions: [mentionedJid],
-    }, { quoted: m })
+    });
   }
 
-  if (!user.muto) throw `╭━━━━━━━⚠️━━━━━━━╮
-✦ 𝐌𝐔𝐓𝐄 ✦
-╰━━━━━━━⚠️━━━━━━━╯
-
-🔊 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 è 𝐦𝐮𝐭𝐚𝐭𝐨`
-
-  user.muto = false
+  // SMUTA
+  if (!user.muto) throw '⚠️ L’utente non è mutato.';
+  user.muto = false;
 
   return conn.sendMessage(chatId, {
     text: `╭━━━━━━━🔊━━━━━━━╮
-✦ 𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎 ✦
+   ✦ 𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎 ✦
 ╰━━━━━━━🔊━━━━━━━╯
 
-👤 𝐔𝐭𝐞𝐧𝐭𝐞: ${tag}
-🔓 𝐒𝐭𝐚𝐭𝐨: 𝐒𝐦𝐮𝐭𝐚𝐭𝐨`,
+👤 Utente: ${tag}
+🔓 Stato: Smutato`,
     mentions: [mentionedJid],
-  }, { quoted: m })
-}
+  });
+};
 
-handler.command = /^(muta|smuta)$/i
-handler.group = true
-handler.botAdmin = true
-handler.admin = true
+handler.command = /^(muta|smuta)$/i;
+handler.group = true;
+handler.botAdmin = true;
+handler.admin = true;
 
-export default handler
+export default handler;
