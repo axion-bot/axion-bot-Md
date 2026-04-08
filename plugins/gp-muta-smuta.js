@@ -1,81 +1,95 @@
-const handler = async (m, { conn, command, text, isAdmin }) => {
-  // Ottieni l'elenco degli owner globali del bot
-  const BOT_OWNERS = (global.owner || []).map(o => o[0] + '@s.whatsapp.net');
+import { createCanvas, loadImage } from 'canvas';
 
-  // Estrai l'utente da tag o numero
+const handler = async (m, { conn, command, text, isAdmin }) => {
+  const BOT_OWNERS = (global.owner || []).map(o => o[0] + '@s.whatsapp.net');
   let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender;
 
   if (!mentionedJid && text) {
-    if (text.endsWith('@s.whatsapp.net') || text.endsWith('@c.us')) {
-      mentionedJid = text.trim();
-    } else {
-      let number = text.replace(/[^0-9]/g, '');
-      if (number.length >= 8 && number.length <= 15) {
-        mentionedJid = number + '@s.whatsapp.net';
-      }
-    }
+    let number = text.replace(/[^0-9]/g, '');
+    if (number.length >= 8) mentionedJid = number + '@s.whatsapp.net';
   }
 
   const chatId = m.chat;
   const botNumber = conn.user.jid;
 
-  // Ottieni owner del gruppo
   let groupOwner = null;
   try {
     const metadata = await conn.groupMetadata(chatId);
     groupOwner = metadata.owner;
   } catch { groupOwner = null }
 
-  if (!isAdmin)
-    throw '╭━━━❌━━━╮\n 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎\n╰━━━❌━━━╯\n\nSolo gli admin possono usare questo comando.';
+  if (!isAdmin) throw '⚠️ Solo gli amministratori possono gestire il mute.';
 
-  if (!mentionedJid)
-    return conn.reply(
-      chatId,
-      `╭━━━⚠️━━━╮\n 𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎\n╰━━━⚠️━━━╯\nTagga un utente da ${
-        command === 'muta' ? 'mutare 🔇' : 'smutare 🔊'
-      }`,
-      m
-    );
+  if (!mentionedJid) return m.reply(`💡 *Esempio:* .${command} @tag o rispondi a un messaggio.`);
 
-  // Protezioni
   if ([groupOwner, botNumber, ...BOT_OWNERS].includes(mentionedJid))
-    throw '╭━━━👑━━━╮\n 𝐏𝐑𝐎𝐓𝐄𝐓𝐓𝐎\n╰━━━👑━━━╯\nNon puoi mutare questo utente (owner/creator/bot).';
+    throw '🛡️ *PROTEZIONE:* Impossibile agire su questo utente (Owner/Bot).';
 
-  // Prepara dati utente nel db
+  if (!global.db.data.users[mentionedJid]) global.db.data.users[mentionedJid] = { muto: false };
   const user = global.db.data.users[mentionedJid];
   const isMute = command === 'muta';
   const tag = '@' + mentionedJid.split('@')[0];
 
   if (isMute) {
-    if (user.muto) throw '⚠️ L’utente è già mutato.';
+    if (user.muto) throw '🔇 L\'utente è già in silenzio.';
     user.muto = true;
-
-    return conn.sendMessage(chatId, {
-      text: `╭━━━━━━━🔇━━━━━━━╮
-   ✦ 𝐌𝐔𝐓𝐄 𝐀𝐓𝐓𝐈𝐕𝐀𝐓𝐎 ✦
-╰━━━━━━━🔇━━━━━━━╯
-
-👤 Utente: ${tag}
-🔒 Stato: Mutato
-⏳ Durata: Fino a .smuta`,
-      mentions: [mentionedJid],
-    });
+  } else {
+    if (!user.muto) throw '🔊 L\'utente non è attualmente mutato.';
+    user.muto = false;
   }
 
-  // SMUTA
-  if (!user.muto) throw '⚠️ L’utente non è mutato.';
-  user.muto = false;
+  // --- GENERAZIONE CANVAS ---
+  const canvas = createCanvas(800, 300);
+  const ctx = canvas.getContext('2d');
 
-  return conn.sendMessage(chatId, {
-    text: `╭━━━━━━━🔊━━━━━━━╮
-   ✦ 𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎 ✦
-╰━━━━━━━🔊━━━━━━━╯
+  // Sfondo Sfumato (Gradient)
+  const gradient = ctx.createLinearGradient(0, 0, 800, 0);
+  gradient.addColorStop(0, isMute ? '#2c0b0e' : '#0b2c14'); // Rosso scuro o Verde scuro
+  gradient.addColorStop(1, '#121212');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 800, 300);
 
-👤 Utente: ${tag}
-🔓 Stato: Smutato`,
-    mentions: [mentionedJid],
-  });
+  // Bordi estetici
+  ctx.strokeStyle = isMute ? '#ff4b5c' : '#4bffb3';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(5, 5, 790, 290);
+
+  // Foto Profilo (Cerchio)
+  let pp;
+  try { pp = await conn.profilePictureUrl(mentionedJid, 'image') } catch { pp = 'https://i.imgur.com/8K9mXz4.png' }
+  const avatar = await loadImage(pp);
+  
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(150, 150, 100, 0, Math.PI * 2, true);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(avatar, 50, 50, 200, 200);
+  ctx.restore();
+
+  // Testo
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 45px Arial';
+  ctx.fillText(isMute ? 'MUTE ATTIVATO' : 'MUTE RIMOSSO', 280, 120);
+  
+  ctx.font = '30px Arial';
+  ctx.fillStyle = '#cccccc';
+  ctx.fillText(`Utente: ${tag.replace('@', '')}`, 280, 170);
+  
+  ctx.font = 'bold 35px Arial';
+  ctx.fillStyle = isMute ? '#ff4b5c' : '#4bffb3';
+  ctx.fillText(isMute ? '🔇 SILENZIATO' : '🔊 LIBERO', 280, 220);
+
+  // --- INVIO MESSAGGIO ---
+  const caption = isMute 
+    ? `✨ *SISTEMA DI MODERAZIONE* ✨\n\n🛑 ${tag}, il tuo diritto di parola è stato sospeso.\n⚖️ *Azione:* Mute\n🛡️ *Eseguito da:* Admin`
+    : `✨ *SISTEMA DI MODERAZIONE* ✨\n\n✅ ${tag}, ora puoi tornare a scrivere nel gruppo.\n⚖️ *Azione:* Unmute\n🔔 *Stato:* Reintegrato`;
+
+  await conn.sendMessage(chatId, { 
+    image: canvas.toBuffer(), 
+    caption: caption,
+    mentions: [mentionedJid]
+  }, { quoted: m });
 };
 
 handler.command = /^(muta|smuta)$/i;
