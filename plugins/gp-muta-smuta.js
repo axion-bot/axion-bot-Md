@@ -18,12 +18,11 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
     groupOwner = metadata.owner;
   } catch { groupOwner = null }
 
-  if (!isAdmin) throw '⚠️ Solo gli amministratori possono gestire il mute.';
-
-  if (!mentionedJid) return m.reply(`💡 *Esempio:* .${command} @tag o rispondi a un messaggio.`);
+  if (!isAdmin) throw '⚠️ Solo gli amministratori possono usare questo comando.';
+  if (!mentionedJid) return m.reply(`💡 *Esempio:* .${command} @tag`);
 
   if ([groupOwner, botNumber, ...BOT_OWNERS].includes(mentionedJid))
-    throw '🛡️ *PROTEZIONE:* Impossibile agire su questo utente (Owner/Bot).';
+    throw '🛡️ *ERRORE:* Impossibile mutare un superiore (Owner/Bot).';
 
   if (!global.db.data.users[mentionedJid]) global.db.data.users[mentionedJid] = { muto: false };
   const user = global.db.data.users[mentionedJid];
@@ -31,10 +30,10 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
   const tag = '@' + mentionedJid.split('@')[0];
 
   if (isMute) {
-    if (user.muto) throw '🔇 L\'utente è già in silenzio.';
+    if (user.muto) throw '🔇 L\'utente è già mutato.';
     user.muto = true;
   } else {
-    if (!user.muto) throw '🔊 L\'utente non è attualmente mutato.';
+    if (!user.muto) throw '🔊 L\'utente non è mutato.';
     user.muto = false;
   }
 
@@ -42,59 +41,62 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
   const canvas = createCanvas(800, 300);
   const ctx = canvas.getContext('2d');
 
-  // Sfondo Sfumato (Gradient)
-  const gradient = ctx.createLinearGradient(0, 0, 800, 0);
-  gradient.addColorStop(0, isMute ? '#2c0b0e' : '#0b2c14'); // Rosso scuro o Verde scuro
-  gradient.addColorStop(1, '#121212');
-  ctx.fillStyle = gradient;
+  // Sfondo scuro elegante
+  ctx.fillStyle = '#121212';
   ctx.fillRect(0, 0, 800, 300);
 
-  // Bordi estetici
-  ctx.strokeStyle = isMute ? '#ff4b5c' : '#4bffb3';
-  ctx.lineWidth = 10;
-  ctx.strokeRect(5, 5, 790, 290);
+  // Barra laterale colorata (Rosso per mute, Verde per smuta)
+  ctx.fillStyle = isMute ? '#ff4b5c' : '#4bffb3';
+  ctx.fillRect(0, 0, 15, 300);
 
-  // Foto Profilo (Cerchio)
+  // Caricamento Foto Profilo
   let pp;
   try { pp = await conn.profilePictureUrl(mentionedJid, 'image') } catch { pp = 'https://i.imgur.com/8K9mXz4.png' }
   const avatar = await loadImage(pp);
   
+  // Maschera Circolare per la foto
   ctx.save();
   ctx.beginPath();
-  ctx.arc(150, 150, 100, 0, Math.PI * 2, true);
+  ctx.arc(160, 150, 90, 0, Math.PI * 2, true);
   ctx.closePath();
   ctx.clip();
-  ctx.drawImage(avatar, 50, 50, 200, 200);
+  ctx.drawImage(avatar, 70, 60, 180, 180);
   ctx.restore();
 
-  // Testo
+  // Testo Principale
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 45px Arial';
-  ctx.fillText(isMute ? 'MUTE ATTIVATO' : 'MUTE RIMOSSO', 280, 120);
+  ctx.font = 'bold 50px sans-serif';
+  ctx.fillText(isMute ? 'MUTE ATTIVATO' : 'MUTE RIMOSSO', 300, 110);
   
-  ctx.font = '30px Arial';
-  ctx.fillStyle = '#cccccc';
-  ctx.fillText(`Utente: ${tag.replace('@', '')}`, 280, 170);
+  // Info Utente
+  ctx.font = '30px sans-serif';
+  ctx.fillStyle = '#bbbbbb';
+  ctx.fillText(`Utente: ${mentionedJid.split('@')[0]}`, 300, 165);
   
-  ctx.font = 'bold 35px Arial';
+  // Badge Stato (Sostituito l'emoji con un pallino pieno per evitare bug grafici)
   ctx.fillStyle = isMute ? '#ff4b5c' : '#4bffb3';
-  ctx.fillText(isMute ? '🔇 SILENZIATO' : '🔊 LIBERO', 280, 220);
+  ctx.beginPath();
+  ctx.arc(315, 220, 12, 0, Math.PI * 2);
+  ctx.fill();
 
-  // --- INVIO MESSAGGIO ---
+  ctx.font = 'bold 40px sans-serif';
+  ctx.fillText(isMute ? 'SILENZIATO' : 'ATTIVO', 345, 235);
+
+  // --- INVIO ---
   const caption = isMute 
-    ? `✨ *SISTEMA DI MODERAZIONE* ✨\n\n🛑 ${tag}, il tuo diritto di parola è stato sospeso.\n⚖️ *Azione:* Mute\n🛡️ *Eseguito da:* Admin`
-    : `✨ *SISTEMA DI MODERAZIONE* ✨\n\n✅ ${tag}, ora puoi tornare a scrivere nel gruppo.\n⚖️ *Azione:* Unmute\n🔔 *Stato:* Reintegrato`;
+    ? `『 *SISTEMA MODERAZIONE* 』\n\n🛑 *Utente:* ${tag}\n⚖️ *Stato:* Silenziato\n🛡️ *Admin:* @${m.sender.split('@')[0]}`
+    : `『 *SISTEMA MODERAZIONE* 』\n\n✅ *Utente:* ${tag}\n⚖️ *Stato:* Riabilitato\n🔔 *Info:* Può tornare a scrivere.`;
 
   await conn.sendMessage(chatId, { 
     image: canvas.toBuffer(), 
     caption: caption,
-    mentions: [mentionedJid]
+    mentions: [mentionedJid, m.sender]
   }, { quoted: m });
 };
 
 handler.command = /^(muta|smuta)$/i;
 handler.group = true;
-handler.botAdmin = true;
 handler.admin = true;
+handler.botAdmin = true;
 
 export default handler;
