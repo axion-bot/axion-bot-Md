@@ -35,11 +35,14 @@ async function webpToPng(input, output) {
   ])
 }
 
-// converte sticker animato in GIF.
-async function webpToGif(input, output) {
+// converte sticker animato in MP4.
+async function webpToMp4(input, output) {
   await run('ffmpeg', [
     '-y',
     '-i', input,
+    '-movflags', 'faststart',
+    '-pix_fmt', 'yuv420p',
+    '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
     output
   ])
 }
@@ -122,13 +125,13 @@ let handler = async (m, { conn, command }) => {
         }, { quoted: m })
       }
 
-      outputPath = join(tmpdir(), `${base}.gif`)
-      await webpToGif(inputPath, outputPath)
+      outputPath = join(tmpdir(), `${base}.mp4`)
+      await webpToMp4(inputPath, outputPath)
 
-      const gifBuffer = await fs.readFile(outputPath)
+      const mp4Buffer = await fs.readFile(outputPath)
 
       await conn.sendMessage(m.chat, {
-        video: gifBuffer,
+        video: mp4Buffer,
         gifPlayback: true,
         caption:
 `*╭━━━━━━━🎞️━━━━━━━╮*
