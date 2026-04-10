@@ -46,7 +46,7 @@ async function webpToPng(input, output) {
   ], [input, '-o', output])
 }
 
-// animato -> gif
+// animato -> gif con ImageMagick
 async function webpToGif(input, output) {
   await runFirstAvailable([
     'magick',
@@ -54,6 +54,19 @@ async function webpToGif(input, output) {
     '/data/data/com.termux/files/usr/bin/magick',
     '/data/data/com.termux/files/usr/bin/convert'
   ], [input, output])
+}
+
+// gif -> mp4 per preview in chat
+async function gifToMp4(input, output) {
+  await run('ffmpeg', [
+    '-y',
+    '-i', input,
+    '-movflags', 'faststart',
+    '-pix_fmt', 'yuv420p',
+    '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+    '-an',
+    output
+  ])
 }
 
 function getQuotedStickerInfo(q) {
@@ -70,6 +83,7 @@ function getQuotedStickerInfo(q) {
 let handler = async (m, { conn, command }) => {
   let inputPath
   let outputPath
+  let gifPath
 
   try {
     const q = m.quoted ? m.quoted : null
@@ -126,15 +140,17 @@ let handler = async (m, { conn, command }) => {
         }, { quoted: m })
       }
 
-      outputPath = join(tmpdir(), `${base}.gif`)
-      await webpToGif(inputPath, outputPath)
+      gifPath = join(tmpdir(), `${base}.gif`)
+      outputPath = join(tmpdir(), `${base}.mp4`)
 
-      const gifBuffer = await fs.readFile(outputPath)
+      await webpToGif(inputPath, gifPath)
+      await gifToMp4(gifPath, outputPath)
+
+      const mp4Buffer = await fs.readFile(outputPath)
 
       await conn.sendMessage(m.chat, {
-        document: gifBuffer,
-        mimetype: 'image/gif',
-        fileName: 'sticker.gif',
+        video: mp4Buffer,
+        gifPlayback: true,
         caption:
 `*╭━━━━━━━🎞️━━━━━━━╮*
 *✦ 𝐂𝐎𝐍𝐕𝐄𝐑𝐒𝐈𝐎𝐍𝐄 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐀 ✦*
@@ -159,6 +175,7 @@ let handler = async (m, { conn, command }) => {
   } finally {
     try {
       if (inputPath) await fs.unlink(inputPath)
+      if (gifPath) await fs.unlink(gifPath)
       if (outputPath) await fs.unlink(outputPath)
     } catch {}
   }
