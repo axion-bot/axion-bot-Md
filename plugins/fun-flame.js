@@ -1,15 +1,3 @@
-Perfetto — ti rimando il plugin già sistemato con:
-
-sharp caricato in modo dinamico
-
-messaggio in chat se manca
-
-fallback al template base
-
-.stopflame incluso
-
-stato sessione corretto
-
 
 import fs from 'fs'
 import fetch from 'node-fetch'
