@@ -149,16 +149,13 @@ let handler = async (m, { conn, command }) => {
       const mp4Buffer = await fs.readFile(outputPath)
 
       await conn.sendMessage(m.chat, {
-        video: mp4Buffer,
-        gifPlayback: true,
-        caption:
-`*╭━━━━━━━🎞️━━━━━━━╮*
-*✦ 𝐂𝐎𝐍𝐕𝐄𝐑𝐒𝐈𝐎𝐍𝐄 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐀 ✦*
-*╰━━━━━━━🎞️━━━━━━━╯*`,
-        contextInfo: {
-          ...(global.rcanal?.contextInfo || {})
-        }
-      }, { quoted: m })
+  video: mp4Buffer,
+  gifPlayback: true,
+  caption: '*𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐚 ✅*',
+  contextInfo: {
+    ...(global.rcanal?.contextInfo || {})
+  }
+}, { quoted: m })
 
       return
     }
