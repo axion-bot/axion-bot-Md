@@ -197,7 +197,7 @@ ${F}`,
   }
 
   if (!m.isGroup) return m.reply('*⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢*')
-  if (global.bandieraGame[m.chat]) return m.reply('*⚠️ 𝐂𝐞̀ 𝐠𝐢𝐚̀ 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚*')
+  if (global.bandieraGame[m.chat]) return m.reply('*⚠️ 𝐂𝐞̀ 𝐠𝐢à 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚*')
 
   let bandiere
   try {
@@ -265,6 +265,12 @@ handler.before = async (m, { conn }) => {
   if (!m.quoted || m.quoted.id !== game.id) return
   if (!m.text) return
 
+  const rawText = String(m.text || '').trim()
+
+  if (/^[./#!](indiziobandiera|bandiera|skipbandiera)\b/i.test(rawText)) {
+    return
+  }
+
   const now = Date.now()
   const last = game.lastAnswerAt[m.sender] || 0
   if (now - last < ANSWER_COOLDOWN_MS) return true
@@ -294,7 +300,7 @@ handler.before = async (m, { conn }) => {
     addReward(user, totalReward)
 
     const speedLine = speedBonus > 0
-      ? `┃ *⚡ 𝐁𝐨𝐧𝐮𝐬 𝐯𝐞𝐥𝐨𝐜𝐢𝐭𝐚̀:* +${speedBonus}\n`
+      ? `┃ *⚡ 𝐁𝐨𝐧𝐮𝐬 𝐯𝐞𝐥𝐨𝐜𝐢𝐭à:* +${speedBonus}\n`
       : ''
 
     const streakLine = streakBonus > 0
