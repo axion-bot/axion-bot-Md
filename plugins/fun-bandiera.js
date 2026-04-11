@@ -80,24 +80,13 @@ async function loadAllFlags() {
 }
 
 function ensureUser(user) {
-  if (typeof user.exp !== 'number') user.exp = 0
-  if (typeof user.money === 'number') {
-    if (typeof user.bandieraStreak !== 'number') user.bandieraStreak = 0
-    return
-  }
-  if (typeof user.euro === 'number') {
-    if (typeof user.bandieraStreak !== 'number') user.bandieraStreak = 0
-    return
-  }
-  user.money = 0
+  if (typeof user.euro !== 'number') user.euro = 0
   if (typeof user.bandieraStreak !== 'number') user.bandieraStreak = 0
 }
 
-function addReward(user, coins, exp) {
+function addReward(user, coins) {
   ensureUser(user)
-  if (typeof user.money === 'number') user.money += coins
-  else user.euro += coins
-  user.exp += exp
+  user.euro += coins
 }
 
 function getSpeedBonus(seconds) {
@@ -245,11 +234,10 @@ handler.before = async (m, { conn }) => {
     const speedBonus = getSpeedBonus(seconds)
     const streakBonus = getStreakBonus(user.bandieraStreak)
     const totalReward = baseReward + speedBonus + streakBonus
-    const exp = 150
     const speedLabel = getSpeedLabel(seconds)
     const streakEmoji = getStreakEmoji(user.bandieraStreak)
 
-    addReward(user, totalReward, exp)
+    addReward(user, totalReward)
 
     const speedLine = speedBonus > 0
       ? `┃ *⚡ 𝐁𝐨𝐧𝐮𝐬 𝐯𝐞𝐥𝐨𝐜𝐢𝐭𝐚̀:* +${speedBonus}\n`
@@ -269,7 +257,6 @@ handler.before = async (m, { conn }) => {
 ┃
 ┃ *💰 𝐁𝐚𝐬𝐞:* +${baseReward}
 ${speedLine}${streakLine}┃ *💸 𝐓𝐨𝐭𝐚𝐥𝐞:* +${totalReward}
-┃ *✨ 𝐄𝐗𝐏:* +${exp}
 ${F}`,
       interactiveButtons: playAgainButtons()
     }, { quoted: m })
