@@ -15,15 +15,6 @@ function resolveTarget(m) {
   return m.sender || m.key?.participant || m.participant || null
 }
 
-function getMessageId(m) {
-  return (
-    m?.quoted?.id ||
-    m?.quoted?.key?.id ||
-    m?.key?.id ||
-    ''
-  )
-}
-
 function mapDeviceName(device) {
   switch (String(device || '').toLowerCase()) {
     case 'ios': return 'iOS'
@@ -46,14 +37,17 @@ let handler = async (m, { conn }) => {
     return
   }
 
-  const sourceMsg = m.quoted || m
-  const msgId = getMessageId(sourceMsg)
+  // 🔥 FIX QUI
+  const msgId = m.quoted?.key?.id || m.key?.id
 
   let device = 'Sconosciuto'
-  try {
-    device = mapDeviceName(getDevice(msgId))
-  } catch (e) {
-    console.error('test-device error:', e)
+  if (msgId) {
+    try {
+      const detected = getDevice(msgId)
+      device = mapDeviceName(detected)
+    } catch (e) {
+      console.error('device error:', e)
+    }
   }
 
   const text =
@@ -69,9 +63,8 @@ let handler = async (m, { conn }) => {
 }
 
 handler.help = ['dispositivo']
-handler.tags = ['owner']
+handler.tags = ['tools']
 handler.command = ['dispositivo']
 handler.group = true
-handler.rowner = true
 
 export default handler
