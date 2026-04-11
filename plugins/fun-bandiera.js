@@ -16,6 +16,14 @@ const playAgainButtons = () => [{
   })
 }]
 
+const gameButtons = () => [{
+  name: 'quick_reply',
+  buttonParamsJson: JSON.stringify({
+    display_text: '💡 Indizio',
+    id: '.indiziobandiera'
+  })
+}]
+
 function normalizeString(str = '') {
   return String(str)
     .toLowerCase()
@@ -41,6 +49,26 @@ function pickRandom(arr = []) {
 
 function addUnique(arr, value) {
   if (!arr.includes(value)) arr.push(value)
+}
+
+function getHintText(name = '') {
+  const clean = String(name).trim()
+  if (!clean) return '𝐈𝐧𝐝𝐢𝐳𝐢𝐨 𝐧𝐨𝐧 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞'
+
+  const masked = clean
+    .split('')
+    .map((ch, i, arr) => {
+      if (ch === ' ' || ch === '-' || ch === '\'') return ch
+      if (i === 0 || i === arr.length - 1) return ch
+      return '•'
+    })
+    .join('')
+
+  const firstLetter = clean[0]
+  const lastLetter = clean[clean.length - 1]
+  const lettersOnly = clean.replace(/[^A-Za-zÀ-ÿ]/g, '').length
+
+  return `*💡 𝐈𝐧𝐝𝐢𝐳𝐢𝐨:*\n┃ *𝐈𝐧𝐢𝐳𝐢𝐚 𝐜𝐨𝐧:* ${firstLetter}\n┃ *𝐅𝐢𝐧𝐢𝐬𝐜𝐞 𝐜𝐨𝐧:* ${lastLetter}\n┃ *𝐋𝐞𝐭𝐭𝐞𝐫𝐞:* ${lettersOnly}\n┃ *𝐅𝐨𝐫𝐦𝐚:* ${masked}`
 }
 
 async function loadAllFlags() {
@@ -124,6 +152,29 @@ function getStreakEmoji(streak) {
 let handler = async (m, { conn, command, isAdmin }) => {
   global.bandieraGame = global.bandieraGame || {}
 
+  if (command === 'indiziobandiera') {
+    if (!m.isGroup) return m.reply('*⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢*')
+    const game = global.bandieraGame[m.chat]
+    if (!game) return m.reply('*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚*')
+
+    if (game.hintUsed) {
+      return m.reply(`*⚠️ 𝐇𝐚𝐢 𝐠𝐢à 𝐮𝐬𝐚𝐭𝐨 𝐥'𝐢𝐧𝐝𝐢𝐳𝐢𝐨*\n\n${game.hintText}`)
+    }
+
+    game.hintUsed = true
+
+    await conn.sendMessage(m.chat, {
+      text: `${H}
+┃ 💡 𝐈𝐍𝐃𝐈𝐙𝐈𝐎
+┃
+${game.hintText}
+${F}`,
+      interactiveButtons: gameButtons()
+    }, { quoted: m })
+
+    return
+  }
+
   if (command === 'skipbandiera') {
     if (!m.isGroup) return m.reply('*⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢*')
     if (!global.bandieraGame[m.chat]) return m.reply('*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚*')
@@ -176,7 +227,8 @@ ${F}`,
 ┃ *🏳️ 𝐈𝐧𝐝𝐨𝐯𝐢𝐧𝐚 𝐥𝐚 𝐧𝐚𝐳𝐢𝐨𝐧𝐞*
 ┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨:* 30𝐬
 ┃ *🎯 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢:* ${MAX_TENTATIVI} 𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞
-${F}`
+${F}`,
+    interactiveButtons: gameButtons()
   }, { quoted: m })
 
   global.bandieraGame[m.chat] = {
@@ -184,6 +236,8 @@ ${F}`
     risposta: normalizeString(scelta.nome),
     rispostaOriginale: scelta.nome,
     alias: scelta.alias,
+    hintText: getHintText(scelta.nome),
+    hintUsed: false,
     tentativi: {},
     lastAnswerAt: {},
     startTime: Date.now(),
@@ -289,9 +343,9 @@ ${F}`, m)
   return true
 }
 
-handler.help = ['bandiera', 'skipbandiera']
+handler.help = ['bandiera', 'skipbandiera', 'indiziobandiera']
 handler.tags = ['fun']
-handler.command = /^(bandiera|skipbandiera)$/i
+handler.command = /^(bandiera|skipbandiera|indiziobandiera)$/i
 handler.group = true
 
 export default handler
