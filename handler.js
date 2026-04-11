@@ -11,6 +11,18 @@ global.ignoredUsersGlobal = new Set()
 global.ignoredUsersGroup = {}
 global.groupSpam = {}
 
+global.rcanal = global.rcanal || {
+  contextInfo: {
+    forwardingScore: 999,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363420524815455@newsletter',
+      serverMessageId: 100,
+      newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+    }
+  }
+}
+
 if (!global.groupCache) {
     global.groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 }
