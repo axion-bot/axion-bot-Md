@@ -43,6 +43,7 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
     throw '╭━━━👑━━━╮\n 𝐏𝐑𝐎𝐓𝐄𝐓𝐓𝐎\n╰━━━👑━━━╯\nNon puoi mutare questo utente (owner/creator/bot).';
 
   // Prepara dati utente nel db
+  if (!global.db.data.users[mentionedJid]) global.db.data.users[mentionedJid] = {};
   const user = global.db.data.users[mentionedJid];
   const isMute = command === 'muta';
   const tag = '@' + mentionedJid.split('@')[0];
@@ -52,13 +53,7 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
     user.muto = true;
 
     return conn.sendMessage(chatId, {
-      text: `╭━━━━━━━🔇━━━━━━━╮
-   ✦ 𝐌𝐔𝐓𝐄 𝐀𝐓𝐓𝐈𝐕𝐀𝐓𝐎 ✦
-╰━━━━━━━🔇━━━━━━━╯
-
-👤 Utente: ${tag}
-🔒 Stato: Mutato
-⏳ Durata: Fino a .smuta`,
+      text: `╭━━━━━━━🔇━━━━━━━╮\n  ✦ 𝐌𝐔𝐓𝐄 𝐀𝐓𝐓𝐈𝐕𝐀𝐓𝐎 ✦\n╰━━━━━━━🔇━━━━━━━╯\n\n👤 Utente: ${tag}\n🔒 Stato: Mutato\n⏳ Azione: I suoi messaggi verranno eliminati.`,
       mentions: [mentionedJid],
     });
   }
@@ -68,19 +63,33 @@ const handler = async (m, { conn, command, text, isAdmin }) => {
   user.muto = false;
 
   return conn.sendMessage(chatId, {
-    text: `╭━━━━━━━🔊━━━━━━━╮
-   ✦ 𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎 ✦
-╰━━━━━━━🔊━━━━━━━╯
-
-👤 Utente: ${tag}
-🔓 Stato: Smutato`,
+    text: `╭━━━━━━━🔊━━━━━━━╮\n  ✦ 𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎 ✦\n╰━━━━━━━🔊━━━━━━━╯\n\n👤 Utente: ${tag}\n🔓 Stato: Smutato`,
     mentions: [mentionedJid],
   });
 };
 
+// --- LOGICA DI CANCELLAZIONE AUTOMATICA ---
+handler.before = async function (m, { conn, isBotAdmin }) {
+  if (!m.chat || !m.sender || !global.db.data.users[m.sender]) return;
+
+  const user = global.db.data.users[m.sender];
+
+  // Se l'utente è mutato nel database
+  if (user.muto) {
+    // Se il bot non è admin, non può cancellare nulla
+    if (!isBotAdmin) return;
+
+    // Se l'utente mutato prova a scrivere, cancella il messaggio
+    await conn.sendMessage(m.chat, { delete: m.key });
+    
+    // Blocca l'esecuzione di altri plugin per questo messaggio
+    return false;
+  }
+};
+
 handler.command = /^(muta|smuta)$/i;
 handler.group = true;
-handler.botAdmin = true;
 handler.admin = true;
+handler.botAdmin = true;
 
 export default handler;
