@@ -14,14 +14,10 @@ let handler = async (m, { conn, text }) => {
       who = m.sender
     }
 
+    who = conn.decodeJid(who)
+
     const name = await conn.getName(who)
-
-    let pp = 'https://ui-avatars.com/api/?background=f3f4f6&color=9ca3af&size=512&name=User'
-
-    try {
-      const realPp = await conn.profilePictureUrl(who, 'image')
-      if (realPp) pp = realPp
-    } catch {}
+    const pp = await global.getProfilePicture(conn, who)
 
     const caption = `*╭━━━━━━━🖼️━━━━━━━╮*
 *✦ 𝐅𝐎𝐓𝐎 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 ✦*
