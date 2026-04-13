@@ -27,19 +27,21 @@ let handler = async (m, { conn, text }) => {
     } catch {}
 
     let image
+    let isFallback = false
+    
+    // se la foto non è disponibile, usiamo l'avatar locale
 
     try {
       const pp = await conn.profilePictureUrl(who, 'image')
       image = { url: pp }
     } catch {
       image = fs.readFileSync('./media/default-avatar.png')
+      isFallback = true
     }
 
-    const caption = `*╭━━━━━━━🖼️━━━━━━━╮*
-*✦ 𝐅𝐎𝐓𝐎 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 ✦*
-*╰━━━━━━━🖼️━━━━━━━╯*
-
-*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${name}`
+    const caption = isFallback
+      ? `*⚠️ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐟𝐨𝐭𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨 𝐨 𝐞̀ 𝐬𝐭𝐚𝐭𝐚 𝐧𝐚𝐬𝐜𝐨𝐬𝐭𝐚.*`
+      : `*📸 𝐅𝐨𝐭𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨 𝐝𝐢 ${name}*`
 
     await conn.sendMessage(
       m.chat,
@@ -53,6 +55,7 @@ let handler = async (m, { conn, text }) => {
       },
       { quoted: m }
     )
+
   } catch (err) {
     console.error('Errore .pic:', err)
     await conn.reply(
