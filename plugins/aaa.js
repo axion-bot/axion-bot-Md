@@ -1,8 +1,16 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-const config = { url: 'https://sms24.me', headers: { 'User-Agent': 'Mozilla/5.0' } };
-const nazioni = { 'it': '🇮🇹 𝐈𝐭𝐚', 'us': '🇺🇸 𝐔𝐬𝐚', 'gb': '𝐆🇧 𝐔𝐤', 'fr': '🇫🇷 𝐅𝐫𝐚', 'de': '🇩🇪 𝐆𝐞𝐫' };
+const config = { 
+    url: 'https://sms24.me', 
+    headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+        'Referer': 'https://sms24.me/'
+    },
+    timeout: 10000
+};
+
+const nazioni = { 'it': '🇮🇹 𝐈𝐭𝐚', 'us': '🇺🇸 𝐔𝐬𝐚', 'gb': '🇬🇧 𝐔𝐤', 'fr': '🇫🇷 𝐅𝐫𝐚', 'de': '🇩🇪 𝐆𝐞𝐫' };
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     const cmd = command.toLowerCase();
@@ -17,7 +25,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         }
 
         try {
-            const { data } = await axios.get(`${config.url}/en/countries/${code}`, { headers: config.headers });
+            const { data } = await axios.get(`${config.url}/en/countries/${code}`, { headers: config.headers, timeout: config.timeout });
             const $ = cheerio.load(data);
             let nums = [];
             $('a[href*="/en/numbers/"]').each((i, e) => {
@@ -45,7 +53,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
                 buttons: buttons,
                 headerType: 1
             }, { quoted: m });
-        } catch { return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Impossibile connettersi."); }
+        } catch (e) { 
+            return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Impossibile connettersi al servizio."); 
+        }
     }
 
     if (cmd === 'check') {
@@ -53,7 +63,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         if (!num) return m.reply("*✅ 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨:* Inserisci un numero.");
         
         try {
-            const { data } = await axios.get(`${config.url}/en/numbers/${num}`, { headers: config.headers });
+            const { data } = await axios.get(`${config.url}/en/numbers/${num}`, { headers: config.headers, timeout: config.timeout });
             const $ = cheerio.load(data);
             let txt = `*✅ 𝐌𝐄𝐒𝐒𝐀𝐆𝐆𝐈 𝐑𝐈𝐂𝐄𝐕𝐔𝐓𝐈:* \`+${num}\`\n\n`;
             
@@ -78,7 +88,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
                 buttons: checkBtn,
                 headerType: 1
             }, { quoted: m });
-        } catch { return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Numero non valido."); }
+        } catch (e) { 
+            return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Numero non valido o timeout."); 
+        }
     }
 };
 
