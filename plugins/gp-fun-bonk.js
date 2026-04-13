@@ -1,4 +1,4 @@
-// by Bonzino
+// by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
 
 const TEMPLATE_URL = 'https://i.imgur.com/nav6WWX.png'
 
@@ -45,12 +45,14 @@ let handler = async (m, { conn, text }) => {
     const sender = conn.decodeJid(m.sender)
     const who = conn.decodeJid(resolveTarget(m, text))
 
-    const avatarUrl = await conn.profilePictureUrl(who, 'image').catch(() => null)
-
-    if (!avatarUrl) {
+    let avatarUrl
+    try {
+      avatarUrl = await conn.profilePictureUrl(who, 'image')
+    } catch (e) {
+      console.log('[bonk:pfp]', who, e?.message || e)
       return conn.reply(
         m.chat,
-        '*⚠️ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐮𝐧𝐚 𝐟𝐨𝐭𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨.*',
+        '*⚠️ 𝐍𝐨𝐧 𝐫𝐢𝐞𝐬𝐜𝐨 𝐚 𝐫𝐞𝐜𝐮𝐩𝐞𝐫𝐚𝐫𝐞 𝐥𝐚 𝐟𝐨𝐭𝐨 𝐩𝐫𝐨𝐟𝐢𝐥𝐨.*',
         m,
         global.rcanal
       )
@@ -62,13 +64,15 @@ let handler = async (m, { conn, text }) => {
 
     await resizeCompat(avatar, 128, 128)
 
-    const modeOpt = (Jimp.BLEND_DESTINATION_OVER !== undefined)
-      ? { mode: Jimp.BLEND_DESTINATION_OVER, opacitySource: 1, opacityDest: 1 }
-      : { mode: 'dstOver', opacitySource: 1, opacityDest: 1 }
+    const blendMode = Jimp.BLEND_DESTINATION_OVER ?? 'dstOver'
 
-    img.composite(avatar, 120, 90, modeOpt)
+    img.composite(avatar, 120, 90, {
+      mode: blendMode,
+      opacitySource: 1,
+      opacityDest: 1
+    })
 
-    const png = await getBufferCompat(img, (Jimp.MIME_PNG || 'image/png'))
+    const png = await getBufferCompat(img, Jimp.MIME_PNG || 'image/png')
 
     const caption = sender === who
       ? '*🔨 𝐂𝐨𝐥𝐩𝐨 𝐚𝐮𝐭𝐨𝐢𝐧𝐟𝐥𝐢𝐭𝐭𝐨*'
@@ -98,7 +102,7 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['bonk @utente', 'bonk numero']
+handler.help = ['bonk', 'bonk @utente', 'bonk numero']
 handler.tags = ['fun']
 handler.command = /^(bonk)$/i
 
