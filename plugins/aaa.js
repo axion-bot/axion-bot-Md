@@ -6,7 +6,7 @@ try {
   cheerio = await import('cheerio');
   ready = true;
 } catch (e) {
-  console.log("Errore: librerie mancanti.");
+  console.log("Errore librerie");
 }
 
 const baseUrl = 'https://receive-sms-online.info';
@@ -15,10 +15,37 @@ const headers = {
   'User-Agent': 'Mozilla/5.0'
 };
 
-// 📩 Legge SMS pubblici
-async function getSMS(numero) {
+const countries = [
+  { name: 'USA 🇺🇸', path: '/us' },
+  { name: 'UK 🇬🇧', path: '/uk' },
+  { name: 'Francia 🇫🇷', path: '/fr' },
+  { name: 'Germania 🇩🇪', path: '/de' },
+  { name: 'Spagna 🇪🇸', path: '/es' }
+];
+
+async function getNumbers(path) {
   try {
-    const { data } = await axios.get(`${baseUrl}/${numero}`, { headers });
+    const { data } = await axios.get(baseUrl + path, { headers });
+    const $ = cheerio.load(data);
+
+    let nums = [];
+
+    $('a').each((i, el) => {
+      let t = $(el).text().trim();
+      if (t.includes('+')) {
+        nums.push(t.replace(/[^0-9]/g, ''));
+      }
+    });
+
+    return [...new Set(nums)];
+  } catch {
+    return [];
+  }
+}
+
+async function getSMS(num) {
+  try {
+    const { data } = await axios.get(`${baseUrl}/${num}`, { headers });
     const $ = cheerio.load(data);
 
     let msgs = [];
@@ -28,90 +55,98 @@ async function getSMS(numero) {
       let text = $(el).find('td').eq(1).text().trim();
       let time = $(el).find('td').eq(2).text().trim();
 
-      if (text && text.length > 2) {
-        msgs.push({ from, text, time });
-      }
+      if (text) msgs.push({ from, text, time });
     });
 
     return msgs;
-  } catch {
-    return null;
-  }
-}
-
-// 📱 Lista numeri disponibili
-async function getNumbers() {
-  try {
-    const { data } = await axios.get(baseUrl, { headers });
-    const $ = cheerio.load(data);
-
-    let numeri = [];
-
-    $('a').each((i, el) => {
-      let t = $(el).text().trim();
-      if (t.includes('+')) {
-        numeri.push(t.replace(/[^0-9]/g, ''));
-      }
-    });
-
-    return [...new Set(numeri)].slice(0, 15);
   } catch {
     return [];
   }
 }
 
-let handler = async (m, { args, usedPrefix, command }) => {
+let sessions = {}; 
+
+let handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!ready) return m.reply("❌ Librerie mancanti.");
 
-  // MENU
-  if (command === 'voip') {
-    if (!args[0]) {
-      return m.reply(
-`📱 *VOIP SAFE PANEL*
+  let user = m.sender;
 
-🔹 ${usedPrefix}voip list
-_lista numeri disponibili_
+  // 🌍 MENU PAESI
+  if (!args[0]) {
+    let txt = `🌍 *SCEGLI PAESE*\n\n`;
+    countries.forEach((c, i) => {
+      txt += `${i + 1}. ${c.name}\n`;
+    });
 
-🔹 ${usedPrefix}voip sms <numero>
-_leggi SMS pubblici_
+    txt += `\n💡 Usa: ${usedPrefix}voip <numero paese>`;
 
-⚠️ Solo uso informativo`
-      );
-    }
+    return m.reply(txt);
+  }
 
-    // LISTA NUMERI
-    if (args[0] === 'list') {
-      let nums = await getNumbers();
-      if (nums.length === 0) return m.reply("❌ Nessun numero trovato.");
+  if (!isNaN(args[0])) {
+    let index = parseInt(args[0]) - 1;
+    let country = countries[index];
 
-      let txt = `📲 *NUMERI DISPONIBILI*\n\n`;
-      nums.forEach((n, i) => {
-        txt += `${i + 1}. \`+${n}\`\n`;
-      });
+    if (!country) return m.reply("❌ Paese non valido");
 
-      return m.reply(txt);
-    }
+    let nums = await getNumbers(country.path);
+    if (nums.length === 0) return m.reply("❌ Nessun numero");
 
-    // SMS
-    if (args[0] === 'sms') {
-      let num = args[1];
-      if (!num) return m.reply(`Uso: ${usedPrefix}voip sms 123456789`);
+    sessions[user] = {
+      country,
+      nums,
+      current: 0
+    };
 
-      let msgs = await getSMS(num);
-      if (!msgs || msgs.length === 0)
-        return m.reply("❌ Nessun SMS trovato.");
+    let num = nums[0];
 
-      let txt = `📩 *SMS: +${num}*\n\n`;
+    return conn.sendMessage(m.chat, {
+      text: `📱 *NUMERO ATTIVO*\n\n🌍 ${country.name}\n📲 +${num}`,
+      buttons: [
+        { buttonId: `${usedPrefix}voip next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
+        { buttonId: `${usedPrefix}voip sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
+        { buttonId: `${usedPrefix}voip`, buttonText: { displayText: '🌍 Cambia Paese' }, type: 1 }
+      ],
+      headerType: 1
+    });
+  }
 
-      msgs.slice(0, 5).forEach(m => {
-        txt += `👤 ${m.from}\n`;
-        txt += `💬 ${m.text}\n`;
-        txt += `🕒 ${m.time}\n`;
-        txt += `────────────\n`;
-      });
+  if (args[0] === 'next') {
+    let session = sessions[user];
+    if (!session) return m.reply("❌ Seleziona prima un paese");
 
-      return m.reply(txt.trim());
-    }
+    session.current++;
+    if (session.current >= session.nums.length) session.current = 0;
+
+    let num = session.nums[session.current];
+
+    return conn.sendMessage(m.chat, {
+      text: `📱 *NUOVO NUMERO*\n\n🌍 ${session.country.name}\n📲 +${num}`,
+      buttons: [
+        { buttonId: `${usedPrefix}voip next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
+        { buttonId: `${usedPrefix}voip sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
+        { buttonId: `${usedPrefix}voip`, buttonText: { displayText: '🌍 Cambia Paese' }, type: 1 }
+      ],
+      headerType: 1
+    });
+  }
+
+  if (args[0] === 'sms') {
+    let session = sessions[user];
+    if (!session) return m.reply("❌ Nessuna sessione");
+
+    let num = session.nums[session.current];
+    let msgs = await getSMS(num);
+
+    if (msgs.length === 0) return m.reply("❌ Nessun SMS");
+
+    let txt = `📩 *SMS +${num}*\n\n`;
+
+    msgs.slice(0, 5).forEach(m => {
+      txt += `👤 ${m.from}\n💬 ${m.text}\n🕒 ${m.time}\n──────\n`;
+    });
+
+    return m.reply(txt);
   }
 };
 
