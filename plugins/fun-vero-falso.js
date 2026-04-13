@@ -7,9 +7,17 @@ const videos = {
 
 let handler = async (m, { conn, text }) => {
   try {
+    // ⏳ reazione loading
+    await conn.sendMessage(m.chat, {
+      react: { text: '⏳', key: m.key }
+    })
+
     const isTrue = Math.random() < 0.5
     const video = isTrue ? videos.vero : videos.falso
-    const resultText = isTrue ? '*✅ 𝐕𝐄𝐑𝐎*' : '*❌ 𝐅𝐀𝐋𝐒𝐎*'
+    const resultText = isTrue ? '*✅ 𝐕: 𝐕𝐄𝐑𝐎*' : '*❌ 𝐕: 𝐅𝐀𝐋𝐒𝐎*'
+
+    //  delay 
+    await new Promise(r => setTimeout(r, 1500))
 
     const caption = text?.trim()
       ? `*🧠 𝐕𝐞𝐫𝐨 𝐨 𝐟𝐚𝐥𝐬𝐨?*\n\n*${text.trim()}*\n\n${resultText}`
@@ -24,6 +32,11 @@ let handler = async (m, { conn, text }) => {
       },
       { quoted: m }
     )
+
+    // reazionr
+    await conn.sendMessage(m.chat, {
+      react: { text: '✅', key: m.key }
+    })
 
   } catch (e) {
     console.error('vof error:', e)
