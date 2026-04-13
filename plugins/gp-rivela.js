@@ -26,7 +26,7 @@ let handler = async (m, { conn }) => {
     if (/videoMessage/.test(mtype)) {
       try {
         const stream = await downloadContentFromMessage(m.quoted.videoMessage, 'video')
-        buffer = await downloadFromStream(stream)
+        buffer = null
       } catch (e) {
         console.warn('Fallback download video:', e.message)
         buffer = await m.quoted.download()
