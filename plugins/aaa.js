@@ -1,9 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-const baseUrl = 'https://sms24.me'; 
-const mirrorUrl = 'https://sms-online.co';
-
 const nazioni = [
     { id: '1', nome: 'Stati Uniti 🇺🇸', path: '/en/countries/us' },
     { id: '2', nome: 'Regno Unito 🇬🇧', path: '/en/countries/gb' },
@@ -15,52 +12,54 @@ const nazioni = [
     { id: '8', nome: 'Spagna 🇪🇸', path: '/en/countries/es' }
 ];
 
-async function getHtml(url) {
-    const headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+const getHeaders = () => {
+    const uas = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+    ];
+    return {
+        'User-Agent': uas[Math.floor(Math.random() * uas.length)],
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
-        'Referer': 'https://www.google.com/'
+        'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'no-cache'
     };
-    try {
-        return await axios.get(url, { headers, timeout: 10000 });
-    } catch (e) {
-        if (url.includes(baseUrl)) {
-            return await axios.get(url.replace(baseUrl, mirrorUrl), { headers, timeout: 10000 });
-        }
-        throw e;
-    }
-}
+};
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     const cmd = command.toLowerCase();
     const arg = args[0];
 
     if (cmd === 'voip' && !arg) {
-        let txt = `*✅ 𝐒𝐘𝐒𝐓𝐄𝐌 𝐕𝐎𝐈𝐏: 𝐃𝐀𝐓𝐀𝐁𝐀𝐒𝐄*\n\n`;
-        nazioni.forEach(n => txt += `*${n.id}* ➜ ${n.nome}\n`);
-        txt += `\n💡 _Digita_ \`${usedPrefix}voip <id>\` _per estrarre i numeri._`;
-        return m.reply(txt);
+        let menu = `*✅ 𝐒𝐘𝐒𝐓𝐄𝐌 𝐕𝐎𝐈𝐏: 𝐃𝐀𝐓𝐀𝐁𝐀𝐒𝐄*\n\n`;
+        nazioni.forEach(n => menu += `*${n.id}* ➜ ${n.nome}\n`);
+        menu += `\n💡 _Digita_ \`${usedPrefix}voip <id>\` _per i numeri._`;
+        return m.reply(menu);
     }
 
     if (cmd === 'voip' && arg && !isNaN(arg)) {
         const naz = nazioni.find(n => n.id === arg);
         if (!naz) return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* ID non valido.");
 
-        let { key } = await conn.sendMessage(m.chat, { text: `📡 *✅ 𝐒𝐂𝐀𝐍𝐒𝐈𝐎𝐍𝐄 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎:* ${naz.nome}` });
+        let { key } = await conn.sendMessage(m.chat, { text: `📡 *✅ 𝐒𝐂𝐀𝐍𝐒𝐈𝐎𝐍𝐄 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎...*` });
 
         try {
-            const { data } = await getHtml(`${baseUrl}${naz.path}`);
+            const { data } = await axios.get(`https://sms24.me${naz.path}`, { headers: getHeaders(), timeout: 15000 });
             const $ = cheerio.load(data);
-            let nums = [];
             
+            if ($('title').text().includes('Cloudflare') || $('title').text().includes('Just a moment')) {
+                return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* VPS rilevata. Cloudflare ha bloccato la richiesta automatica.", edit: key });
+            }
+
+            let nums = [];
             $('a[href*="/en/numbers/"]').each((i, el) => {
                 let n = $(el).text().trim().replace(/[^0-9]/g, '');
                 if (n.length > 5) nums.push(n);
             });
 
-            let final = [...new Set(nums)].sort(() => 0.5 - Math.random()).slice(0, 6);
-            if (!final.length) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun numero trovato.", edit: key });
+            let final = [...new Set(nums)].sort(() => 0.5 - Math.random()).slice(0, 5);
+            if (!final.length) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun numero trovato nella pagina.", edit: key });
 
             let res = `*✅ 𝐍𝐔𝐌𝐄𝐑𝐈 ATTIVI: ${naz.nome.toUpperCase()}*\n\n`;
             let buttons = [];
@@ -72,16 +71,10 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
             buttons.push({ buttonId: `${usedPrefix}voip ${arg}`, buttonText: { displayText: `🔄 𝐂𝐀𝐌𝐁𝐈𝐀 𝐍𝐔𝐌𝐄𝐑𝐈` }, type: 1 });
 
-            return conn.sendMessage(m.chat, { 
-                text: res, 
-                footer: "Tocca un tasto per i messaggi", 
-                buttons, 
-                headerType: 1, 
-                edit: key 
-            }, { quoted: m });
+            return conn.sendMessage(m.chat, { text: res, footer: "Tocca un numero per vedere gli SMS", buttons, headerType: 1, edit: key });
 
-        } catch { 
-            return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* VPS Bloccata. Riprova più tardi.", edit: key }); 
+        } catch (e) {
+            return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Timeout connessione. Il sito non risponde.", edit: key });
         }
     }
 
@@ -92,36 +85,30 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         let { key } = await conn.sendMessage(m.chat, { text: `📨 *✅ 𝐋𝐄𝐓𝐓𝐔𝐑𝐀 𝐒𝐌𝐒:* \`+${num}\`` });
 
         try {
-            const { data } = await getHtml(`${baseUrl}/en/numbers/${num}`);
+            const { data } = await axios.get(`https://sms24.me/en/numbers/${num}`, { headers: getHeaders(), timeout: 15000 });
             const $ = cheerio.load(data);
-            let msgs = [];
+            let logs = [];
 
-            $('.shadow-sm, .list-group-item').each((i, el) => {
+            $('.shadow-sm').each((i, el) => {
                 let user = $(el).find('a').first().text().trim() || 'SCONOSCIUTO';
                 let txt = $(el).text().split('ago')[1]?.replace('Copy', '').trim();
-                if (txt) msgs.push({ user, txt });
+                if (txt) logs.push({ user, txt });
             });
 
-            if (!msgs.length) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun SMS ricevuto.", edit: key });
+            if (!logs.length) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun messaggio trovato. Riprova tra 10 secondi.", edit: key });
 
             let res = `*✅ 𝐌𝐄𝐒𝐒𝐀𝐆𝐆𝐈 𝐑𝐈𝐂𝐄𝐕𝐔𝐓𝐈:* \`+${num}\`\n\n`;
-            msgs.slice(0, 3).forEach(m => res += `👤 *${m.user}*\n💬 ${m.txt}\n\n────────────────\n`);
+            logs.slice(0, 3).forEach(l => res += `👤 *${l.user}*\n💬 ${l.txt}\n\n────────────────\n`);
 
             const btns = [
                 { buttonId: `${usedPrefix}check ${num}`, buttonText: { displayText: `🔄 𝐀𝐆𝐆𝐈𝐎𝐑𝐍𝐀 𝐒𝐌𝐒` }, type: 1 },
                 { buttonId: `${usedPrefix}voip`, buttonText: { displayText: `📱 𝐓𝐎𝐑𝐍𝐀 𝐀𝐋 𝐌𝐄𝐍𝐔` }, type: 1 }
             ];
 
-            return conn.sendMessage(m.chat, { 
-                text: res, 
-                footer: `Update: ${new Date().toLocaleTimeString()}`, 
-                buttons: btns, 
-                headerType: 1, 
-                edit: key 
-            }, { quoted: m });
+            return conn.sendMessage(m.chat, { text: res, footer: `Aggiornato alle: ${new Date().toLocaleTimeString()}`, buttons: btns, headerType: 1, edit: key });
 
-        } catch { 
-            return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Impossibile leggere i log.", edit: key }); 
+        } catch (e) {
+            return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Errore durante il caricamento degli SMS.", edit: key });
         }
     }
 };
