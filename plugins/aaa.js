@@ -1,272 +1,216 @@
-//by Bonzino
+Let isScraperReady = false;
+let axios, cheerio;
 
-import axios from 'axios'
-import * as cheerio from 'cheerio'
+try {
+    axios = (await import('axios')).default;
+    cheerio = await import('cheerio');
+    isScraperReady = true;
+} catch (e) {
+    console.log("ERRORE VOIP: Librerie mancanti.");
+}
+
+const baseUrl = 'https://sms24.me';
+
+const getHeaders = () => ({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+});
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const nazioni = [
-  { id: '1', nome: 'Stati Uniti 🇺🇸', path: '/en/countries/us' },
-  { id: '2', nome: 'Regno Unito 🇬🇧', path: '/en/countries/gb' },
-  { id: '3', nome: 'Francia 🇫🇷', path: '/en/countries/fr' },
-  { id: '4', nome: 'Svezia 🇸🇪', path: '/en/countries/se' },
-  { id: '5', nome: 'Germania 🇩🇪', path: '/en/countries/de' },
-  { id: '6', nome: 'Italia 🇮🇹', path: '/en/countries/it' },
-  { id: '7', nome: 'Olanda 🇳🇱', path: '/en/countries/nl' },
-  { id: '8', nome: 'Spagna 🇪🇸', path: '/en/countries/es' }
-]
+    { id: '1', nome: 'Stati Uniti 🇺🇸', path: '/en/countries/us' },
+    { id: '2', nome: 'Regno Unito 🇬🇧', path: '/en/countries/gb' },
+    { id: '3', nome: 'Francia 🇫🇷', path: '/en/countries/fr' },
+    { id: '4', nome: 'Svezia 🇸🇪', path: '/en/countries/se' },
+    { id: '5', nome: 'Germania 🇩🇪', path: '/en/countries/de' },
+    { id: '6', nome: 'Italia 🇮🇹', path: '/en/countries/it' },
+    { id: '7', nome: 'Olanda 🇳🇱', path: '/en/countries/nl' },
+    { id: '8', nome: 'Spagna 🇪🇸', path: '/en/countries/es' },
+    { id: '9', nome: 'Canada 🇨🇦', path: '/en/countries/ca' },
+    { id: '10', nome: 'Belgio 🇧🇪', path: '/en/countries/be' },
+    { id: '11', nome: 'Austria 🇦🇹', path: '/en/countries/at' },
+    { id: '12', nome: 'Danimarca 🇩🇰', path: '/en/countries/dk' },
+    { id: '13', nome: 'Polonia 🇵🇱', path: '/en/countries/pl' },
+    { id: '14', nome: 'Portogallo 🇵🇹', path: '/en/countries/pt' },
+    { id: '15', nome: 'Russia 🇷🇺', path: '/en/countries/ru' },
+    { id: '16', nome: 'Estonia 🇪🇪', path: '/en/countries/ee' },
+    { id: '17', nome: 'Lettonia 🇱🇻', path: '/en/countries/lv' },
+    { id: '18', nome: 'Lituania 🇱🇹', path: '/en/countries/lt' },
+    { id: '19', nome: 'Rep. Ceca 🇨🇿', path: '/en/countries/cz' },
+    { id: '20', nome: 'Romania 🇷🇴', path: '/en/countries/ro' },
+    { id: '21', nome: 'Croazia 🇭🇷', path: '/en/countries/hr' },
+    { id: '22', nome: 'Hong Kong 🇭🇰', path: '/en/countries/hk' },
+    { id: '23', nome: 'Cina 🇨🇳', path: '/en/countries/cn' },
+    { id: '24', nome: 'Malesia 🇲🇾', path: '/en/countries/my' },
+    { id: '25', nome: 'Indonesia 🇮🇩', path: '/en/countries/id' },
+    { id: '26', nome: 'Filippine 🇵🇭', path: '/en/countries/ph' },
+    { id: '27', nome: 'Thailandia 🇹🇭', path: '/en/countries/th' },
+    { id: '28', nome: 'Vietnam 🇻🇳', path: '/en/countries/vn' },
+    { id: '29', nome: 'Sudafrica 🇿🇦', path: '/en/countries/za' },
+    { id: '30', nome: 'Brasile 🇧🇷', path: '/en/countries/br' },
+    { id: '31', nome: 'Messico 🇲🇽', path: '/en/countries/mx' },
+    { id: '32', nome: 'India 🇮🇳', path: '/en/countries/in' },
+    { id: '33', nome: 'Ucraina 🇺🇦', path: '/en/countries/ua' },
+    { id: '34', nome: 'Svizzera 🇨🇭', path: '/en/countries/ch' },
+    { id: '35', nome: 'Irlanda 🇮🇪', path: '/en/countries/ie' },
+    { id: '36', nome: 'Norvegia 🇳🇴', path: '/en/countries/no' },
+    { id: '37', nome: 'Australia 🇦🇺', path: '/en/countries/au' },
+    { id: '38', nome: 'Israele 🇮🇱', path: '/en/countries/il' },
+    { id: '39', nome: 'Kazakistan 🇰🇿', path: '/en/countries/kz' },
+    { id: '40', nome: 'Finlandia 🇫🇮', path: '/en/countries/fi' }
+];
 
-const BASE_URL = 'https://sms24.me'
-
-const getHeaders = () => {
-  const uas = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-  ]
-
-  return {
-    'User-Agent': uas[Math.floor(Math.random() * uas.length)],
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8',
-    'Upgrade-Insecure-Requests': '1',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Referer': BASE_URL,
-    'Connection': 'keep-alive'
-  }
-}
-
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
-
-function shuffle(array) {
-  const arr = [...array]
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-}
-
-function isCloudflarePage($) {
-  const title = $('title').text().trim().toLowerCase()
-  return title.includes('cloudflare') || title.includes('just a moment')
-}
-
-function buildMenu(usedPrefix) {
-  let menu = '*📡 𝐒𝐘𝐒𝐓𝐄𝐌 𝐕𝐎𝐈𝐏: 𝐃𝐀𝐓𝐀𝐁𝐀𝐒𝐄*\n\n'
-  for (const n of nazioni) {
-    menu += `*${n.id}* ➜ ${n.nome}\n`
-  }
-  menu += `\n*💡 𝐔𝐬𝐚:* \`${usedPrefix}voip <id>\``
-  return menu
-}
-
-function extractNumbers(html) {
-  const $ = cheerio.load(html)
-  const nums = []
-
-  $('a[href*="/en/numbers/"]').each((_, el) => {
-    const txt = $(el).text().trim()
-    const n = txt.replace(/\D/g, '')
-    if (n.length >= 6 && n.length <= 20) nums.push(n)
-  })
-
-  return [...new Set(nums)]
-}
-
-function extractSmsLogs(html) {
-  const $ = cheerio.load(html)
-  const logs = []
-
-  $('.shadow-sm').each((_, el) => {
-    const user = $(el).find('a').first().text().trim() || 'SCONOSCIUTO'
-    const fullText = $(el).text().replace(/\s+/g, ' ').trim()
-    const txt = fullText.split('ago')[1]?.replace('Copy', '').trim() || ''
-
-    if (txt) {
-      logs.push({ user, txt })
-    }
-  })
-
-  return logs
-}
-
-async function fetchPage(url) {
-  return axios.get(url, {
-    headers: getHeaders(),
-    timeout: 15000
-  })
-}
-
-async function fetchNumbersByCountry(naz) {
-  const { data } = await fetchPage(`${BASE_URL}${naz.path}`)
-  const $ = cheerio.load(data)
-
-  if (isCloudflarePage($)) {
-    throw new Error('Cloudflare ha bloccato la richiesta automatica.')
-  }
-
-  const nums = extractNumbers(data)
-  return shuffle(nums).slice(0, 5)
-}
-
-async function fetchSmsByNumber(num) {
-  const { data } = await fetchPage(`${BASE_URL}/en/numbers/${num}`)
-  const $ = cheerio.load(data)
-
-  if (isCloudflarePage($)) {
-    throw new Error('Cloudflare ha bloccato la richiesta automatica.')
-  }
-
-  return extractSmsLogs(data)
+async function fetchMessaggi(numeroTelefono) {
+    try {
+        const numUrl = `${baseUrl}/en/numbers/${numeroTelefono}?t=${Date.now()}`;
+        const { data } = await axios.get(numUrl, { headers: getHeaders(), timeout: 10000 });
+        const $ = cheerio.load(data);
+        let messaggi = [];
+        $('.shadow-sm, .list-group-item, .callout').each((i, el) => {
+            let mittente = $(el).find('a').first().text().trim() || 'SCONOSCIUTO';
+            let tempo = $(el).find('.text-info, .text-muted, small').first().text().trim() || 'ADESS0';
+            let testo = $(el).text().replace(/\s+/g, ' ').replace(mittente, '').replace(tempo, '').trim();
+            testo = testo.replace(/From:\s*[^\s]+/i, '').replace('Copy', '').trim();
+            if (testo.length > 2 && !messaggi.some(m => m.testo === testo)) {
+                messaggi.push({ mittente, tempo, testo });
+            }
+        });
+        return messaggi;
+    } catch (e) { return null; }
 }
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  const cmd = command.toLowerCase()
-  const arg = args[0]
+    if (!isScraperReady) return m.reply("❌ *ERRORE:* Librerie mancanti.");
+    const cmd = command.toLowerCase();
+    const arg = args[0] ? args[0].toLowerCase() : null;
 
-  if (cmd === 'voip' && !arg) {
-    return m.reply(buildMenu(usedPrefix))
-  }
-
-  if (cmd === 'voip' && arg) {
-    if (isNaN(arg)) {
-      return m.reply('*⚠️ 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐈𝐃 𝐯𝐚𝐥𝐢𝐝𝐨.*')
+    // --- MENU PRINCIPALE ---
+    if (cmd === 'menuvoip') {
+        let menu = `┏━━━ « 📱 *VOIP PANEL* » ━━━┓\n┃\n`;
+        menu += `┃ 🌍 *${usedPrefix}voip*\n┃ _Database 40 Nazioni_\n┃\n`;
+        menu += `┃ 🔍 *${usedPrefix}voip <id>*\n┃ _Numeri filtrati per Paese_\n┃\n`;
+        menu += `┃ 🔥 *${usedPrefix}lastvoips*\n┃ _Top 20 Numeri in tempo reale_\n┃\n`;
+        menu += `┃ 📡 *${usedPrefix}regvoip <numero>*\n┃ _Radar Intercettazione Code_\n┃\n`;
+        menu += `┃ 📩 *${usedPrefix}voip sms <numero>*\n┃ _Lettura manuale messaggi_\n┃\n`;
+        menu += `┗━━━━━━━━━━━━━━━━━━━━━━┛`;
+        return m.reply(menu);
     }
 
-    const naz = nazioni.find(n => n.id === arg)
-    if (!naz) {
-      return m.reply('*⚠️ 𝐈𝐃 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*')
+    // --- LASTVOIPS: PRENDE TUTTO QUELLO CHE C'E' DI NUOVO ---
+    if (cmd === 'lastvoips') {
+        let { key } = await conn.sendMessage(m.chat, { text: `📡 *SINCRONIZZAZIONE NUMERI RECENTI...*` });
+        try {
+            // Timestamp per forzare il refresh ed eliminare i vecchi dalla cache del provider
+            const { data } = await axios.get(`${baseUrl}/en?t=${Date.now()}`, { headers: getHeaders() });
+            const $ = cheerio.load(data);
+            let nms = [];
+
+            $('a').each((i, el) => {
+                let t = $(el).text().trim();
+                let n = t.replace(/[^0-9]/g, '');
+                if (t.includes('+') && n.length >= 8 && !nms.some(x => x.n === n)) {
+                    nms.push({ n, t });
+                }
+            });
+
+            if (nms.length === 0) return m.reply("❌ Al momento non ci sono numeri nuovi disponibili.");
+
+            let res = `🔥 *NUMERI RECENTI (LIVE)* 🔥\n\n`;
+            // Mostra fino a 20 numeri (più possibile)
+            nms.slice(0, 20).forEach((item, index) => {
+                res += `*${index + 1}.* 📲 \`+${item.n}\`\n`;
+            });
+            res += `\n⚠️ _I numeri vecchi vengono rimossi automaticamente ad ogni scansione._`;
+            return conn.sendMessage(m.chat, { text: res, edit: key });
+        } catch { return m.reply("❌ Errore critico nel recupero dati."); }
     }
 
-    const loading = await conn.sendMessage(m.chat, {
-      text: '*📡 𝐒𝐜𝐚𝐧𝐬𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...*'
-    })
+    // --- RADAR REGVOIP ---
+    if (cmd === 'regvoip') {
+        const num = args[0]?.replace('+', '').replace(/\s+/g, '');
+        if (!num) return m.reply(`💡 *Uso:* ${usedPrefix}regvoip 447418312672`);
 
-    try {
-      const final = await fetchNumbersByCountry(naz)
+        let { key } = await conn.sendMessage(m.chat, { text: `🚀 *TARGET:* \`+${num}\`\n*STATO:* Inizializzazione Radar...` });
+        let oldMsgs = await fetchMessaggi(num);
+        let lastOld = oldMsgs && oldMsgs.length > 0 ? oldMsgs[0].testo : "NONE";
 
-      if (!final.length) {
-        return conn.sendMessage(m.chat, {
-          text: '*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨 𝐭𝐫𝐨𝐯𝐚𝐭𝐨 𝐧𝐞𝐥𝐥𝐚 𝐩𝐚𝐠𝐢𝐧𝐚.*',
-          edit: loading.key
-        })
-      }
+        await conn.sendMessage(m.chat, { text: `✅ *RADAR ATTIVO*\n\nIn attesa di nuovi SMS per \`+${num}\`...\nTempo rimasto: 3 minuti.`, edit: key });
 
-      let res = `*📡 𝐍𝐔𝐌𝐄𝐑𝐈 𝐀𝐓𝐓𝐈𝐕𝐈: ${naz.nome.toUpperCase()}*\n\n`
-      const buttons = []
-
-      for (const n of final) {
-        res += `🔹 \`+${n}\`\n`
-        buttons.push({
-          buttonId: `${usedPrefix}check ${n}`,
-          buttonText: { displayText: `💬 Check +${n}` },
-          type: 1
-        })
-      }
-
-      buttons.push({
-        buttonId: `${usedPrefix}voip ${arg}`,
-        buttonText: { displayText: '🔄 𝐂𝐚𝐦𝐛𝐢𝐚 𝐧𝐮𝐦𝐞𝐫𝐢' },
-        type: 1
-      })
-
-      return conn.sendMessage(m.chat, {
-        text: res,
-        footer: 'Tocca un numero per vedere gli SMS',
-        buttons,
-        headerType: 1,
-        edit: loading.key
-      })
-
-    } catch (e) {
-      console.error('voip error:', e)
-
-      let msg = '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞*\n\n'
-      if (/cloudflare/i.test(e.message)) {
-        msg += '𝐂𝐥𝐨𝐮𝐝𝐟𝐥𝐚𝐫𝐞 𝐡𝐚 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨 𝐥𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚.'
-      } else if (/timeout/i.test(e.message) || /ETIMEDOUT/i.test(e.message)) {
-        msg += '𝐈𝐥 𝐬𝐢𝐭𝐨 𝐧𝐨𝐧 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞 𝐢𝐧 𝐭𝐞𝐦𝐩𝐨.'
-      } else {
-        msg += e.message || '𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐫𝐞𝐜𝐮𝐩𝐞𝐫𝐚𝐫𝐞 𝐢 𝐧𝐮𝐦𝐞𝐫𝐢.'
-      }
-
-      return conn.sendMessage(m.chat, {
-        text: msg,
-        edit: loading.key
-      })
-    }
-  }
-
-  if (cmd === 'check') {
-    const num = (arg || '').replace(/\D/g, '')
-
-    if (!num || num.length < 6) {
-      return m.reply('*⚠️ 𝐍𝐮𝐦𝐞𝐫𝐨 𝐦𝐚𝐧𝐜𝐚𝐧𝐭𝐞 𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*')
-    }
-
-    const loading = await conn.sendMessage(m.chat, {
-      text: `*📨 𝐋𝐞𝐭𝐭𝐮𝐫𝐚 𝐒𝐌𝐒:* \`+${num}\``
-    })
-
-    try {
-      const logs = await fetchSmsByNumber(num)
-
-      if (!logs.length) {
-        return conn.sendMessage(m.chat, {
-          text: '*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐭𝐫𝐨𝐯𝐚𝐭𝐨. 𝐑𝐢𝐩𝐫𝐨𝐯𝐚 𝐭𝐫𝐚 𝐪𝐮𝐚𝐥𝐜𝐡𝐞 𝐬𝐞𝐜𝐨𝐧𝐝𝐨.*',
-          edit: loading.key
-        })
-      }
-
-      let res = `*📨 𝐌𝐄𝐒𝐒𝐀𝐆𝐆𝐈 𝐑𝐈𝐂𝐄𝐕𝐔𝐓𝐈:* \`+${num}\`\n\n`
-
-      logs.slice(0, 3).forEach(l => {
-        res += `👤 *${l.user}*\n💬 ${l.txt}\n\n──────────────\n`
-      })
-
-      const btns = [
-        {
-          buttonId: `${usedPrefix}check ${num}`,
-          buttonText: { displayText: '🔄 𝐀𝐠𝐠𝐢𝐨𝐫𝐧𝐚 𝐒𝐌𝐒' },
-          type: 1
-        },
-        {
-          buttonId: `${usedPrefix}voip`,
-          buttonText: { displayText: '📱 𝐓𝐨𝐫𝐧𝐚 𝐚𝐥 𝐦𝐞𝐧𝐮' },
-          type: 1
+        for (let i = 0; i < 18; i++) { // 18 cicli da 10 secondi = 3 minuti
+            await sleep(10000);
+            let current = await fetchMessaggi(num);
+            if (current && current.length > 0 && current[0].testo !== lastOld) {
+                let s = current[0];
+                let alert = `🔔 *SMS INTERCETTATO!* 🔔\n\n`;
+                alert += `📱 *TARGET:* \`+${num}\`\n`;
+                alert += `👤 *DA:* ${s.mittente}\n`;
+                alert += `💬 *MSG:* \n> ${s.testo}\n\n`;
+                alert += `✨ _Operazione completata._`;
+                return conn.sendMessage(m.chat, { text: alert, edit: key });
+            }
         }
-      ]
-
-      return conn.sendMessage(m.chat, {
-        text: res,
-        footer: `Aggiornato alle: ${new Date().toLocaleTimeString()}`,
-        buttons: btns,
-        headerType: 1,
-        edit: loading.key
-      })
-
-    } catch (e) {
-      console.error('check error:', e)
-
-      let msg = '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞*\n\n'
-      if (/cloudflare/i.test(e.message)) {
-        msg += '𝐂𝐥𝐨𝐮𝐝𝐟𝐥𝐚𝐫𝐞 𝐡𝐚 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨 𝐥𝐚 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚.'
-      } else if (/timeout/i.test(e.message) || /ETIMEDOUT/i.test(e.message)) {
-        msg += '𝐈𝐥 𝐬𝐢𝐭𝐨 𝐧𝐨𝐧 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞 𝐢𝐧 𝐭𝐞𝐦𝐩𝐨.'
-      } else {
-        msg += e.message || '𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐢𝐥 𝐜𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨 𝐝𝐞𝐠𝐥𝐢 𝐒𝐌𝐒.'
-      }
-
-      return conn.sendMessage(m.chat, {
-        text: msg,
-        edit: loading.key
-      })
+        return conn.sendMessage(m.chat, { text: `⌛ *RADAR TIMEOUT*\nNessun nuovo codice ricevuto per \`+${num}\`. Prova un altro numero con \`${usedPrefix}lastvoips\``, edit: key });
     }
-  }
-}
 
-handler.command = /^(voip|check)$/i
-handler.tags = ['strumenti']
-handler.help = ['voip', 'voip <id>', 'check <numero>']
+    // --- DATABASE COMPLETO NAZIONI ---
+    if (cmd === 'voip' && !arg) {
+        let msg = `🌍 *DATABASE NAZIONI VoIP* 🌍\n\n`;
+        for(let i=0; i<nazioni.length; i+=2) {
+             let c1 = `*${nazioni[i].id}* ${nazioni[i].nome}`.padEnd(20);
+             let c2 = nazioni[i+1] ? `*${nazioni[i+1].id}* ${nazioni[i+1].nome}` : '';
+             msg += `${c1} ${c2}\n`;
+        }
+        msg += `\n💡 _Digita_ \`${usedPrefix}voip <id>\` _per estrarre i numeri._`;
+        return m.reply(msg);
+    }
 
-export default handler
+    // --- VOIP SMS MANUALE ---
+    if (cmd === 'voip' && arg === 'sms') {
+        const num = args[1]?.replace('+', '');
+        if (!num) return m.reply(`💡 *Esempio:* ${usedPrefix}voip sms 447418312672`);
+        let { key } = await conn.sendMessage(m.chat, { text: `📨 *ESTRAZIONE MESSAGGI...*` });
+        let msgs = await fetchMessaggi(num);
+        if (!msgs || msgs.length === 0) return m.reply("❌ Nessun SMS trovato. Il numero potrebbe essere scaduto.");
+
+        let res = `📩 *LOG MESSAGGI:* \`+${num}\`\n\n`;
+        msgs.slice(0, 7).forEach(m => {
+            res += `🕒 *${m.tempo}*\n`;
+            res += `👤 *DA:* ${m.mittente}\n`;
+            res += `📝 *MSG:* ${m.testo}\n`;
+            res += ` ────────────────\n`;
+        });
+        return conn.sendMessage(m.chat, { text: res.trim(), edit: key });
+    }
+
+    // --- NUMERI PER NAZIONE (MASSIMIZZATI) ---
+    if (cmd === 'voip' && arg && arg !== 'sms') {
+        const naz = nazioni.find(n => n.id === arg);
+        if (!naz) return m.reply("❌ ID Nazione non trovato nel database.");
+        let { key } = await conn.sendMessage(m.chat, { text: `🔎 *SCANSIONE LIVE:* ${naz.nome}` });
+        try {
+            const { data } = await axios.get(`${baseUrl}${naz.path}?t=${Date.now()}`, { headers: getHeaders() });
+            const $ = cheerio.load(data);
+            let list = [];
+            $('a').each((i, el) => {
+                let t = $(el).text().trim();
+                if (t.includes('+')) list.push(t.replace(/[^0-9]/g, ''));
+            });
+
+            let finalNumbers = [...new Set(list)];
+            if (finalNumbers.length === 0) return m.reply("❌ Nessun numero attivo trovato per questa nazione.");
+
+            let res = `🟢 *NUMERI ATTIVI: ${naz.nome.toUpperCase()}*\n\n`;
+            finalNumbers.slice(0, 15).forEach(n => res += `• \`+${n}\`\n`);
+            res += `\n📡 _Usa_ \`${usedPrefix}regvoip <numero>\` _per attivare il radar._`;
+            return conn.sendMessage(m.chat, { text: res, edit: key });
+        } catch { return m.reply("❌ Errore di connessione al provider."); }
+    }
+};
+
+handler.help = ['voip', 'regvoip', 'lastvoips', 'menuvoip'];
+handler.tags = ['strumenti'];
+handler.command = /^(voip|regvoip|lastvoips|menuvoip)$/i;
+
+export default handler;
