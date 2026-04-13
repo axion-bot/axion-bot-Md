@@ -7,7 +7,7 @@ const videos = {
 
 let handler = async (m, { conn, text }) => {
   try {
-    // ⏳ reazione loading
+  //reazione iniziale
     await conn.sendMessage(m.chat, {
       react: { text: '⏳', key: m.key }
     })
@@ -33,7 +33,7 @@ let handler = async (m, { conn, text }) => {
       { quoted: m }
     )
 
-    // reazionr
+    // reazione finalr
     await conn.sendMessage(m.chat, {
       react: { text: '✅', key: m.key }
     })
