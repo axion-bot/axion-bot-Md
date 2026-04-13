@@ -1,4 +1,4 @@
-// bonk finale su template video
+// bonk2 finale su template video
 // by 𝕯𝖊ⱥ𝖑𝐝𝖞 × Bonzino
 
 import fs from 'fs'
@@ -10,9 +10,12 @@ const TEMPLATE = './media/bonk.mp4'
 const TMP = './tmp_bonk_video'
 const OUT = './tmp_bonk_video/out.mp4'
 
-const HEAD_X = 180
-const HEAD_Y = 260
+const HEAD_X = 300
+const HEAD_Y = 240
 const SIZE = 120
+
+const CLIP_DURATION = '1.2'
+const FPS = '20'
 
 function resolveTarget(m, text = '') {
   const raw = String(text || '').trim()
@@ -29,7 +32,10 @@ function run(cmd, args) {
     const p = spawn(cmd, args)
     let stderr = ''
 
-    p.stderr.on('data', d => stderr += d.toString())
+    p.stderr.on('data', d => {
+      stderr += d.toString()
+    })
+
     p.on('error', reject)
     p.on('close', code => {
       if (code === 0) resolve()
@@ -57,6 +63,17 @@ function ensureCleanDir(dir) {
   }
 }
 
+function getImpactPosition(frameName) {
+  const n = Number((frameName.match(/(\d+)/) || [0, 0])[1])
+
+  // ultimi frame = botta
+  if (n >= 18) return { x: HEAD_X - 12, y: HEAD_Y + 6, size: SIZE }
+  if (n >= 15) return { x: HEAD_X - 8, y: HEAD_Y + 4, size: SIZE }
+  if (n >= 12) return { x: HEAD_X - 4, y: HEAD_Y + 2, size: SIZE }
+
+  return { x: HEAD_X, y: HEAD_Y, size: SIZE }
+}
+
 let handler = async (m, { conn, text }) => {
   try {
     const who = conn.decodeJid(resolveTarget(m, text))
@@ -76,39 +93,43 @@ let handler = async (m, { conn, text }) => {
     ensureCleanDir(TMP)
 
     const avatarBuffer = await fetchAvatarBuffer(pfp)
-    fs.writeFileSync(`${TMP}/avatar.png`, avatarBuffer)
+    fs.writeFileSync(path.join(TMP, 'avatar.png'), avatarBuffer)
 
-    // estraggo i frame SENZA crop e SENZA alterare il canvas
+    // 1) estrazione frame veloce e corta
     await run('ffmpeg', [
       '-y',
       '-i', TEMPLATE,
-      `${TMP}/frame_%03d.png`
+      '-t', CLIP_DURATION,
+      '-vf', `fps=${FPS}`,
+      path.join(TMP, 'frame_%03d.png')
     ])
 
     const frames = fs.readdirSync(TMP)
       .filter(f => /^frame_\d+\.png$/.test(f))
       .sort()
 
-    // overlay avatar mantenendo intatto il frame originale
+    // 2) overlay avatar con piccolo shake negli ultimi frame
     for (const f of frames) {
+      const pos = getImpactPosition(f)
+
       await run('ffmpeg', [
         '-y',
-        '-i', `${TMP}/${f}`,
-        '-i', `${TMP}/avatar.png`,
+        '-i', path.join(TMP, f),
+        '-i', path.join(TMP, 'avatar.png'),
         '-filter_complex',
         [
-          `[1:v]scale=${SIZE}:${SIZE}[a]`,
-          `[0:v][a]overlay=${HEAD_X}:${HEAD_Y}`
+          `[1:v]scale=${pos.size}:${pos.size}[a]`,
+          `[0:v][a]overlay=${pos.x}:${pos.y}`
         ].join(';'),
-        `${TMP}/out_${f}`
+        path.join(TMP, `out_${f}`)
       ])
     }
 
-    // ricompongo senza forzare scale strane
+    // 3) ricomposizione finale più rapida
     await run('ffmpeg', [
       '-y',
-      '-framerate', '10',
-      '-i', `${TMP}/out_frame_%03d.png`,
+      '-framerate', FPS,
+      '-i', path.join(TMP, 'out_frame_%03d.png'),
       '-c:v', 'libx264',
       '-pix_fmt', 'yuv420p',
       '-movflags', '+faststart',
