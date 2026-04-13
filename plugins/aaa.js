@@ -3,7 +3,10 @@ import * as cheerio from 'cheerio';
 
 const baseUrl = 'https://sms24.me';
 const getHeaders = () => ({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Referer': 'https://sms24.me/',
     'Cache-Control': 'no-cache'
 });
 
@@ -17,7 +20,7 @@ const nazioni = {
 
 async function fetchMessaggi(num) {
     try {
-        const { data } = await axios.get(`${baseUrl}/en/numbers/${num}?t=${Date.now()}`, { headers: getHeaders(), timeout: 10000 });
+        const { data } = await axios.get(`${baseUrl}/en/numbers/${num}?t=${Date.now()}`, { headers: getHeaders(), timeout: 15000 });
         const $ = cheerio.load(data);
         let messaggi = [];
         $('.shadow-sm, .list-group-item').each((i, el) => {
@@ -41,16 +44,18 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             return m.reply(txt);
         }
 
-        let { key } = await conn.sendMessage(m.chat, { text: `📡 *𝐒𝐂𝐀𝐍𝐒𝐈𝐎𝐍𝐄 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎...*` });
+        let { key } = await conn.sendMessage(m.chat, { text: `📡 *✅ 𝐒𝐂𝐀𝐍𝐒𝐈𝐎𝐍𝐄 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎...*` });
 
         try {
             const { data } = await axios.get(`${baseUrl}${nazioni[code].path}?t=${Date.now()}`, { headers: getHeaders() });
             const $ = cheerio.load(data);
             let nums = [];
-            $('a').each((i, el) => {
-                let t = $(el).text().trim();
-                if (t.includes('+')) nums.push(t.replace(/[^0-9]/g, ''));
+            $('a[href*="/en/numbers/"]').each((i, el) => {
+                let t = $(el).text().trim().replace(/[^0-9]/g, '');
+                if (t.length > 5) nums.push(t);
             });
+
+            if (nums.length === 0) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun numero trovato.", edit: key });
 
             let finalNums = [...new Set(nums)].sort(() => 0.5 - Math.random()).slice(0, 6);
             let res = `*✅ 𝐍𝐔𝐌𝐄𝐑𝐈 ${code.toUpperCase()}*\n\n`;
@@ -63,15 +68,24 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
             buttons.push({ buttonId: `${usedPrefix}voip ${code}`, buttonText: { displayText: `🔄 𝐂𝐀𝐌𝐁𝐈𝐀 𝐍𝐔𝐌𝐄𝐑𝐈` }, type: 1 });
 
-            return conn.sendMessage(m.chat, { text: res, footer: "Seleziona un numero", buttons, headerType: 1, edit: key });
-        } catch { return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Connessione fallita.", edit: key }); }
+            return conn.sendMessage(m.chat, { 
+                text: res, 
+                footer: "Tocca un bottone per vedere gli SMS", 
+                buttons, 
+                headerType: 1, 
+                edit: key 
+            }, { quoted: m });
+
+        } catch (e) { 
+            return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Connessione fallita.", edit: key }); 
+        }
     }
 
     if (cmd === 'check') {
         let num = args[0]?.replace('+', '');
         if (!num) return m.reply("*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Numero mancante.");
 
-        let { key } = await conn.sendMessage(m.chat, { text: `📨 *𝐋𝐄𝐓𝐓𝐔𝐑𝐀 𝐒𝐌𝐒...* \`+${num}\`` });
+        let { key } = await conn.sendMessage(m.chat, { text: `📨 *✅ 𝐋𝐄𝐓𝐓𝐔𝐑𝐀 𝐒𝐌𝐒...* \`+${num}\`` });
         let msgs = await fetchMessaggi(num);
 
         if (!msgs || msgs.length === 0) return conn.sendMessage(m.chat, { text: "*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun messaggio trovato.", edit: key });
@@ -86,7 +100,13 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             { buttonId: `${usedPrefix}voip`, buttonText: { displayText: `📱 𝐓𝐎𝐑𝐍𝐀 𝐀𝐋 𝐌𝐄𝐍𝐔` }, type: 1 }
         ];
 
-        return conn.sendMessage(m.chat, { text: res, footer: `Update: ${new Date().toLocaleTimeString()}`, buttons, headerType: 1, edit: key });
+        return conn.sendMessage(m.chat, { 
+            text: res, 
+            footer: `Ultimo aggiornamento: ${new Date().toLocaleTimeString()}`, 
+            buttons, 
+            headerType: 1, 
+            edit: key 
+        }, { quoted: m });
     }
 };
 
