@@ -64,15 +64,10 @@ let handler = async (m, { conn, text, isOwner, usedPrefix }) => {
 
   if (!text) {
     return conn.reply(m.chat, `
-⚙️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - File retriever*
+⚙️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
 
 *Uso corretto:*
 *.getpl <nome-plugin>*
-
-*Esempi:*
-*.getpl info-ping.js*
-*.getpl ping*
-*.getpl infoping*
 
 ${SIGN}`.trim(), m)
   }
@@ -127,7 +122,7 @@ ${SIGN}`
       document: fs.readFileSync(pluginPath),
       mimetype: 'application/javascript',
       fileName: pluginFile,
-      caption: `📥 *Download pronto:* ${pluginFile}\n\n${SIGN}`
+      caption: `📥 *Download pronto:*`
     }, { quoted: m })
   }
 
