@@ -11,7 +11,6 @@ const headers = {
   'User-Agent': 'Mozilla/5.0'
 };
 
-// 🌐 PIÙ SITI (alcuni potrebbero non funzionare sempre)
 const sites = [
   'https://receive-sms-online.info',
   'https://receive-smss.com',
@@ -22,7 +21,6 @@ const sites = [
   'https://receiveasms.com'
 ];
 
-// 🌍 PIÙ NAZIONI
 const countries = [
   { name: 'USA 🇺🇸', prefix: '+1' },
   { name: 'UK 🇬🇧', prefix: '+44' },
@@ -41,7 +39,6 @@ const countries = [
   { name: 'Filippine 🇵🇭', prefix: '+63' }
 ];
 
-// 📥 PRENDE NUMERI
 async function getNumbers() {
   let results = [];
 
@@ -62,13 +59,11 @@ async function getNumbers() {
     }
   }
 
-  // pulizia numeri
   results = [...new Set(results)].filter(n => n.length >= 8);
 
   return results;
 }
 
-// 📩 PRENDE SMS
 async function getSMS(num) {
   let clean = num.replace('+', '');
 
@@ -102,7 +97,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
 
   let user = m.sender;
 
-  // MENU
   if (!args[0]) {
     let txt = `🌍 *SCEGLI PAESE*\n\n`;
 
@@ -114,7 +108,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     return m.reply(txt);
   }
 
-  // SCELTA PAESE
   if (!isNaN(args[0])) {
     let country = countries[parseInt(args[0]) - 1];
     if (!country) return m.reply("❌ Paese non valido");
@@ -146,7 +139,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     });
   }
 
-  // CAMBIA NUMERO
   if (args[0] === 'next') {
     let session = sessions[user];
     if (!session) return m.reply("❌ Seleziona prima un paese");
@@ -167,7 +159,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     });
   }
 
-  // CONTROLLA SMS
   if (args[0] === 'sms') {
     let session = sessions[user];
     if (!session) return m.reply("❌ Nessuna sessione");
