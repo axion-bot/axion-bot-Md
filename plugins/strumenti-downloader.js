@@ -1,26 +1,3 @@
-Ecco una versione più seria e stabile del plugin, mantenendo:
-
-.dw link → mostra info + bottone
-
-.dw video link → scarica video
-
-.dw audio link → scarica audio
-
-supporto reply a messaggi con link
-
-animazione info
-
-animazione download
-
-fix dei bottoni
-
-fallback TikTok
-
-conversione mp4 compatibile WhatsApp
-
-output più pulito
-
-
 // by Bonzino
 
 import fs from 'fs'
@@ -47,22 +24,6 @@ async function editMessage(conn, chatId, key, text) {
     },
     {}
   )
-}
-
-async function animateInfo(conn, chatId, key) {
-  const frames = [
-    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*',
-    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢.*',
-    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢..*',
-    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢...*'
-  ]
-
-  for (let i = 0; i < 2; i++) {
-    for (const f of frames) {
-      await editMessage(conn, chatId, key, f)
-      await sleep(280)
-    }
-  }
 }
 
 async function animateDownload(conn, chatId, key) {
@@ -503,8 +464,8 @@ async function downloadAudio(url, tmpDir) {
 
 function buildInfoCaption(info, mode) {
   let txt = mode === 'video'
-    ? `*𝐕𝐈𝐃𝐄𝐎 𝐓𝐑𝐎𝐕𝐀𝐓𝐎*\n\n`
-    : `*𝐀𝐔𝐃𝐈𝐎 𝐓𝐑𝐎𝐕𝐀𝐓𝐎*\n\n`
+    ? `*𝐕𝐢𝐝𝐞𝐨 𝐭𝐫𝐨𝐯𝐚𝐭𝐨*\n\n`
+    : `*𝐀𝐮𝐝𝐢𝐨 𝐭𝐫𝐨𝐯𝐚𝐭𝐨*\n\n`
 
   txt += `🎬 *𝐓𝐢𝐭𝐨𝐥𝐨:* ${info.title || '𝐍/𝐃'}\n`
   txt += `👤 *𝐀𝐮𝐭𝐨𝐫𝐞:* ${info.uploader || '𝐍/𝐃'}\n`
@@ -512,10 +473,13 @@ function buildInfoCaption(info, mode) {
   txt += `⚖️ *𝐏𝐞𝐬𝐨:* ${info.filesize || '𝐍/𝐃'}\n`
   txt += `👁️ *𝐕𝐢𝐞𝐰𝐬:* ${info.views || '𝐍/𝐃'}\n`
   txt += `📅 *𝐃𝐚𝐭𝐚:* ${info.uploadDate || '𝐍/𝐃'}`
+
   txt += buildLongWarning(info, mode)
-  txt += `\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
+
+  txt += `\n\n──────────\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
 
   return txt
+}
 }
 
 let handler = async (m, { conn, args, usedPrefix }) => {
@@ -541,89 +505,40 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (!url) {
-      return m.reply('*⚠️ 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐥𝐢𝐧𝐤 𝐯𝐚𝐥𝐢𝐝𝐨*')
+      return m.reply('*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐥𝐢𝐧𝐤.')
     }
 
     if (!isValidUrl(url)) {
-      return m.reply('*❌️ 𝐄𝐑𝐑𝐎𝐑𝐄:* 𝐋𝐢𝐧𝐤 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.')
+      return m.reply('*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐋𝐢𝐧𝐤 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.')
     }
 
     const hasYtDlp = await hasBinary('yt-dlp')
     if (!hasYtDlp && !isTikTokUrl(url)) {
-      return m.reply('*❌️ 𝐄𝐑𝐑𝐎𝐑𝐄:* 𝐲𝐭-𝐝𝐥𝐩 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
+      return m.reply('*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐲𝐭-𝐝𝐥𝐩 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
     }
 
     if (mode !== 'audio' && mode !== 'video') {
-  const sentInfo = await conn.sendMessage(m.chat, {
-    text: '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*'
-  }, { quoted: m })
+      const info = await getMediaInfo(url)
 
-  const infoKey = sentInfo.key
-
-  await animateInfo(conn, m.chat, infoKey)
-  await sleep(400)
-
-  const info = await getMediaInfo(url)
-
-  if (!info) {
-    return conn.sendMessage(m.chat, {
-      text: `*𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
-      footer: '',
-      buttons: [
-        {
-          buttonId: `${usedPrefix}download video ${url}`,
-          buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-          type: 1
-        },
-        {
-          buttonId: `${usedPrefix}download audio ${url}`,
-          buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-          type: 1
-        }
-      ],
-      headerType: 1
-    }, { quoted: m })
-  }
-
-  if (info.thumbnail) {
-    return conn.sendMessage(m.chat, {
-      image: { url: info.thumbnail },
-      caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
-      footer: '',
-      buttons: [
-        {
-          buttonId: `${usedPrefix}download video ${url}`,
-          buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-          type: 1
-        },
-        {
-          buttonId: `${usedPrefix}download audio ${url}`,
-          buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-          type: 1
-        }
-      ],
-      headerType: 4
-    }, { quoted: m })
-  }
-
-  return conn.sendMessage(m.chat, {
-    text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
-    footer: '',
-    buttons: [
-      {
-        buttonId: `${usedPrefix}download video ${url}`,
-        buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-        type: 1
-      },
-      {
-        buttonId: `${usedPrefix}download audio ${url}`,
-        buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-        type: 1
+      if (!info) {
+        return conn.sendMessage(m.chat, {
+          text: `*𝐒𝐜𝐞𝐠𝐥𝐢 𝐢𝐥 𝐟𝐨𝐫𝐦𝐚𝐭𝐨*\n\n🔗 ${url}`,
+          footer: '',
+          buttons: [
+            {
+              buttonId: `${usedPrefix}download video ${url}`,
+              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+              type: 1
+            },
+            {
+              buttonId: `${usedPrefix}download audio ${url}`,
+              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+              type: 1
+            }
+          ],
+          headerType: 1
+        }, { quoted: m })
       }
-    ],
-    headerType: 1
-  }, { quoted: m })
-}}
 
       if (info.thumbnail) {
         return conn.sendMessage(m.chat, {
@@ -631,8 +546,16 @@ let handler = async (m, { conn, args, usedPrefix }) => {
           caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
           footer: '',
           buttons: [
-            { buttonId: `${usedPrefix}download video ${url}`, buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' }, type: 1 },
-            { buttonId: `${usedPrefix}download audio ${url}`, buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' }, type: 1 }
+            {
+              buttonId: `${usedPrefix}download video ${url}`,
+              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+              type: 1
+            },
+            {
+              buttonId: `${usedPrefix}download audio ${url}`,
+              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+              type: 1
+            }
           ],
           headerType: 4
         }, { quoted: m })
@@ -642,12 +565,24 @@ let handler = async (m, { conn, args, usedPrefix }) => {
         text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
         footer: '',
         buttons: [
-          { buttonId: `${usedPrefix}download video ${url}`, buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' }, type: 1 },
-          { buttonId: `${usedPrefix}download audio ${url}`, buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' }, type: 1 }
+          {
+            buttonId: `${usedPrefix}download video ${url}`,
+            buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+            type: 1
+          },
+          {
+            buttonId: `${usedPrefix}download audio ${url}`,
+            buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+            type: 1
+          }
         ],
         headerType: 1
       }, { quoted: m })
     }
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '⏳', key: m.key }
+    })
 
     const startedAt = Date.now()
 
@@ -673,7 +608,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
         conn,
         m.chat,
         key,
-        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n*100%*\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
+        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
       )
     }
 
@@ -691,7 +626,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
         conn,
         m.chat,
         key,
-        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n*100%*\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
+        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
       )
     }
 
@@ -701,7 +636,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
 
   } catch (e) {
     console.error('download error:', e)
-    return m.reply(`*❌️ 𝐄𝐑𝐑𝐎𝐑𝐄:* ${sanitizeError(e.message || String(e))}`)
+    return m.reply(`*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* ${sanitizeError(e.message || String(e))}`)
   } finally {
     try {
       fs.rmSync(tmpDir, { recursive: true, force: true })
