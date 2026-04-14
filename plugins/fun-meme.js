@@ -80,7 +80,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     };
 
     await conn.sendMessage(m.chat, {
-        text: `${emojiCategoria[randomCategory]} *TikTok ${randomCategory.toUpperCase()} Random!*\n\n🔗 ${randomLink}\n\n> usa: .ttdl (link) per scaricare il video`,
+        text: `${emojiCategoria[randomCategory]} *TikTok ${randomCategory.toUpperCase()} Random!*\n\n🔗 ${randomLink}\n\n> usa: .dw (link) per scaricare il video`,
         buttons: playAgainButtons(usedPrefix),
         headerType: 1
     }, { quoted: m });
