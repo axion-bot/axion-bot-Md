@@ -3,21 +3,10 @@
 import QRCode from 'qrcode'
 import fetch from 'node-fetch'
 
-const handler = async (m, { conn }) => {
-
-  if (!m.isGroup) {
-    return m.reply('*𝐐𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐚 𝐬𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢.*')
-  }
-
-  const metadata = await conn.groupMetadata(m.chat)
-  const botJid = conn.user.id.split(':')[0] + '@s.whatsapp.net'
-  const botIsAdmin = metadata.participants.find(p => p.id === botJid)?.admin
-
-  if (!botIsAdmin) {
-    return m.reply('*𝐃𝐞𝐯𝐨 𝐞𝐬𝐬𝐞𝐫𝐞 𝐚𝐝𝐦𝐢𝐧 𝐩𝐞𝐫 𝐨𝐭𝐭𝐞𝐧𝐞𝐫𝐞 𝐢𝐥 𝐐𝐑 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*')
-  }
-
+const handler = async (m, { conn, usedPrefix, command }) => {
   try {
+    const metadata = await conn.groupMetadata(m.chat)
+
     const code = await conn.groupInviteCode(m.chat)
     const link = `https://chat.whatsapp.com/${code}`
 
@@ -38,7 +27,7 @@ const handler = async (m, { conn }) => {
       : thumb
 
     const caption = `*╭━━━━━━━📌━━━━━━━╮*
-*✦ 𝐐𝐑 𝐆𝐑𝐔𝐏𝐏𝐎 ✦*
+*✦ 𝐐𝐫 𝐆𝐫𝐮𝐩𝐩𝐨 ✦*
 *╰━━━━━━━📌━━━━━━━╯*
 
 *🔗 𝐋𝐢𝐧𝐤:*
@@ -57,12 +46,21 @@ ${link}`
           renderLargerThumbnail: false,
           showAdAttribution: false
         }
-      }
+      },
+      footer: 'Scegli un’azione',
+      buttons: [
+        {
+          buttonId: `${usedPrefix}${command}`,
+          buttonText: { displayText: '🔄 Genera nuovo Qr' },
+          type: 1
+        }
+      ],
+      headerType: 4
     }, { quoted: m })
 
   } catch (error) {
     console.error(error)
-    m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐧𝐞𝐫𝐚𝐳𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐐𝐑.*')
+    m.reply('*𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐧𝐞𝐫𝐚𝐳𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐐𝐫.*')
   }
 }
 

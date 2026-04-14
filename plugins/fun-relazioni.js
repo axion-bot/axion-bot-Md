@@ -58,6 +58,8 @@ function getRequestText(command, from, to) {
       return `*👨 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐝𝐢 𝐫𝐞𝐥𝐚𝐳𝐢𝐨𝐧𝐞*\n\n${tag(from)} 𝐯𝐨𝐫𝐫𝐞𝐛𝐛𝐞 𝐜𝐡𝐞 𝐭𝐮 𝐝𝐢𝐯𝐞𝐧𝐭𝐚𝐬𝐬𝐢 𝐬𝐮𝐨 𝐩𝐚𝐝𝐫𝐞.\n\n*𝐀𝐜𝐜𝐞𝐭𝐭𝐢?*`
     case 'figlio':
       return `*👶 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐝𝐢 𝐫𝐞𝐥𝐚𝐳𝐢𝐨𝐧𝐞*\n\n${tag(from)} 𝐯𝐨𝐫𝐫𝐞𝐛𝐛𝐞 𝐜𝐡𝐞 𝐭𝐮 𝐝𝐢𝐯𝐞𝐧𝐭𝐚𝐬𝐬𝐢 𝐬𝐮𝐨 𝐟𝐢𝐠𝐥𝐢𝐨.\n\n*𝐀𝐜𝐜𝐞𝐭𝐭𝐢?*`
+    case 'adotta':
+      return `*👨‍👩‍👧 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚*\n\n${tag(from)} 𝐯𝐮𝐨𝐥𝐞 𝐚𝐝𝐨𝐭𝐭𝐚𝐫𝐭𝐢 𝐜𝐨𝐦𝐞 𝐟𝐢𝐠𝐥𝐢𝐨/𝐚.\n\n*𝐀𝐜𝐜𝐞𝐭𝐭𝐢?*`
     case 'fratello':
       return `*🧑‍🤝‍🧑 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚*\n\n${tag(from)} 𝐯𝐨𝐫𝐫𝐞𝐛𝐛𝐞 𝐝𝐢𝐯𝐞𝐧𝐭𝐚𝐫𝐞 𝐭𝐮𝐨 𝐟𝐫𝐚𝐭𝐞𝐥𝐥𝐨.\n\n*𝐀𝐜𝐜𝐞𝐭𝐭𝐢?*`
     case 'sorella':
@@ -89,6 +91,11 @@ function applyRelation(command, sender, target, user1, user2) {
   if (command === 'figlio') {
     addUnique(user1.figli, target)
     return `*👶 𝐎𝐫𝐚 ${tag(target)} è 𝐟𝐢𝐠𝐥𝐢𝐨 𝐝𝐢 ${tag(sender)}.*`
+  }
+
+  if (command === 'adotta') {
+    addUnique(user1.figli, target)
+    return `*👨‍👩‍👧 𝐎𝐫𝐚 ${tag(target)} è 𝐟𝐢𝐠𝐥𝐢𝐨/𝐚 𝐚𝐝𝐨𝐭𝐭𝐢𝐯𝐨/𝐚 𝐝𝐢 ${tag(sender)}.*`
   }
 
   if (command === 'fratello') {
@@ -190,7 +197,7 @@ handler.before = async function (m) {
   return true
 }
 
-handler.command = /^(madre|padre|figlio|fratello|sorella|nonno|nonna|cugino|cugina)$/i
+handler.command = /^(madre|padre|figlio|adotta|fratello|sorella|nonno|nonna|cugino|cugina)$/i
 handler.tags = ['fun']
 handler.help = ['relazioni']
 
