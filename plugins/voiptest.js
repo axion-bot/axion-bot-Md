@@ -7,23 +7,19 @@ import 'dotenv/config'
 
 function getEnvValue(name) {
   try {
-    const envPath = path.join(process.cwd(), '.env')
+    const envPath = '/home/falcox/axion-bot-Md/.env'
     const env = fs.readFileSync(envPath, 'utf8')
-
     const line = env
       .split('\n')
       .find(v => v.trim().startsWith(name + '='))
 
     if (!line) return null
-
-    return line
-      .slice(name.length + 1)
-      .trim()
-      .replace(/^['"]|['"]$/g, '')
+    return line.slice(name.length + 1).trim().replace(/^['"]|['"]$/g, '')
   } catch {
     return null
   }
 }
+
 const USER_BASE = 'https://5sim.net/v1/user'
 const GUEST_BASE = 'https://5sim.net/v1/guest'
 const PAGE_SIZE = 3
@@ -104,7 +100,7 @@ function buildCountryPage(session, usedPrefix) {
   })
 
   const buttons = items.map((c, i) => ({
-    buttonId: `${usedPrefix}voip ${i + 1}`,
+    buttonId: `${usedPrefix}voip2 ${i + 1}`,
     buttonText: { displayText: `${i + 1}. ${c.name}` },
     type: 1
   }))
@@ -112,7 +108,7 @@ function buildCountryPage(session, usedPrefix) {
   if (totalPages > 1) {
     if (page > 0) {
       buttons.push({
-        buttonId: `${usedPrefix}voip prev`,
+        buttonId: `${usedPrefix}voip2 prev`,
         buttonText: { displayText: '⬅️ Prev' },
         type: 1
       })
@@ -120,7 +116,7 @@ function buildCountryPage(session, usedPrefix) {
 
     if (page < totalPages - 1) {
       buttons.push({
-        buttonId: `${usedPrefix}voip page_next`,
+        buttonId: `${usedPrefix}voip2 page_next`,
         buttonText: { displayText: '➡️ Next' },
         type: 1
       })
@@ -311,7 +307,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       return m.reply(txt)
     }
 
-    if (cmd === 'voip' && !input) {
+    if (cmd === 'voip2' && !input) {
       const countries = await getCountries()
 
       if (!countries.length) {
@@ -334,9 +330,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       })
     }
 
-    if (cmd === 'voip' && input === 'prev') {
+    if (cmd === 'voip2' && input === 'prev') {
       if (!session.countries?.length) {
-        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip\`.`)
+        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip2\`.`)
       }
 
       session.page = Math.max(0, (session.page || 0) - 1)
@@ -350,9 +346,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       })
     }
 
-    if (cmd === 'voip' && input === 'page_next') {
+    if (cmd === 'voip2' && input === 'page_next') {
       if (!session.countries?.length) {
-        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip\`.`)
+        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip2\`.`)
       }
 
       const totalPages = getTotalPages(session.countries)
@@ -367,9 +363,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       })
     }
 
-    if (cmd === 'voip' && !isNaN(input)) {
+    if (cmd === 'voip2' && !isNaN(input)) {
       if (!session.countries?.length) {
-        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip\`.`)
+        return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Apri prima il menu con \`${usedPrefix}voip2\`.`)
       }
 
       const pageItems = getPageItems(session.countries, session.page || 0)
@@ -392,16 +388,16 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
           `🌍 ${country.name}\n` +
           `📲 \`${data.phone}\``,
         buttons: [
-          { buttonId: `${usedPrefix}voip next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
-          { buttonId: `${usedPrefix}voip sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
-          { buttonId: `${usedPrefix}voip auto`, buttonText: { displayText: '🤖 Auto' }, type: 1 }
+          { buttonId: `${usedPrefix}voip2 next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
+          { buttonId: `${usedPrefix}voip2 sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
+          { buttonId: `${usedPrefix}voip2 auto`, buttonText: { displayText: '🤖 Auto' }, type: 1 }
         ],
         headerType: 1,
         edit: key
       })
     }
 
-    if (cmd === 'voip' && input === 'next') {
+    if (cmd === 'voip2' && input === 'next') {
       if (!session.selected) {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Seleziona prima un paese.')
       }
@@ -418,15 +414,15 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
           `🌍 ${session.selected.name}\n` +
           `📲 \`${data.phone}\``,
         buttons: [
-          { buttonId: `${usedPrefix}voip next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
-          { buttonId: `${usedPrefix}voip sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
-          { buttonId: `${usedPrefix}voip auto`, buttonText: { displayText: '🤖 Auto' }, type: 1 }
+          { buttonId: `${usedPrefix}voip2 next`, buttonText: { displayText: '🔄 Cambia Numero' }, type: 1 },
+          { buttonId: `${usedPrefix}voip2 sms`, buttonText: { displayText: '📩 Controlla SMS' }, type: 1 },
+          { buttonId: `${usedPrefix}voip2 auto`, buttonText: { displayText: '🤖 Auto' }, type: 1 }
         ],
         headerType: 1
       })
     }
 
-    if (cmd === 'voip' && input === 'sms') {
+    if (cmd === 'voip2' && input === 'sms') {
       if (!session.order?.id) {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessuna sessione attiva.')
       }
@@ -434,7 +430,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       const data = await check(session.order.id, API_KEY)
 
       if (!data.sms?.length) {
-        return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun SMS.')
+        return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐫𝐞:* Nessun SMS.')
       }
 
       let txt = `*✅ 𝐌𝐄𝐒𝐒𝐀𝐆𝐆𝐈 𝐑𝐈𝐂𝐄𝐕𝐔𝐓𝐈:* \`${session.order.phone}\`\n\n`
@@ -446,7 +442,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       return m.reply(txt)
     }
 
-    if (cmd === 'voip' && input === 'auto') {
+    if (cmd === 'voip2' && input === 'auto') {
       if (!session.selected) {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Seleziona prima un paese.')
       }
@@ -462,7 +458,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       return autoCycle(conn, m.chat, m, session, API_KEY)
     }
 
-    if (cmd === 'voip' && input === 'stop') {
+    if (cmd === 'voip2' && input === 'stop') {
       if (!session.order?.id) {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun ordine.')
       }
@@ -482,6 +478,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.command = /^(voip2|saldo)$/i
 handler.tags = ['strumenti']
-handler.help = ['voip', 'saldo']
+handler.help = ['voip2', 'saldo']
 
 export default handler
