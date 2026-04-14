@@ -568,16 +568,16 @@ if (m.message?.protocolMessage?.type === 'MESSAGE_EDIT') {
                 if (!isAccept) continue
 
                 if (m.isGroup && (plugin.admin || plugin.botAdmin)) {
-                    const freshMetadata = global.groupCache.get(m.chat) || await fetchGroupMetadataWithRetry(this, m.chat)
-                    if (freshMetadata) {
-                        freshMetadata.fetchTime = Date.now()
-                        global.groupCache.set(m.chat, freshMetadata, { ttl: 300 })
-                        groupMetadata = freshMetadata
-                        participants = groupMetadata.participants
-                        normalizedParticipants = participants.map(u => {
-                            const normalizedId = this.decodeJid(u.id)
-                            return { ...u, id: normalizedId, jid: u.jid || normalizedId }
-                        })
+    const freshMetadata = await fetchGroupMetadataWithRetry(this, m.chat)
+    if (freshMetadata) {
+        freshMetadata.fetchTime = Date.now()
+        global.groupCache.set(m.chat, freshMetadata, { ttl: 300 })
+        groupMetadata = freshMetadata
+        participants = groupMetadata.participants
+        normalizedParticipants = participants.map(u => {
+            const normalizedId = this.decodeJid(u.id)
+            return { ...u, id: normalizedId, jid: u.jid || normalizedId }
+        })
 
                         const normalizedOwner = groupMetadata.owner ? this.decodeJid(groupMetadata.owner) : null
                         const normalizedOwnerLid = groupMetadata.ownerLid ? this.decodeJid(groupMetadata.ownerLid) : null
