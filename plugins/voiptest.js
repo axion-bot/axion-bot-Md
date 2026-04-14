@@ -3,6 +3,7 @@
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
+import 'dotenv/config'
 
 function getEnvValue(name) {
   try {
