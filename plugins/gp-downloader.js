@@ -3,6 +3,7 @@
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import axios from 'axios'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 
@@ -26,20 +27,61 @@ async function hasBinary(bin) {
   }
 }
 
+async function tiktokFallback(url) {
+  const { data } = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`, {
+    timeout: 30000
+  })
+
+  const videoUrl = data?.video?.noWatermark || data?.video?.watermark || data?.video
+  const audioUrl = data?.music || data?.audio
+
+  return { videoUrl, audioUrl }
+}
+
+async function saveStreamToFile(url, filePath) {
+  const res = await axios.get(url, {
+    responseType: 'stream',
+    timeout: 60000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0'
+    }
+  })
+
+  await new Promise((resolve, reject) => {
+    const writer = fs.createWriteStream(filePath)
+    res.data.pipe(writer)
+    writer.on('finish', resolve)
+    writer.on('error', reject)
+  })
+}
+
 async function downloadVideo(url, tmpDir) {
   const output = path.join(tmpDir, 'video.%(ext)s')
 
-  await execFileAsync('yt-dlp', [
-    '--no-playlist',
-    '--no-warnings',
-    '-f', 'bv*+ba/b',
-    '--merge-output-format', 'mp4',
-    '-o', output,
-    url
-  ], {
-    timeout: 180000,
-    maxBuffer: 1024 * 1024 * 10
-  })
+  try {
+    await execFileAsync('yt-dlp', [
+      '--no-playlist',
+      '--no-warnings',
+      '-f', 'bv*+ba/b',
+      '--merge-output-format', 'mp4',
+      '-o', output,
+      url
+    ], {
+      timeout: 180000,
+      maxBuffer: 1024 * 1024 * 10
+    })
+  } catch (e) {
+    if (url.includes('tiktok.com') || url.includes('vm.tiktok.com')) {
+      const { videoUrl } = await tiktokFallback(url)
+      if (!videoUrl) throw new Error('TikTok fallback fallito.')
+
+      const filePath = path.join(tmpDir, 'video.mp4')
+      await saveStreamToFile(videoUrl, filePath)
+      return filePath
+    }
+
+    throw e
+  }
 
   const file = fs.readdirSync(tmpDir).find(f => f.endsWith('.mp4'))
   if (!file) throw new Error('Video non trovato.')
@@ -49,19 +91,32 @@ async function downloadVideo(url, tmpDir) {
 async function downloadAudio(url, tmpDir) {
   const output = path.join(tmpDir, 'audio.%(ext)s')
 
-  await execFileAsync('yt-dlp', [
-    '--no-playlist',
-    '--no-warnings',
-    '-f', 'bestaudio',
-    '--extract-audio',
-    '--audio-format', 'mp3',
-    '--audio-quality', '0',
-    '-o', output,
-    url
-  ], {
-    timeout: 180000,
-    maxBuffer: 1024 * 1024 * 10
-  })
+  try {
+    await execFileAsync('yt-dlp', [
+      '--no-playlist',
+      '--no-warnings',
+      '-f', 'bestaudio',
+      '--extract-audio',
+      '--audio-format', 'mp3',
+      '--audio-quality', '0',
+      '-o', output,
+      url
+    ], {
+      timeout: 180000,
+      maxBuffer: 1024 * 1024 * 10
+    })
+  } catch (e) {
+    if (url.includes('tiktok.com') || url.includes('vm.tiktok.com')) {
+      const { audioUrl } = await tiktokFallback(url)
+      if (!audioUrl) throw new Error('Audio TikTok non trovato.')
+
+      const filePath = path.join(tmpDir, 'audio.mp3')
+      await saveStreamToFile(audioUrl, filePath)
+      return filePath
+    }
+
+    throw e
+  }
 
   const file = fs.readdirSync(tmpDir).find(f => f.endsWith('.mp3'))
   if (!file) throw new Error('Audio non trovato.')
@@ -84,7 +139,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     const hasYtDlp = await hasBinary('yt-dlp')
-    if (!hasYtDlp) {
+    if (!hasYtDlp && !(url.includes('tiktok.com') || url.includes('vm.tiktok.com'))) {
       return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* yt-dlp non installato.')
     }
 
@@ -141,7 +196,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
 
   } catch (e) {
     console.error('download error:', e)
-    return m.reply(`*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* ${e.message || e}`)
+    return m.reply(`*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* ${e.message || e}`)
   } finally {
     try {
       fs.rmSync(tmpDir, { recursive: true, force: true })
