@@ -516,7 +516,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     if (!hasYtDlp && !isTikTokUrl(url)) {
       return m.reply('*❌️ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐲𝐭-𝐝𝐥𝐩 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
     }
-
     if (mode !== 'audio' && mode !== 'video') {
       const info = await getMediaInfo(url)
 
