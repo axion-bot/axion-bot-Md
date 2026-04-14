@@ -1,4 +1,3 @@
-
 //by Bonzino
 
 import fs from 'fs'
@@ -9,6 +8,49 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
+
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+async function editMessage(conn, chatId, key, text) {
+  await conn.relayMessage(
+    chatId,
+    {
+      protocolMessage: {
+        key,
+        type: 14,
+        editedMessage: {
+          extendedTextMessage: { text }
+        }
+      }
+    },
+    {}
+  )
+}
+
+async function animateDownload(conn, chatId, key) {
+  const steps = [
+    { dots: '', percent: 0 },
+    { dots: '.', percent: 5 },
+    { dots: '..', percent: 12 },
+    { dots: '...', percent: 20 },
+    { dots: '', percent: 33 },
+    { dots: '.', percent: 47 },
+    { dots: '..', percent: 61 },
+    { dots: '...', percent: 74 },
+    { dots: '', percent: 86 },
+    { dots: '.', percent: 93 }
+  ]
+
+  for (const step of steps) {
+    await editMessage(
+      conn,
+      chatId,
+      key,
+      `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨${step.dots}* ⏳\n\n*${step.percent}%*`
+    )
+    await sleep(350)
+  }
+}
 
 function isValidUrl(text) {
   try {
@@ -160,9 +202,7 @@ async function saveStreamToFile(url, filePath) {
   const res = await axios.get(url, {
     responseType: 'stream',
     timeout: 60000,
-    headers: {
-      'User-Agent': 'Mozilla/5.0'
-    }
+    headers: { 'User-Agent': 'Mozilla/5.0' }
   })
 
   await new Promise((resolve, reject) => {
@@ -319,9 +359,7 @@ async function probeVideoCodecs(filePath) {
     '-show_entries', 'stream=codec_name',
     '-of', 'default=noprint_wrappers=1:nokey=1',
     filePath
-  ], {
-    timeout: 30000
-  })
+  ], { timeout: 30000 })
 
   let audioCodec = ''
   try {
@@ -331,9 +369,7 @@ async function probeVideoCodecs(filePath) {
       '-show_entries', 'stream=codec_name',
       '-of', 'default=noprint_wrappers=1:nokey=1',
       filePath
-    ], {
-      timeout: 30000
-    })
+    ], { timeout: 30000 })
     audioCodec = audioOut.trim().toLowerCase()
   } catch {}
 
@@ -375,11 +411,9 @@ async function downloadVideo(url, tmpDir) {
       if (isTikTokUrl(url)) {
         return await tiktokFallback(url, 'video', tmpDir)
       }
-
       if (isYouTubeUrl(url)) {
         throw new Error('𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐡𝐚 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨 𝐢𝐥 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐝𝐞𝐥 𝐯𝐢𝐝𝐞𝐨.')
       }
-
       throw e2
     }
   }
@@ -419,20 +453,16 @@ async function downloadAudio(url, tmpDir) {
     if (isTikTokUrl(url)) {
       return await tiktokFallback(url, 'audio', tmpDir)
     }
-
     if (isYouTubeUrl(url)) {
       throw new Error('𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐡𝐚 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨 𝐢𝐥 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐝𝐞𝐥𝐥’𝐚𝐮𝐝𝐢𝐨.')
     }
-
     throw e
   }
 
   const file = fs.readdirSync(tmpDir).find(f => f.endsWith('.mp3'))
   if (!file) throw new Error('𝐀𝐮𝐝𝐢𝐨 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.')
 
-  return {
-    filePath: path.join(tmpDir, file)
-  }
+  return { filePath: path.join(tmpDir, file) }
 }
 
 function buildInfoCaption(info, mode) {
@@ -447,7 +477,7 @@ function buildInfoCaption(info, mode) {
   txt += `👁️ *𝐕𝐢𝐞𝐰𝐬:* ${info.views || '𝐍/𝐃'}\n`
   txt += `📅 *𝐃𝐚𝐭𝐚:* ${info.uploadDate || '𝐍/𝐃'}`
   
-  txt += `🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:* ${estimateDownloadTime(info, mode)}\n`
+    txt += `🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:* ${estimateDownloadTime(info, mode)}\n`
   txt += buildLongWarning(info, mode)
 
   return txt
@@ -458,21 +488,22 @@ let handler = async (m, { conn, args, usedPrefix }) => {
 
   try {
     const mode = (args[0] || '').toLowerCase()
+
     let url = (mode === 'audio' || mode === 'video') ? args[1] : args[0]
 
-if (!url && m.quoted) {
-  const quoted = m.quoted
-  url = quoted.text || quoted.caption || ''
+    if (!url && m.quoted) {
+      const quoted = m.quoted
+      url = quoted.text || quoted.caption || ''
 
-  if (!url && quoted.msg) {
-    url = quoted.msg?.text || quoted.msg?.caption || ''
-  }
-}
+      if (!url && quoted.msg) {
+        url = quoted.msg?.text || quoted.msg?.caption || ''
+      }
+    }
 
-if (url) {
-  const match = url.match(/https?:\/\/[^\s]+/)
-  url = match ? match[0] : null
-}
+    if (url) {
+      const match = url.match(/https?:\/\/[^\s]+/)
+      url = match ? match[0] : null
+    }
 
     if (!url) {
       return m.reply('*❌️ 𝐄𝐑𝐑𝐎𝐑𝐄:* 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐥𝐢𝐧𝐤.')
@@ -552,9 +583,13 @@ if (url) {
 
     const startedAt = Date.now()
 
-    const statusMsg = await conn.sendMessage(m.chat, {
-      text: '*⏳ 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎...*'
+    const sent = await conn.sendMessage(m.chat, {
+      text: '*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨* ⏳\n\n*0%*'
     }, { quoted: m })
+
+    const key = sent.key
+
+    await animateDownload(conn, m.chat, key)
 
     if (mode === 'audio') {
       const result = await downloadAudio(url, tmpDir)
@@ -566,10 +601,12 @@ if (url) {
         fileName: 'audio.mp3'
       }, { quoted: m })
 
-      await conn.sendMessage(m.chat, {
-        text: `*𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐎✅️*\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`,
-        edit: statusMsg.key
-      })
+      await editMessage(
+        conn,
+        m.chat,
+        key,
+        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n*100%*\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
+      )
     }
 
     if (mode === 'video') {
@@ -582,10 +619,12 @@ if (url) {
         fileName: 'video.mp4'
       }, { quoted: m })
 
-      await conn.sendMessage(m.chat, {
-        text: `*𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀𝐓𝐎✅️*\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`,
-        edit: statusMsg.key
-      })
+      await editMessage(
+        conn,
+        m.chat,
+        key,
+        `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅️\n\n*100%*\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}`
+      )
     }
 
     await conn.sendMessage(m.chat, {
