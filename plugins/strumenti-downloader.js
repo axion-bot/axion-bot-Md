@@ -27,6 +27,22 @@ async function editMessage(conn, chatId, key, text) {
   )
 }
 
+async function animateInfo(conn, chatId, key) {
+  const frames = [
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢.*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢..*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢...*'
+  ]
+
+  for (let i = 0; i < 2; i++) {
+    for (const f of frames) {
+      await editMessage(conn, chatId, key, f)
+      await sleep(300)
+    }
+  }
+}
+
 async function animateDownload(conn, chatId, key) {
   const steps = [
     { dots: '', percent: 0 },
@@ -325,6 +341,7 @@ async function tiktokFallback(url, mode, tmpDir) {
       const filePath = path.join(tmpDir, 'audio.mp3')
       await saveStreamToFile(audioUrl, filePath)
       return { filePath, info }
+      }
     } catch {}
   }
 
@@ -476,13 +493,11 @@ function buildInfoCaption(info, mode) {
   txt += `⚖️ *𝐏𝐞𝐬𝐨:* ${info.filesize || '𝐍/𝐃'}\n`
   txt += `👁️ *𝐕𝐢𝐞𝐰𝐬:* ${info.views || '𝐍/𝐃'}\n`
   txt += `📅 *𝐃𝐚𝐭𝐚:* ${info.uploadDate || '𝐍/𝐃'}`
-
   txt += buildLongWarning(info, mode)
-
-  txt += `\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
+  txt += `\n\n──────────\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
 
   return txt
-}}
+}
 
 let handler = async (m, { conn, args, usedPrefix }) => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dw-'))
@@ -507,7 +522,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (!url) {
-      return m.reply('*⚠️ 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐥𝐢𝐧𝐤*')
+      return m.reply('*⚠️ 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐥𝐢𝐧𝐤 𝐯𝐚𝐥𝐢𝐝𝐨*')
     }
 
     if (!isValidUrl(url)) {
@@ -520,11 +535,20 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (mode !== 'audio' && mode !== 'video') {
+      const sent = await conn.sendMessage(m.chat, {
+        text: '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*'
+      }, { quoted: m })
+
+      const infoKey = sent.key
+
+      await animateInfo(conn, m.chat, infoKey)
+
       const info = await getMediaInfo(url)
 
       if (!info) {
+        await editMessage(conn, m.chat, infoKey, `*𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`)
+
         return conn.sendMessage(m.chat, {
-          text: `*𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
           footer: '',
           buttons: [
             {
@@ -542,29 +566,15 @@ let handler = async (m, { conn, args, usedPrefix }) => {
         }, { quoted: m })
       }
 
+      await editMessage(conn, m.chat, infoKey, `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`)
+
       if (info.thumbnail) {
-        return conn.sendMessage(m.chat, {
-          image: { url: info.thumbnail },
-          caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
-          footer: '',
-          buttons: [
-            {
-              buttonId: `${usedPrefix}download video ${url}`,
-              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-              type: 1
-            },
-            {
-              buttonId: `${usedPrefix}download audio ${url}`,
-              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-              type: 1
-            }
-          ],
-          headerType: 4
+        await conn.sendMessage(m.chat, {
+          image: { url: info.thumbnail }
         }, { quoted: m })
       }
 
       return conn.sendMessage(m.chat, {
-        text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
         footer: '',
         buttons: [
           {
