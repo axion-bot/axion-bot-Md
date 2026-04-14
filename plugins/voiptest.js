@@ -20,7 +20,6 @@ function getEnvValue(name) {
   }
 }
 
-const API_KEY = getEnvValue('FIVESIM_KEY')
 const USER_BASE = 'https://5sim.net/v1/user'
 const GUEST_BASE = 'https://5sim.net/v1/guest'
 const PAGE_SIZE = 3
@@ -28,11 +27,6 @@ const PAGE_SIZE = 3
 const AUTO_TRIES = 3
 const AUTO_POLL_EVERY = 8000
 const AUTO_MAX_WAIT = 30000
-
-const userHeaders = {
-  Authorization: `Bearer ${API_KEY}`,
-  Accept: 'application/json'
-}
 
 const guestHeaders = {
   Accept: 'application/json'
@@ -135,9 +129,12 @@ function buildCountryPage(session, usedPrefix) {
   }
 }
 
-async function getProfile() {
+async function getProfile(API_KEY) {
   const { data } = await axios.get(`${USER_BASE}/profile`, {
-    headers: userHeaders,
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      Accept: 'application/json'
+    },
     timeout: 15000
   })
   return data
@@ -151,33 +148,42 @@ async function getCountries() {
   return parseCountries(data)
 }
 
-async function buy(country) {
+async function buy(country, API_KEY) {
   const { data } = await axios.get(
     `${USER_BASE}/buy/activation/${country}/any/whatsapp`,
     {
-      headers: userHeaders,
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        Accept: 'application/json'
+      },
       timeout: 20000
     }
   )
   return data
 }
 
-async function check(id) {
+async function check(id, API_KEY) {
   const { data } = await axios.get(
     `${USER_BASE}/check/${id}`,
     {
-      headers: userHeaders,
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        Accept: 'application/json'
+      },
       timeout: 20000
     }
   )
   return data
 }
 
-async function cancel(id) {
+async function cancel(id, API_KEY) {
   const { data } = await axios.get(
     `${USER_BASE}/cancel/${id}`,
     {
-      headers: userHeaders,
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        Accept: 'application/json'
+      },
       timeout: 15000
     }
   )
@@ -197,8 +203,8 @@ function getSession(user) {
   return global.voip5Sessions[user]
 }
 
-async function buyAndSave(session, countryKey) {
-  const data = await buy(countryKey)
+async function buyAndSave(session, countryKey, API_KEY) {
+  const data = await buy(countryKey, API_KEY)
   session.order = {
     id: data.id,
     phone: data.phone
@@ -206,7 +212,7 @@ async function buyAndSave(session, countryKey) {
   return data
 }
 
-async function autoCycle(conn, chat, m, session) {
+async function autoCycle(conn, chat, m, session, API_KEY) {
   session.autoRunning = true
 
   try {
@@ -214,7 +220,7 @@ async function autoCycle(conn, chat, m, session) {
       if (!session.selected) throw new Error('Nessun paese selezionato.')
 
       if (!session.order?.id) {
-        await buyAndSave(session, session.selected.key)
+        await buyAndSave(session, session.selected.key, API_KEY)
       }
 
       await conn.sendMessage(chat, {
@@ -229,7 +235,7 @@ async function autoCycle(conn, chat, m, session) {
       let found = null
 
       while (Date.now() - started < AUTO_MAX_WAIT) {
-        const data = await check(session.order.id)
+        const data = await check(session.order.id, API_KEY)
 
         if (data.sms?.length) {
           found = data.sms[0]
@@ -250,12 +256,12 @@ async function autoCycle(conn, chat, m, session) {
       }
 
       if (session.order?.id) {
-        await cancel(session.order.id).catch(() => {})
+        await cancel(session.order.id, API_KEY).catch(() => {})
         session.order = null
       }
 
       if (attempt < AUTO_TRIES) {
-        const nextData = await buyAndSave(session, session.selected.key)
+        const nextData = await buyAndSave(session, session.selected.key, API_KEY)
 
         await conn.sendMessage(chat, {
           text:
@@ -279,6 +285,8 @@ async function autoCycle(conn, chat, m, session) {
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
+    const API_KEY = getEnvValue('FIVESIM_KEY')
+
     if (!API_KEY) {
       return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* API key mancante.')
     }
@@ -289,7 +297,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     const session = getSession(user)
 
     if (cmd === 'saldo') {
-      const data = await getProfile()
+      const data = await getProfile(API_KEY)
 
       let txt = `*✅ 𝐒𝐀𝐋𝐃𝐎*\n\n`
       txt += `💰 *Balance:* \`$${fmtMoney(data.balance)}\`\n`
@@ -371,7 +379,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         text: '📡 *✅ 𝐒𝐂𝐀𝐍𝐒𝐈𝐎𝐍𝐄 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎...*'
       })
 
-      const data = await buyAndSave(session, country.key)
+      const data = await buyAndSave(session, country.key, API_KEY)
       session.selected = country
 
       return conn.sendMessage(m.chat, {
@@ -395,10 +403,10 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       }
 
       if (session.order?.id) {
-        await cancel(session.order.id).catch(() => {})
+        await cancel(session.order.id, API_KEY).catch(() => {})
       }
 
-      const data = await buyAndSave(session, session.selected.key)
+      const data = await buyAndSave(session, session.selected.key, API_KEY)
 
       return conn.sendMessage(m.chat, {
         text:
@@ -419,7 +427,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessuna sessione attiva.')
       }
 
-      const data = await check(session.order.id)
+      const data = await check(session.order.id, API_KEY)
 
       if (!data.sms?.length) {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun SMS.')
@@ -444,10 +452,10 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       }
 
       if (!session.order?.id) {
-        await buyAndSave(session, session.selected.key)
+        await buyAndSave(session, session.selected.key, API_KEY)
       }
 
-      return autoCycle(conn, m.chat, m, session)
+      return autoCycle(conn, m.chat, m, session, API_KEY)
     }
 
     if (cmd === 'voip' && input === 'stop') {
@@ -455,7 +463,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* Nessun ordine.')
       }
 
-      await cancel(session.order.id)
+      await cancel(session.order.id, API_KEY)
       session.order = null
       session.autoRunning = false
 
