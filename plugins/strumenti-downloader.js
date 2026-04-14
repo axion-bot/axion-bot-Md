@@ -652,7 +652,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
   }
 }
 
-handler.command = /^(download|dw)$/i
+handler.command = /^(download|dw2)$/i
 handler.tags = ['download']
 handler.help = ['download', 'dw']
 
