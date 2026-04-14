@@ -48,6 +48,19 @@ function formatUploadDate(date) {
   return `${d.slice(6, 8)}/${d.slice(4, 6)}/${d.slice(0, 4)}`
 }
 
+function formatBytes(bytes) {
+  const n = Number(bytes || 0)
+  if (!n) return 'N/D'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let i = 0
+  let value = n
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024
+    i++
+  }
+  return `${value.toFixed(value >= 10 || i === 0 ? 0 : 1)} ${units[i]}`
+}
+
 function cleanText(text = '') {
   return String(text).replace(/\s+/g, ' ').trim()
 }
@@ -84,6 +97,25 @@ function sanitizeError(msg = '') {
   }
 
   return text
+}
+
+function buildLongWarning(info, mode) {
+  const secs = Number(info?.durationSeconds || 0)
+  const size = Number(info?.filesizeApprox || info?.filesize || 0)
+
+  const longByTime = secs >= 600
+  const longBySize = size >= 80 * 1024 * 1024
+
+  if (!longByTime && !longBySize) return ''
+
+  let txt = `\n\n⚠️ *𝐀𝐕𝐕𝐈𝐒𝐎:* `
+  if (mode === 'video') {
+    txt += 'questo download potrebbe richiedere più tempo del normale.'
+  } else {
+    txt += 'questa conversione audio potrebbe richiedere più tempo del normale.'
+  }
+
+  return txt
 }
 
 async function hasBinary(bin) {
@@ -130,13 +162,23 @@ async function getYtInfo(url) {
 
     const data = JSON.parse(stdout)
 
+    const filesizeApprox = Number(
+      data.filesize_approx ||
+      data.filesize ||
+      data.requested_formats?.reduce((sum, x) => sum + Number(x?.filesize || x?.filesize_approx || 0), 0) ||
+      0
+    )
+
     return {
       title: cleanText(data.title || 'N/D'),
       uploader: cleanText(data.uploader || data.channel || data.creator || 'N/D'),
       duration: formatDuration(data.duration),
+      durationSeconds: Number(data.duration || 0),
       views: formatViews(data.view_count),
       uploadDate: formatUploadDate(data.upload_date),
-      thumbnail: data.thumbnail || null
+      thumbnail: data.thumbnail || null,
+      filesize: formatBytes(filesizeApprox),
+      filesizeApprox
     }
   } catch {
     return null
@@ -159,13 +201,18 @@ async function tiktokFallback(url, mode, tmpDir) {
       const data = res.data?.data
       if (!data) continue
 
+      const size = Number(data.size || data.wm_size || 0)
+
       const info = {
         title: cleanText(data.title || 'TikTok'),
         uploader: cleanText(data.author?.nickname || data.author?.unique_id || 'N/D'),
         duration: formatDuration(data.duration),
+        durationSeconds: Number(data.duration || 0),
         views: formatViews(data.play_count || data.digg_count || 0),
         uploadDate: 'N/D',
-        thumbnail: data.cover || data.origin_cover || null
+        thumbnail: data.cover || data.origin_cover || null,
+        filesize: formatBytes(size),
+        filesizeApprox: size
       }
 
       if (mode === 'video') {
@@ -299,8 +346,10 @@ function buildInfoCaption(info, mode) {
   txt += `🎬 *Titolo:* ${info.title || 'N/D'}\n`
   txt += `👤 *Autore:* ${info.uploader || 'N/D'}\n`
   txt += `⏱️ *Durata:* ${info.duration || 'N/D'}\n`
+  txt += `⚖️ *Peso:* ${info.filesize || 'N/D'}\n`
   txt += `👁️ *Views:* ${info.views || 'N/D'}\n`
   txt += `📅 *Data:* ${info.uploadDate || 'N/D'}`
+  txt += buildLongWarning(info, mode)
 
   return txt
 }
