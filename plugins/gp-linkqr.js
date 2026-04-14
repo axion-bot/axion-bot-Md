@@ -2,6 +2,8 @@
 
 import QRCode from 'qrcode'
 import fetch from 'node-fetch'
+import fs from 'fs'
+import path from 'path'
 
 const handler = async (m, { conn, usedPrefix, command }) => {
   try {
@@ -18,21 +20,25 @@ const handler = async (m, { conn, usedPrefix, command }) => {
       errorCorrectionLevel: 'H'
     })
 
-    let thumb = 'https://i.ibb.co/2kR7x9J/avatar.png'
+    let thumbnailBuffer = null
+
     try {
-      thumb = await conn.profilePictureUrl(m.chat, 'image')
+      const groupThumb = await conn.profilePictureUrl(m.chat, 'image')
+      thumbnailBuffer = await (await fetch(groupThumb)).buffer()
     } catch {}
 
-    const thumbnailBuffer = typeof thumb === 'string'
-      ? await (await fetch(thumb)).buffer()
-      : thumb
+    if (!thumbnailBuffer) {
+      try {
+        const mediaPath = path.join(process.cwd(), 'media', 'group-pic.png')
+        if (fs.existsSync(mediaPath)) {
+          thumbnailBuffer = fs.readFileSync(mediaPath)
+        }
+      } catch {}
+    }
 
     const caption = `*📌 𝐐𝐫 𝐠𝐫𝐮𝐩𝐩𝐨*
 
 👥 *Membri:* ${totalMembers}
-
-🔗 *Link:*
-${link}
 
 ⚠️ *Non condividere il link con sconosciuti.*`
 
@@ -44,7 +50,7 @@ ${link}
         externalAdReply: {
           title: metadata.subject || 'Gruppo',
           body: 'Qr invito gruppo',
-          thumbnail: thumbnailBuffer,
+          ...(thumbnailBuffer ? { thumbnail: thumbnailBuffer } : {}),
           mediaType: 1,
           renderLargerThumbnail: false,
           showAdAttribution: false
@@ -77,9 +83,10 @@ ${link}
   }
 }
 
-handler.command = ['linkqrtest']
+handler.command = ['linkqr']
 handler.tags = ['group']
 handler.help = ['linkqr']
 handler.group = true
+handler.botAdmin = true
 
 export default handler
