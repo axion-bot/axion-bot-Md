@@ -151,7 +151,40 @@ async function saveStreamToFile(url, filePath) {
   })
 }
 
-async function getYtInfo(url) {
+async function getMediaInfo(url) {
+  if (isTikTokUrl(url)) {
+    const endpoints = [
+      `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`,
+      `https://tikwm.com/api/?url=${encodeURIComponent(url)}`
+    ]
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await axios.get(endpoint, {
+          timeout: 30000,
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        })
+
+        const data = res.data?.data
+        if (!data) continue
+
+        const size = Number(data.size || data.wm_size || 0)
+
+        return {
+          title: cleanText(data.title || 'TikTok'),
+          uploader: cleanText(data.author?.nickname || data.author?.unique_id || 'N/D'),
+          duration: formatDuration(data.duration),
+          durationSeconds: Number(data.duration || 0),
+          views: formatViews(data.play_count || data.digg_count || 0),
+          uploadDate: 'N/D',
+          thumbnail: data.cover || data.origin_cover || null,
+          filesize: formatBytes(size),
+          filesizeApprox: size
+        }
+      } catch {}
+    }
+  }
+
   try {
     const { stdout } = await runYtDlp([
       '--dump-single-json',
@@ -375,18 +408,61 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (mode !== 'audio' && mode !== 'video') {
+      const info = await getMediaInfo(url)
+
+      if (!info) {
+        return conn.sendMessage(m.chat, {
+          text: `*✅ 𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
+          footer: '',
+          buttons: [
+            {
+              buttonId: `${usedPrefix}download video ${url}`,
+              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+              type: 1
+            },
+            {
+              buttonId: `${usedPrefix}download audio ${url}`,
+              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+              type: 1
+            }
+          ],
+          headerType: 1
+        }, { quoted: m })
+      }
+
+      if (info.thumbnail) {
+        return conn.sendMessage(m.chat, {
+          image: { url: info.thumbnail },
+          caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
+          footer: '',
+          buttons: [
+            {
+              buttonId: `${usedPrefix}download video ${url}`,
+              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+              type: 1
+            },
+            {
+              buttonId: `${usedPrefix}download audio ${url}`,
+              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+              type: 1
+            }
+          ],
+          headerType: 4
+        }, { quoted: m })
+      }
+
       return conn.sendMessage(m.chat, {
-        text: `*✅ 𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
+        text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
         footer: '',
         buttons: [
           {
             buttonId: `${usedPrefix}download video ${url}`,
-            buttonText: { displayText: '🎬 𝐕𝐈𝐃𝐄𝐎' },
+            buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
             type: 1
           },
           {
             buttonId: `${usedPrefix}download audio ${url}`,
-            buttonText: { displayText: '🎧 𝐀𝐔𝐃𝐈𝐎' },
+            buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
             type: 1
           }
         ],
@@ -398,23 +474,8 @@ let handler = async (m, { conn, args, usedPrefix }) => {
       react: { text: '⏳', key: m.key }
     })
 
-    let info = null
-
-    try {
-      info = await getYtInfo(url)
-    } catch {}
-
     if (mode === 'audio') {
-      if (info) {
-        await m.reply(buildInfoCaption(info, 'audio'))
-      }
-
       const result = await downloadAudio(url, tmpDir)
-      const finalInfo = result.info || info
-
-      if (!info && finalInfo) {
-        await m.reply(buildInfoCaption(finalInfo, 'audio'))
-      }
 
       await conn.sendMessage(m.chat, {
         audio: fs.readFileSync(result.filePath),
@@ -424,38 +485,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (mode === 'video') {
-      if (info) {
-        if (info.thumbnail) {
-          try {
-            await conn.sendMessage(m.chat, {
-              image: { url: info.thumbnail },
-              caption: buildInfoCaption(info, 'video')
-            }, { quoted: m })
-          } catch {
-            await m.reply(buildInfoCaption(info, 'video'))
-          }
-        } else {
-          await m.reply(buildInfoCaption(info, 'video'))
-        }
-      }
-
       const result = await downloadVideo(url, tmpDir)
-      const finalInfo = result.info || info
-
-      if (!info && finalInfo) {
-        if (finalInfo.thumbnail) {
-          try {
-            await conn.sendMessage(m.chat, {
-              image: { url: finalInfo.thumbnail },
-              caption: buildInfoCaption(finalInfo, 'video')
-            }, { quoted: m })
-          } catch {
-            await m.reply(buildInfoCaption(finalInfo, 'video'))
-          }
-        } else {
-          await m.reply(buildInfoCaption(finalInfo, 'video'))
-        }
-      }
 
       await conn.sendMessage(m.chat, {
         video: fs.readFileSync(result.filePath),
