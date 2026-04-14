@@ -135,7 +135,8 @@ async function getYtInfo(url) {
       uploader: cleanText(data.uploader || data.channel || data.creator || 'N/D'),
       duration: formatDuration(data.duration),
       views: formatViews(data.view_count),
-      uploadDate: formatUploadDate(data.upload_date)
+      uploadDate: formatUploadDate(data.upload_date),
+      thumbnail: data.thumbnail || null
     }
   } catch {
     return null
@@ -163,7 +164,8 @@ async function tiktokFallback(url, mode, tmpDir) {
         uploader: cleanText(data.author?.nickname || data.author?.unique_id || 'N/D'),
         duration: formatDuration(data.duration),
         views: formatViews(data.play_count || data.digg_count || 0),
-        uploadDate: 'N/D'
+        uploadDate: 'N/D',
+        thumbnail: data.cover || data.origin_cover || null
       }
 
       if (mode === 'video') {
@@ -193,12 +195,15 @@ async function convertToMp4(inputPath, tmpDir) {
   await execFileAsync('ffmpeg', [
     '-y',
     '-i', inputPath,
+    '-vf', 'scale=720:-2',
     '-c:v', 'libx264',
+    '-preset', 'veryfast',
     '-c:a', 'aac',
+    '-b:a', '128k',
     '-movflags', '+faststart',
     outputPath
   ], {
-    timeout: 180000,
+    timeout: 600000,
     maxBuffer: 1024 * 1024 * 20
   })
 
@@ -207,7 +212,6 @@ async function convertToMp4(inputPath, tmpDir) {
 
 async function downloadVideo(url, tmpDir) {
   const output = path.join(tmpDir, 'video.%(ext)s')
-  let info = await getYtInfo(url)
 
   try {
     await runYtDlp([
@@ -230,8 +234,7 @@ async function downloadVideo(url, tmpDir) {
       ])
     } catch (e2) {
       if (isTikTokUrl(url)) {
-        const fallback = await tiktokFallback(url, 'video', tmpDir)
-        return fallback
+        return await tiktokFallback(url, 'video', tmpDir)
       }
 
       if (isYouTubeUrl(url)) {
@@ -251,21 +254,11 @@ async function downloadVideo(url, tmpDir) {
   const rawPath = path.join(tmpDir, file)
   const filePath = await convertToMp4(rawPath, tmpDir)
 
-  return {
-    filePath,
-    info: info || {
-      title: 'N/D',
-      uploader: 'N/D',
-      duration: 'N/D',
-      views: 'N/D',
-      uploadDate: 'N/D'
-    }
-  }
+  return { filePath }
 }
 
 async function downloadAudio(url, tmpDir) {
   const output = path.join(tmpDir, 'audio.%(ext)s')
-  let info = await getYtInfo(url)
 
   try {
     await runYtDlp([
@@ -280,8 +273,7 @@ async function downloadAudio(url, tmpDir) {
     ])
   } catch (e) {
     if (isTikTokUrl(url)) {
-      const fallback = await tiktokFallback(url, 'audio', tmpDir)
-      return fallback
+      return await tiktokFallback(url, 'audio', tmpDir)
     }
 
     if (isYouTubeUrl(url)) {
@@ -295,14 +287,7 @@ async function downloadAudio(url, tmpDir) {
   if (!file) throw new Error('Audio non trovato.')
 
   return {
-    filePath: path.join(tmpDir, file),
-    info: info || {
-      title: 'N/D',
-      uploader: 'N/D',
-      duration: 'N/D',
-      views: 'N/D',
-      uploadDate: 'N/D'
-    }
+    filePath: path.join(tmpDir, file)
   }
 }
 
@@ -364,26 +349,69 @@ let handler = async (m, { conn, args, usedPrefix }) => {
       react: { text: '⏳', key: m.key }
     })
 
-    if (mode === 'audio') {
-      const { filePath, info } = await downloadAudio(url, tmpDir)
+    let info = null
 
-      await m.reply(buildInfoCaption(info, 'audio'))
+    try {
+      info = await getYtInfo(url)
+    } catch {}
+
+    if (mode === 'audio') {
+      if (info) {
+        await m.reply(buildInfoCaption(info, 'audio'))
+      }
+
+      const result = await downloadAudio(url, tmpDir)
+      const finalInfo = result.info || info
+
+      if (!info && finalInfo) {
+        await m.reply(buildInfoCaption(finalInfo, 'audio'))
+      }
 
       await conn.sendMessage(m.chat, {
-        audio: fs.readFileSync(filePath),
+        audio: fs.readFileSync(result.filePath),
         mimetype: 'audio/mpeg',
         fileName: 'audio.mp3'
       }, { quoted: m })
     }
 
     if (mode === 'video') {
-      const { filePath, info } = await downloadVideo(url, tmpDir)
+      if (info) {
+        if (info.thumbnail) {
+          try {
+            await conn.sendMessage(m.chat, {
+              image: { url: info.thumbnail },
+              caption: buildInfoCaption(info, 'video')
+            }, { quoted: m })
+          } catch {
+            await m.reply(buildInfoCaption(info, 'video'))
+          }
+        } else {
+          await m.reply(buildInfoCaption(info, 'video'))
+        }
+      }
+
+      const result = await downloadVideo(url, tmpDir)
+      const finalInfo = result.info || info
+
+      if (!info && finalInfo) {
+        if (finalInfo.thumbnail) {
+          try {
+            await conn.sendMessage(m.chat, {
+              image: { url: finalInfo.thumbnail },
+              caption: buildInfoCaption(finalInfo, 'video')
+            }, { quoted: m })
+          } catch {
+            await m.reply(buildInfoCaption(finalInfo, 'video'))
+          }
+        } else {
+          await m.reply(buildInfoCaption(finalInfo, 'video'))
+        }
+      }
 
       await conn.sendMessage(m.chat, {
-        video: fs.readFileSync(filePath),
+        video: fs.readFileSync(result.filePath),
         mimetype: 'video/mp4',
-        fileName: 'video.mp4',
-        caption: buildInfoCaption(info, 'video')
+        fileName: 'video.mp4'
       }, { quoted: m })
     }
 
