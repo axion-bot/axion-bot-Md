@@ -108,11 +108,6 @@ let handler = async (m, { conn, args, usedPrefix }) => {
       }, { quoted: m })
     }
 
-    const hasFfmpeg = await hasBinary('ffmpeg')
-    if (!hasFfmpeg) {
-      return m.reply('*✅ 𝐄𝐫𝐫𝐨𝐫𝐞:* ffmpeg non installato.')
-    }
-
     await conn.sendMessage(m.chat, {
       react: { text: '⏳', key: m.key }
     })
