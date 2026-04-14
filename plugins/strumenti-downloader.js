@@ -554,27 +554,76 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     }
 
     if (mode !== 'audio' && mode !== 'video') {
-      const info = await getMediaInfo(url)
+  const sentInfo = await conn.sendMessage(m.chat, {
+    text: '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*'
+  }, { quoted: m })
 
-      if (!info) {
-        return conn.sendMessage(m.chat, {
-          text: `*𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
-          footer: '',
-          buttons: [
-            {
-              buttonId: `${usedPrefix}download video ${url}`,
-              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-              type: 1
-            },
-            {
-              buttonId: `${usedPrefix}download audio ${url}`,
-              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-              type: 1
-            }
-          ],
-          headerType: 1
-        }, { quoted: m })
+  const infoKey = sentInfo.key
+
+  await animateInfo(conn, m.chat, infoKey)
+  await sleep(400)
+
+  const info = await getMediaInfo(url)
+
+  if (!info) {
+    return conn.sendMessage(m.chat, {
+      text: `*𝐒𝐂𝐄𝐆𝐋𝐈 𝐈𝐋 𝐅𝐎𝐑𝐌𝐀𝐓𝐎*\n\n🔗 ${url}`,
+      footer: '',
+      buttons: [
+        {
+          buttonId: `${usedPrefix}download video ${url}`,
+          buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+          type: 1
+        },
+        {
+          buttonId: `${usedPrefix}download audio ${url}`,
+          buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+          type: 1
+        }
+      ],
+      headerType: 1
+    }, { quoted: m })
+  }
+
+  if (info.thumbnail) {
+    return conn.sendMessage(m.chat, {
+      image: { url: info.thumbnail },
+      caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
+      footer: '',
+      buttons: [
+        {
+          buttonId: `${usedPrefix}download video ${url}`,
+          buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+          type: 1
+        },
+        {
+          buttonId: `${usedPrefix}download audio ${url}`,
+          buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+          type: 1
+        }
+      ],
+      headerType: 4
+    }, { quoted: m })
+  }
+
+  return conn.sendMessage(m.chat, {
+    text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
+    footer: '',
+    buttons: [
+      {
+        buttonId: `${usedPrefix}download video ${url}`,
+        buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
+        type: 1
+      },
+      {
+        buttonId: `${usedPrefix}download audio ${url}`,
+        buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
+        type: 1
       }
+    ],
+    headerType: 1
+  }, { quoted: m })
+}}
 
       if (info.thumbnail) {
         return conn.sendMessage(m.chat, {
