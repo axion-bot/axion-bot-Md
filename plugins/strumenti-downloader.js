@@ -1,4 +1,27 @@
-//by Bonzino
+Ecco una versione più seria e stabile del plugin, mantenendo:
+
+.dw link → mostra info + bottone
+
+.dw video link → scarica video
+
+.dw audio link → scarica audio
+
+supporto reply a messaggi con link
+
+animazione info
+
+animazione download
+
+fix dei bottoni
+
+fallback TikTok
+
+conversione mp4 compatibile WhatsApp
+
+output più pulito
+
+
+// by Bonzino
 
 import fs from 'fs'
 import path from 'path'
@@ -8,7 +31,6 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
-
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 async function editMessage(conn, chatId, key, text) {
@@ -27,18 +49,32 @@ async function editMessage(conn, chatId, key, text) {
   )
 }
 
+async function animateInfo(conn, chatId, key) {
+  const frames = [
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢.*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢..*',
+    '*𝐎𝐭𝐭𝐞𝐧𝐞𝐧𝐝𝐨 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐳𝐢𝐨𝐧𝐢...*'
+  ]
+
+  for (let i = 0; i < 2; i++) {
+    for (const f of frames) {
+      await editMessage(conn, chatId, key, f)
+      await sleep(280)
+    }
+  }
+}
+
 async function animateDownload(conn, chatId, key) {
   const steps = [
     { dots: '', percent: 0 },
-    { dots: '.', percent: 5 },
-    { dots: '..', percent: 12 },
-    { dots: '...', percent: 20 },
-    { dots: '', percent: 33 },
-    { dots: '.', percent: 47 },
-    { dots: '..', percent: 61 },
-    { dots: '...', percent: 74 },
-    { dots: '', percent: 86 },
-    { dots: '.', percent: 93 }
+    { dots: '.', percent: 8 },
+    { dots: '..', percent: 21 },
+    { dots: '...', percent: 39 },
+    { dots: '', percent: 57 },
+    { dots: '.', percent: 74 },
+    { dots: '..', percent: 88 },
+    { dots: '...', percent: 95 }
   ]
 
   for (const step of steps) {
@@ -48,7 +84,7 @@ async function animateDownload(conn, chatId, key) {
       key,
       `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨${step.dots}* ⏳\n\n*${step.percent}%*`
     )
-    await sleep(350)
+    await sleep(380)
   }
 }
 
@@ -171,7 +207,7 @@ function buildLongWarning(info, mode) {
 
   if (!longByTime && !longBySize) return ''
 
-  return `\n\n⚠️ *𝐀𝐕𝐕𝐈𝐒𝐎:* 𝐪𝐮𝐞𝐬𝐭𝐨 ${mode === 'video' ? '𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝' : '𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐮𝐝𝐢𝐨'} 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐝𝐞𝐫𝐞 𝐩𝐢𝐮̀ 𝐭𝐞𝐦𝐩𝐨 𝐝𝐞𝐥 𝐧𝐨𝐫𝐦𝐚𝐥𝐞.`
+  return `\n\n⚠️ *𝐀𝐯𝐯𝐢𝐬𝐨:* 𝐪𝐮𝐞𝐬𝐭𝐨 ${mode === 'video' ? '𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝' : '𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐮𝐝𝐢𝐨'} 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐝𝐞𝐫𝐞 𝐩𝐢𝐮̀ 𝐭𝐞𝐦𝐩𝐨 𝐝𝐞𝐥 𝐧𝐨𝐫𝐦𝐚𝐥𝐞.`
 }
 
 function formatElapsed(ms) {
@@ -474,10 +510,10 @@ function buildInfoCaption(info, mode) {
   txt += `👤 *𝐀𝐮𝐭𝐨𝐫𝐞:* ${info.uploader || '𝐍/𝐃'}\n`
   txt += `⏱️ *𝐃𝐮𝐫𝐚𝐭𝐚:* ${info.duration || '𝐍/𝐃'}\n`
   txt += `⚖️ *𝐏𝐞𝐬𝐨:* ${info.filesize || '𝐍/𝐃'}\n`
-  txt += `🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:* ${estimateDownloadTime(info, mode)}\n`
   txt += `👁️ *𝐕𝐢𝐞𝐰𝐬:* ${info.views || '𝐍/𝐃'}\n`
   txt += `📅 *𝐃𝐚𝐭𝐚:* ${info.uploadDate || '𝐍/𝐃'}`
   txt += buildLongWarning(info, mode)
+  txt += `\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
 
   return txt
 }
@@ -546,16 +582,8 @@ let handler = async (m, { conn, args, usedPrefix }) => {
           caption: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
           footer: '',
           buttons: [
-            {
-              buttonId: `${usedPrefix}download video ${url}`,
-              buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-              type: 1
-            },
-            {
-              buttonId: `${usedPrefix}download audio ${url}`,
-              buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-              type: 1
-            }
+            { buttonId: `${usedPrefix}download video ${url}`, buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' }, type: 1 },
+            { buttonId: `${usedPrefix}download audio ${url}`, buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' }, type: 1 }
           ],
           headerType: 4
         }, { quoted: m })
@@ -565,16 +593,8 @@ let handler = async (m, { conn, args, usedPrefix }) => {
         text: `${buildInfoCaption(info, 'video')}\n\n🔗 ${url}`,
         footer: '',
         buttons: [
-          {
-            buttonId: `${usedPrefix}download video ${url}`,
-            buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' },
-            type: 1
-          },
-          {
-            buttonId: `${usedPrefix}download audio ${url}`,
-            buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' },
-            type: 1
-          }
+          { buttonId: `${usedPrefix}download video ${url}`, buttonText: { displayText: '🎬 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐯𝐢𝐝𝐞𝐨' }, type: 1 },
+          { buttonId: `${usedPrefix}download audio ${url}`, buttonText: { displayText: '🎧 𝐒𝐜𝐚𝐫𝐢𝐜𝐚 𝐚𝐮𝐝𝐢𝐨' }, type: 1 }
         ],
         headerType: 1
       }, { quoted: m })
