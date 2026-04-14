@@ -7,19 +7,23 @@ import 'dotenv/config'
 
 function getEnvValue(name) {
   try {
-    const envPath = path.resolve('.env')
+    const envPath = path.join(process.cwd(), '.env')
     const env = fs.readFileSync(envPath, 'utf8')
+
     const line = env
       .split('\n')
       .find(v => v.trim().startsWith(name + '='))
 
     if (!line) return null
-    return line.slice(name.length + 1).trim().replace(/^['"]|['"]$/g, '')
+
+    return line
+      .slice(name.length + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, '')
   } catch {
     return null
   }
 }
-
 const USER_BASE = 'https://5sim.net/v1/user'
 const GUEST_BASE = 'https://5sim.net/v1/guest'
 const PAGE_SIZE = 3
