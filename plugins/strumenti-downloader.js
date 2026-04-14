@@ -473,10 +473,13 @@ function buildInfoCaption(info, mode) {
   txt += `⚖️ *𝐏𝐞𝐬𝐨:* ${info.filesize || '𝐍/𝐃'}\n`
   txt += `👁️ *𝐕𝐢𝐞𝐰𝐬:* ${info.views || '𝐍/𝐃'}\n`
   txt += `📅 *𝐃𝐚𝐭𝐚:* ${info.uploadDate || '𝐍/𝐃'}`
+
   txt += buildLongWarning(info, mode)
-  txt += `\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
+
+  txt += `\n\n──────────\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝:*\n${estimateDownloadTime(info, mode)}`
 
   return txt
+}
 }
 
 let handler = async (m, { conn, args, usedPrefix }) => {
