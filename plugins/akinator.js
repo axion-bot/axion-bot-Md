@@ -1,58 +1,58 @@
+import { Aki } from 'aki-api';
 
-import fs from "fs"
-import path from "path"
-import akinator from "akinatorjs"
+const sessions = new Map();
 
-const sessions = new Map()
+let handler = async (m, { conn, text }) => {
+  const chatId = m.chat;
 
-let handler = async (m, { conn }) => {
-  const chatId = m.chat
+  // 1. Handle active session answers
+  if (sessions.has(chatId)) {
+    const session = sessions.get(chatId);
+    let answer = m.text.trim().toLowerCase();
+    
+    // Map numbers to Aki indices if user types "1" instead of "yes"
+    const answersMap = { '1': 0, '0': 0, '2': 1, '3': 2, '4': 3, '5': 4 };
+    if (answersMap[answer] !== undefined) answer = answersMap[answer];
 
-  // Existing text response during a session
-  if (sessions.has(chatId) && !m.text.toLowerCase().startsWith(".akinator")) {
-    const session = sessions.get(chatId)
-    const answer = m.text.trim().toLowerCase()
-    const res = await session.ask(answer)
-    if (res.done) {
-      await conn.sendMessage(
-        chatId,
-        {
-          text: `Penso che tu pensassi a ${res.answer} con ${res.rate}% di probabilità.`,
-        },
-      )
-      sessions.delete(chatId)
-    } else {
-      await conn.sendMessage(
-        chatId,
-        {
-          text: `Domanda: ${res.question}\nRispondi:\n${res.answers
-            .map((a, i) => `${i + 1}. ${a}`)
-            .join("\n")}`,
-        },
-      )
+    try {
+      await session.step(answer);
+
+      if (session.progress >= 70 || session.currentStep >= 30) {
+        await session.win();
+        const guess = session.answers[0];
+        await conn.sendMessage(chatId, {
+          image: { url: guess.absolute_picture_path },
+          caption: `✨ Penso che tu stia pensando a: *${guess.name}*\n_${guess.description}_`
+        });
+        sessions.delete(chatId);
+      } else {
+        await conn.sendMessage(chatId, {
+          text: `*Domanda ${session.currentStep + 1}*:\n\n${session.question}\n\n` +
+                `1. Sì\n2. No\n3. Non lo so\n4. Probabilmente\n5. Probabilmente no`
+        });
+      }
+    } catch (e) {
+      sessions.delete(chatId);
+      m.reply("❌ Sessione scaduta o errore tecnico.");
     }
-    return
+    return;
   }
 
-  // Start a new Akinator game
-  if (!m.text.toLowerCase().includes(".akinator")) return
+  // 2. Start new game
+  const region = 'it'; // Set to Italian
+  const aki = new Aki({ region });
+  await aki.start();
 
-  const akin = new Akinator()
-  await akin.start()
-  const first = await akin.question
-  await conn.sendMessage(
-    chatId,
-    {
-      text: `Domanda: ${first.question}\nRispondi:\n${first.answers
-        .map((a, i) => `${i + 1}. ${a}`)
-        .join("\n")}`,
-    },
-  )
-  sessions.set(chatId, akin)
-}
+  sessions.set(chatId, aki);
 
-handler.help = ["akinator"]
-handler.tags = ["fun"]
-handler.command = ["akinator"]
+  await conn.sendMessage(chatId, {
+    text: `🎮 *Akinator Iniziato!*\n\n*Domanda 1*:\n${aki.question}\n\n` +
+          `Rispondi ai messaggi successivi con i numeri o le parole.`
+  });
+};
 
-export default handler
+handler.help = ["akinator"];
+handler.tags = ["fun"];
+handler.command = /^(akinator)$/i;
+
+export default handler;
