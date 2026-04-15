@@ -54,15 +54,22 @@ const handler = async (m, { conn, usedPrefix }) => {
 `.trim()
 
   const buttons = [
-    { buttonId: `${usedPrefix}ping`, buttonText: { displayText: '🔄 Rifai Ping' }, type: 1 },
-    { buttonId: `${usedPrefix}menu`, buttonText: { displayText: '📋 Menu' }, type: 1 }
+    {
+      buttonId: `${usedPrefix}ping`,
+      buttonText: { displayText: '🔄 Rifai Ping' },
+      type: 1
+    },
+    {
+      buttonId: `${usedPrefix}menu`,
+      buttonText: { displayText: '📋 Menu' },
+      type: 1
+    }
   ]
 
   await conn.sendMessage(m.chat, {
     text: info,
     buttons,
-    headerType: 1,
-    }
+    headerType: 1
   }, { quoted: m })
 }
 
