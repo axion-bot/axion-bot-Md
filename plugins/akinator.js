@@ -13,31 +13,37 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
 
     try {
-      const response = await axios.get(`https://api.lolhuman.xyz/api/openai?apikey=GataDios&text=${encodeURIComponent('Comportati come Akinator in italiano. L\'utente dice: ' + m.text + '. Se hai capito chi è scrivi "INDOVINATO: [nome]", altrimenti fai la domanda successiva.')}`)
+      const { data } = await axios.post('https://www.blackbox.ai/api/chat', {
+        messages: [{ role: 'user', content: `Rispondi come Akinator in italiano. L'utente dice: ${m.text}. Se hai capito chi è scrivi "FINE: [nome]", altrimenti fai la prossima domanda.` }],
+        model: 'deepseek-v3'
+      })
       
-      const replyText = response.data.result
+      const replyText = data
 
-      if (replyText.includes("INDOVINATO:")) {
-          const nome = replyText.split("INDOVINATO:")[1]
-          await conn.sendMessage(chatId, { text: `✨ *TROVATO!*\n\nPersonaggio: *${nome.trim()}*` }, { quoted: m })
+      if (replyText.includes("FINE:")) {
+          const nome = replyText.split("FINE:")[1]
+          await conn.sendMessage(chatId, { text: `✨ *INDOVINATO!*\n\nStavi pensando a: *${nome.trim()}*` }, { quoted: m })
           sessions.delete(chatId)
       } else {
           await conn.sendMessage(chatId, { text: replyText }, { quoted: m })
       }
     } catch (e) {
       sessions.delete(chatId)
-      m.reply("❌ Errore nel server di gioco.")
+      m.reply("❌ Errore nel processare la risposta.")
     }
     return
   }
 
   try {
-    const startRes = await axios.get(`https://api.lolhuman.xyz/api/openai?apikey=GataDios&text=${encodeURIComponent('Inizia una partita a Akinator in italiano. Fai la prima domanda per indovinare un personaggio.')}`)
+    const { data } = await axios.post('https://www.blackbox.ai/api/chat', {
+      messages: [{ role: 'user', content: 'Inizia una partita a Akinator in italiano. Fai la prima domanda.' }],
+      model: 'deepseek-v3'
+    })
     
     sessions.set(chatId, { active: true })
-    await conn.sendMessage(chatId, { text: `🎮 *AKINATOR AI*\n\n${startRes.data.result}` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `🎮 *AKINATOR AI*\n\n${data}` }, { quoted: m })
   } catch (err) {
-    m.reply("❌ API non raggiungibile. Riprova tra poco.")
+    m.reply("❌ Sistema AI non disponibile. Prova più tardi.")
   }
 }
 
