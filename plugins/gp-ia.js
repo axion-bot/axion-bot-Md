@@ -1,3 +1,5 @@
+// by deadly
+
 import fetch from 'node-fetch'
 
 const chatHistory = new Map()
