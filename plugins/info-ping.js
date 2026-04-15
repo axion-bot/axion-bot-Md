@@ -19,7 +19,18 @@ const clockString = ms => {
   return `${toMathematicalAlphanumericSymbols(days.toString().padStart(2, '0'))}d ${toMathematicalAlphanumericSymbols(hours.toString().padStart(2, '0'))}h ${toMathematicalAlphanumericSymbols(minutes.toString().padStart(2, '0'))}m`
 }
 
-const handler = async (m, { conn, usedPrefix }) => {
+const handler = async (m, { conn, usedPrefix, isAdmin, isOwner, isROwner }) => {
+  const user = global.db.data.users[m.sender] || {}
+  const isModerator = !!user.premium && user.premiumGroup === m.chat
+
+  if (!isAdmin && !isOwner && !isROwner && !isModerator) {
+    return conn.reply(
+      m.chat,
+      '⛔️ *𝐍𝐨𝐧 𝐬𝐞𝐢 𝐚𝐮𝐭𝐨𝐫𝐢𝐳𝐳𝐚𝐭𝐨 𝐚𝐝 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨*',
+      m
+    )
+  }
+
   const _uptime = process.uptime() * 1000
   const uptime = clockString(_uptime)
 
@@ -37,17 +48,17 @@ const handler = async (m, { conn, usedPrefix }) => {
   const info = `
 『 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 — 𝐒𝐓𝐀𝐓𝐔𝐒 』
 
-🚀 *𝐋𝐚𝐭𝐞𝐧𝐜𝐲*
+🚀 𝐋𝐚𝐭𝐞𝐧𝐜𝐲
 ╰➤ ${speedWithFont} ms
 
-⏱️ *𝐔𝐩𝐭𝐢𝐦𝐞*
+⏱️ 𝐔𝐩𝐭𝐢𝐦𝐞
 ╰➤ ${uptime}
 
-💻 *𝐑𝐞𝐬𝐨𝐮𝐫𝐜𝐞𝐬*
+💻 𝐑𝐞𝐬𝐨𝐮𝐫𝐜𝐞𝐬
 ╰➤ Server: ${toMathematicalAlphanumericSymbols(usedMem)} / ${toMathematicalAlphanumericSymbols(totalMem)} MB
 ╰➤ Engine: ${toMathematicalAlphanumericSymbols(heapUsed)} MB
 
-✅️ *𝐒𝐭𝐚𝐭𝐮𝐬*
+✅️ 𝐒𝐭𝐚𝐭𝐮𝐬
 ╰➤ System online
 
 > 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓
