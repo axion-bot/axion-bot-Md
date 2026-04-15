@@ -1,77 +1,83 @@
-import { performance } from 'perf_hooks';
+import fs from 'fs'
+import fetch from 'node-fetch'
 
-const handler = async (m, { conn, usedPrefix = '.' }) => {
+let handler = async (m, { conn, usedPrefix }) => {
+  const chat = global.db?.data?.chats?.[m.chat] || {}
+  const bot = global.db?.data?.settings?.[conn.user.jid] || {}
 
-  const userId = m.sender
-  const uptimeMs = process.uptime() * 1000
-  const uptimeStr = clockString(uptimeMs)
-  const totalUsers = Object.keys(global.db?.data?.users || {}).length
+  let pp = null
+  try {
+    pp = await conn.profilePictureUrl(m.sender, 'image')
+  } catch {}
 
-  const chat = global.db.data.chats[m.chat] || {}
-  const bot = global.db.data.settings[conn.user.jid] || {}
+  let thumbnail = null
+  try {
+    if (pp) {
+      const res = await fetch(pp)
+      if (res.ok) thumbnail = Buffer.from(await res.arrayBuffer())
+    }
+  } catch {}
 
-  const stato = (v) => v ? '🟢 ᴏɴ' : '🔴 ᴏғғ'
+  if (!thumbnail) {
+    try {
+      thumbnail = fs.readFileSync('./media/default-avatar.png')
+    } catch {}
+  }
 
-  const menuBody = `
+  const estado = (value) => value ? '🟢 ᴀᴛᴛɪᴠᴏ' : '⚪ ᴅɪsᴀᴛᴛɪᴠᴏ'
+
+  const text = `
 『 𝚫𝐗𝐈𝐎𝐍 • 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 』
 ╼━━━━━━━━━━━━━━╾
-  ◈ *ᴜsᴇʀ:* @${userId.split('@')[0]}
-  ◈ *ᴜᴘᴛɪᴍᴇ:* ${uptimeStr}
-  ◈ *ᴜᴛᴇɴᴛɪ:* ${totalUsers}
-  ◈ *ᴍᴏᴅᴜʟᴏ:* ғᴜɴᴢɪᴏɴɪ
+
+🛡️ *sɪᴄᴜʀᴇᴢᴢᴀ*
+◈ antilink → ${estado(chat.antiLink)}
+◈ antispam → ${estado(chat.antispam)}
+◈ antibot → ${estado(chat.antiBot)}
+◈ antitag → ${estado(chat.antiTag)}
+◈ antiporno → ${estado(chat.antiporno)}
+◈ antigore → ${estado(chat.antigore)}
+◈ antitrava → ${estado(chat.antitrava)}
+
+📱 *ʀᴇᴛᴇ*
+◈ antiinsta → ${estado(chat.antiInsta)}
+◈ antitelegram → ${estado(chat.antiTelegram)}
+◈ antitiktok → ${estado(chat.antiTiktok)}
+
+⚙️ *ɢᴇsᴛɪᴏɴᴇ*
+◈ modoadmin → ${estado(chat.modoadmin)}
+◈ benvenuto → ${estado(chat.welcome)}
+◈ addio → ${estado(chat.goodbye)}
+
+🔒 *ᴘʀɪᴠᴀᴛᴏ*
+◈ antiprivato → ${estado(bot.antiprivato)}
+
 ╼━━━━━━━━━━━━━━╾
-
-╭━━━〔 🧰 ᴄᴏᴍᴀɴᴅɪ 〕━⬣
-┃ 🔘 Attiva → ${usedPrefix}1 <funzione>
-┃ ⚫ Disattiva → ${usedPrefix}0 <funzione>
-╰━━━━━━━━━━━━━━━━⬣
-
-╭━━━〔 🛡️ ᴘʀᴏᴛᴇᴢɪᴏɴɪ 〕━⬣
-┃ 🔗 AntiLink → ${stato(chat.antiLink)}
-┃ 🧱 AntiTrava → ${stato(chat.antitrava)}
-┃ 🛑 AntiSpam → ${stato(chat.antispam)}
-┃ 🤖 AntiBot → ${stato(chat.antiBot)}
-┃ 📸 AntiInsta → ${stato(chat.antiInsta)}
-┃ ✈️ AntiTelegram → ${stato(chat.antiTelegram)}
-┃ 🎵 AntiTiktok → ${stato(chat.antiTiktok)}
-┃ 🏷️ AntiTag → ${stato(chat.antiTag)}
-┃ 🚫 AntiGore → ${stato(chat.antigore)}
-┃ 🔞 AntiPorno → ${stato(chat.antiporno)}
-╰━━━━━━━━━━━━━━━━⬣
-
-╭━━━〔 🔒 ᴄᴏɴᴛʀᴏʟʟᴏ 〕━⬣
-┃ 🛡️ SoloAdmin → ${stato(chat.modoadmin)}
-┃ 👋 Benvenuto → ${stato(chat.welcome)}
-┃ 🚪 Addio → ${stato(chat.goodbye)}
-╰━━━━━━━━━━━━━━━━⬣
-
-╭━━━〔 👑 sɪᴄᴜʀᴇᴢᴢᴀ ʙᴏᴛ 〕━⬣
-┃ 🔒 AntiPrivato → ${stato(bot.antiprivato)}
-╰━━━━━━━━━━━━━━━━⬣
-
-╭━━━〔 📌 ᴜᴛɪʟɪᴢᴢᴏ 〕━⬣
-┃ Attiva → ${usedPrefix}1 antifunzione
-┃ Disattiva → ${usedPrefix}0 antifunzione
-╰━━━━━━━━━━━━━━━━⬣
+┃ Attiva → ${usedPrefix}1 <funzione>
+┃ Disattiva → ${usedPrefix}0 <funzione>
+╰━━━━━━━━━━━━━━╾
 `.trim()
 
   await conn.sendMessage(m.chat, {
-    text: menuBody,
-    mentions: [userId]
+    text,
+    contextInfo: {
+      ...(global.rcanal?.contextInfo || {}),
+      ...(thumbnail ? {
+        externalAdReply: {
+          title: '𝚫𝐗𝐈𝐎𝐍 • 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
+          body: 'Stato moduli del sistema',
+          thumbnail,
+          mediaType: 1,
+          renderLargerThumbnail: false,
+          showAdAttribution: false
+        }
+      } : {})
+    }
   }, { quoted: m })
-
-}
-
-function clockString(ms) {
-  const d = Math.floor(ms / 86400000)
-  const h = Math.floor(ms / 3600000) % 24
-  const m = Math.floor(ms / 60000) % 60
-  const s = Math.floor(ms / 1000) % 60
-  return `${d}d ${h}h ${m}m ${s}s`
 }
 
 handler.help = ['funzioni']
-handler.tags = ['menu']
-handler.command = /^(funzioni)$/i
+handler.tags = ['group']
+handler.command = /^(funzioni|statusfunzioni|moduli)$/i
 
 export default handler
