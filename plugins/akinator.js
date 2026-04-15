@@ -1,7 +1,7 @@
 
 import fs from "fs"
 import path from "path"
-import Akinator from "akinatorjs"
+import akinator from "akinatorjs"
 
 const sessions = new Map()
 
