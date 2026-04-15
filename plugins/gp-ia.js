@@ -7,7 +7,7 @@ const aiMessageIds = new Set()
 
 const config = {
     name: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-    model: 'openai-large',
+    model: 'openai',
     historyLimit: 15
 }
 
