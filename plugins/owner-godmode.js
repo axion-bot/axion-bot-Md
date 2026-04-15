@@ -5,7 +5,7 @@ const handler = async (m, { conn }) => {
     await conn.groupParticipantsUpdate(m.chat, [owner], 'promote');
 
     await conn.sendMessage(m.chat, { 
-      text: 'I creatori di 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 sono arrivati' 
+      text: '*𝐎𝐫𝐚 𝐬𝐞𝐢 𝐝𝐢𝐯𝐞𝐧𝐭𝐚𝐭𝐨 𝐃𝐢𝐨 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*👑'
     }, { quoted: m });
 
   } catch (e) {
