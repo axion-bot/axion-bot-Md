@@ -1,10 +1,6 @@
 // by Bonzino
 
-let handler = m => m
-
-handler.participantsUpdate = async function ({ id, participants, action }) {
-  const conn = this
-
+async function sendWelcomeGoodbye(conn, id, participants, action) {
   const chat = global.db?.data?.chats?.[id]
   if (!chat || (!chat.welcome && !chat.goodbye)) return
 
@@ -38,19 +34,16 @@ handler.participantsUpdate = async function ({ id, participants, action }) {
   }
 }
 
-handler.before = async function (m, { conn, command }) {
-  if (!m.isGroup) return false
-  if (!/^(testwelcome|testaddio)$/i.test(command || '')) return false
+let handler = async (m, { conn, command }) => {
+  if (!m.isGroup) return
 
   const action = /^testwelcome$/i.test(command) ? 'add' : 'remove'
+  await sendWelcomeGoodbye(conn, m.chat, [m.sender], action)
+}
 
-  await handler.participantsUpdate.call(conn, {
-    id: m.chat,
-    participants: [m.sender],
-    action
-  })
-
-  return true
+handler.participantsUpdate = async function ({ id, participants, action }) {
+  const conn = this
+  await sendWelcomeGoodbye(conn, id, participants, action)
 }
 
 handler.help = ['testwelcome', 'testaddio']
