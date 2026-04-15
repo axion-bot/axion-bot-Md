@@ -219,8 +219,6 @@ setInterval(() => {
 }, 180000)
 
 export async function participantsUpdate({ id, participants, action }) {
-    if (global.db.data.chats[id]?.rileva === false) return
-
     try {
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
