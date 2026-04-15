@@ -13,37 +13,32 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
 
     try {
-      const { data } = await axios.post('https://www.blackbox.ai/api/chat', {
-        messages: [{ role: 'user', content: `Rispondi come Akinator in italiano. L'utente dice: ${m.text}. Se hai capito chi è scrivi "FINE: [nome]", altrimenti fai la prossima domanda.` }],
-        model: 'deepseek-v3'
-      })
+      const { data } = await axios.get(`https://api.api-me.pro/api/gpt4?q=${encodeURIComponent('Rispondi come Akinator in italiano. L\'utente dice: ' + m.text + '. Se hai capito il personaggio scrivi "INDOVINATO: [nome]", altrimenti fai la prossima domanda.')}`)
       
-      const replyText = data
+      const replyText = data.content || data.result
 
-      if (replyText.includes("FINE:")) {
-          const nome = replyText.split("FINE:")[1]
-          await conn.sendMessage(chatId, { text: `✨ *INDOVINATO!*\n\nStavi pensando a: *${nome.trim()}*` }, { quoted: m })
+      if (replyText.includes("INDOVINATO:")) {
+          const nome = replyText.split("INDOVINATO:")[1]
+          await conn.sendMessage(chatId, { text: `✨ *VITTORIA!*\n\nStavi pensando a: *${nome.trim()}*` }, { quoted: m })
           sessions.delete(chatId)
       } else {
           await conn.sendMessage(chatId, { text: replyText }, { quoted: m })
       }
     } catch (e) {
       sessions.delete(chatId)
-      m.reply("❌ Errore nel processare la risposta.")
+      m.reply("❌ Errore nel caricamento della risposta.")
     }
     return
   }
 
   try {
-    const { data } = await axios.post('https://www.blackbox.ai/api/chat', {
-      messages: [{ role: 'user', content: 'Inizia una partita a Akinator in italiano. Fai la prima domanda.' }],
-      model: 'deepseek-v3'
-    })
+    const { data } = await axios.get(`https://api.api-me.pro/api/gpt4?q=${encodeURIComponent('Inizia una partita a Akinator in italiano. Saluta e fai la prima domanda.')}`)
     
     sessions.set(chatId, { active: true })
-    await conn.sendMessage(chatId, { text: `🎮 *AKINATOR AI*\n\n${data}` }, { quoted: m })
+    const startTxt = data.content || data.result
+    await conn.sendMessage(chatId, { text: `🎮 *AKINATOR AI*\n\n${startTxt}` }, { quoted: m })
   } catch (err) {
-    m.reply("❌ Sistema AI non disponibile. Prova più tardi.")
+    m.reply("❌ *ERRORE*, Perché? Perché sono gay.")
   }
 }
 
