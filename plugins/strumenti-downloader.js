@@ -337,8 +337,6 @@ function buildInfoCaption(info, mode, url) {
   txt += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'`
 
 return txt
-
-  return txt
 }
 
 function bytesFromMb(mb) {
