@@ -759,29 +759,36 @@ async function tiktokFallback(url, mode, tmpDir, onProgress = null) {
 //Conversione media per compatibilità 
 
 async function probeVideoCodecs(filePath) {
-  const { stdout } = await execFileAsync('ffprobe', [
-    '-v', 'error',
-    '-select_streams', 'v:0',
-    '-show_entries', 'stream=codec_name',
-    '-of', 'default=noprint_wrappers=1:nokey=1',
-    filePath
-  ], { timeout: 30000 })
-
-  let audioCodec = ''
   try {
-    const { stdout: audioOut } = await execFileAsync('ffprobe', [
+    const { stdout } = await execFileAsync('ffprobe', [
       '-v', 'error',
-      '-select_streams', 'a:0',
+      '-select_streams', 'v:0',
       '-show_entries', 'stream=codec_name',
       '-of', 'default=noprint_wrappers=1:nokey=1',
       filePath
     ], { timeout: 30000 })
-    audioCodec = audioOut.trim().toLowerCase()
-  } catch {}
 
-  return {
-    video: stdout.trim().toLowerCase(),
-    audio: audioCodec
+    let audioCodec = ''
+    try {
+      const { stdout: audioOut } = await execFileAsync('ffprobe', [
+        '-v', 'error',
+        '-select_streams', 'a:0',
+        '-show_entries', 'stream=codec_name',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
+        filePath
+      ], { timeout: 30000 })
+      audioCodec = audioOut.trim().toLowerCase()
+    } catch {}
+
+    return {
+      video: stdout.trim().toLowerCase(),
+      audio: audioCodec
+    }
+  } catch {
+    return {
+      video: '',
+      audio: ''
+    }
   }
 }
 
@@ -942,22 +949,14 @@ let handler = async (m, { conn, args, usedPrefix }) => {
     await setReaction(conn, m.chat, m.key, '🔎')
 
     const hasYtDlpOk = await hasBinary('yt-dlp')
-    const hasFfmpegOk = await hasBinary('ffmpeg')
-    const hasFfprobeOk = await hasBinary('ffprobe')
 
-    if (!hasYtDlpOk && !(DOWNLOAD_CONFIG.ALLOW_DIRECT_MEDIA && isDirectMediaUrl(url)) && !(DOWNLOAD_CONFIG.ALLOW_TIKTOK_FALLBACK && isTikTokUrl(url))) {
+    if (
+      !hasYtDlpOk &&
+      !(DOWNLOAD_CONFIG.ALLOW_DIRECT_MEDIA && isDirectMediaUrl(url)) &&
+      !(DOWNLOAD_CONFIG.ALLOW_TIKTOK_FALLBACK && isTikTokUrl(url))
+    ) {
       await setReaction(conn, m.chat, m.key, '❌')
       return m.reply('*❌ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐲𝐭-𝐝𝐥𝐩 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
-    }
-
-    if (!hasFfmpegOk) {
-      await setReaction(conn, m.chat, m.key, '❌')
-      return m.reply('*❌ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐟𝐟𝐦𝐩𝐞𝐠 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
-    }
-
-    if (!hasFfprobeOk) {
-      await setReaction(conn, m.chat, m.key, '❌')
-      return m.reply('*❌ 𝐄𝐫𝐫𝐨𝐫𝐞:* 𝐟𝐟𝐩𝐫𝐨𝐛𝐞 𝐧𝐨𝐧 𝐢𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐭𝐨.')
     }
 
     if (mode !== 'audio' && mode !== 'video') {
