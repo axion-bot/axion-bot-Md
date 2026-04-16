@@ -24,7 +24,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner }) => 
     try {
       const res = await fetch(url)
       if (!res.ok) return null
-      return Buffer.from(await res.arrayBuffer())
+      return buffer.from(await res.arrayBuffer())
     } catch {
       return null
     }
