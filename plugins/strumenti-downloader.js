@@ -16,8 +16,8 @@ const DOWNLOAD_CONFIG = {
   MAX_CONCURRENT: Number(process.env.DW_MAX_CONCURRENT || 2),
   ONE_JOB_PER_CHAT: true,
 
-  MAX_VIDEO_MB: Number(process.env.DW_MAX_VIDEO_MB || 80),
-  MAX_AUDIO_MB: Number(process.env.DW_MAX_AUDIO_MB || 25),
+  MAX_VIDEO_MB: Number(process.env.DW_MAX_VIDEO_MB || 1000),
+  MAX_AUDIO_MB: Number(process.env.DW_MAX_AUDIO_MB || 50),
 
   MAX_VIDEO_SECONDS: Number(process.env.DW_MAX_VIDEO_SECONDS || 60 * 60), // 1h
   MAX_AUDIO_SECONDS: Number(process.env.DW_MAX_AUDIO_SECONDS || 2 * 60 * 60), // 2h
