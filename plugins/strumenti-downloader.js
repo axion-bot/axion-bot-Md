@@ -144,7 +144,7 @@ async function animateProgress(conn, chatId, key, state) {
       title = '𝐂𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨'
       emoji = '🔄'
     } else if (state.phase === 'uploading') {
-      title = '𝐈𝐧𝐯𝐢𝐨 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨''
+      title = '𝐈𝐧𝐯𝐢𝐨 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨'
     }
 
     let body = `*${title}${dots}* ${emoji}\n\n*${percent}%*`
