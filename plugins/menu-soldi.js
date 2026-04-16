@@ -20,6 +20,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 👛 ${usedPrefix}wallet
 ┃ 💰 ${usedPrefix}deposita
 ┃ 🏧 ${usedPrefix}prelievo
+┃ 🏎️ ${usedPrefix}gara
 ┃ 🎰 ${usedPrefix}slot
 ┃ 🥷 ${usedPrefix}crimine
 ┃ 😅 ${usedPrefix}elemosina
