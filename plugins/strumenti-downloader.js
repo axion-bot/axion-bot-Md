@@ -334,6 +334,9 @@ function buildInfoCaption(info, mode, url) {
 
   txt += buildLongWarning(info, mode)
   txt += `\n\n──────────\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨:*\n${estimateDownloadTime(info, mode)}`
+  txt += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'`
+
+return txt
 
   return txt
 }
@@ -1136,12 +1139,17 @@ let handler = async (m, { conn, args, usedPrefix }) => {
 
     const elapsed = formatElapsed(Date.now() - startedAt)
 
-    await editMessage(
-      conn,
-      m.chat,
-      key,
-      `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}\n📦 *𝐏𝐞𝐬𝐨:* ${formatBytes(stats.size)}`
-    )
+await editMessage(
+  conn,
+  m.chat,
+  key,
+  `*𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨* ✅
+
+🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}
+📦 *𝐏𝐞𝐬𝐨:* ${formatBytes(stats.size)}
+
+> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'`
+)
 
     await setReaction(conn, m.chat, m.key, '✅')
 
