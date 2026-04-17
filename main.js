@@ -257,14 +257,22 @@ const connectionOptions = {
 };
 global.conn = makeWASocket(connectionOptions);
 global.store.bind(global.conn.ev);
-global.sendPluginErrorToChat = async function (title, err, extra = '') {
+global.sendPluginErrorToChat = async function (title, err, extra = '', retry = 0) {
     try {
         const jid = String(global.botErrorChat || '')
             .trim()
             .replace(/^['"]|['"]$/g, '');
 
         if (!jid) return;
-        if (!global.conn || !global.conn.user) return;
+
+        if (!global.conn || !global.conn.user) {
+            if (retry < 3) {
+                setTimeout(() => {
+                    global.sendPluginErrorToChat(title, err, extra, retry + 1);
+                }, 5000);
+            }
+            return;
+        }
 
         const messageText = err?.message || String(err) || 'Errore sconosciuto';
         const stackText = String(err?.stack || err || 'Nessuno stack disponibile').slice(0, 3500);
@@ -281,7 +289,13 @@ ${stackText}
 
         await global.conn.sendMessage(jid, { text });
     } catch (e) {
-        console.error('[ERRORE] Invio errore plugin in chat fallito:', e);
+        if (retry < 3) {
+            setTimeout(() => {
+                global.sendPluginErrorToChat(title, err, extra, retry + 1);
+            }, 5000);
+        } else {
+            console.error('[ERRORE] Invio errore plugin in chat fallito:', e);
+        }
     }
 };
 
