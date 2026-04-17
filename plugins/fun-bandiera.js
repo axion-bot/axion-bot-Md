@@ -7,6 +7,7 @@ const F = '╰━━━━━━━━━━━━━━━━⬣'
 const GAME_MS = 30_000
 const MAX_TENTATIVI = 3
 const ANSWER_COOLDOWN_MS = 1200
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const playAgainButtons = () => [{
   name: 'quick_reply',
@@ -65,7 +66,6 @@ function getHintText(name = '') {
     .join('')
 
   const firstLetter = clean[0]
-  const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
   const lastLetter = clean[clean.length - 1]
   const lettersOnly = clean.replace(/[^A-Za-zÀ-ÿ]/g, '').length
 
@@ -152,7 +152,7 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
         text: caption,
         contextInfo: {
           externalAdReply: {
-            title: '        🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨'',
+            title: '        🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨',
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: false,
