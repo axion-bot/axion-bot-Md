@@ -1,8 +1,9 @@
+// Plugin Bandiera by Bonzino 
 
 import fetch from 'node-fetch'
 import { createCanvas, loadImage } from 'canvas'
 
-const H = '╭━━━〔 🏳️ 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀 〕━━━⬣'
+const H = '╭━━━〔 *🏳️ 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀* 〕━━━⬣'
 const F = '╰━━━━━━━━━━━━━━━━⬣'
 const GAME_MS = 30_000
 const MAX_TENTATIVI = 3
@@ -152,7 +153,7 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
         text: caption,
         contextInfo: {
           externalAdReply: {
-            title: '        🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨',
+            title: '      🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨',
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: false,
@@ -193,11 +194,11 @@ function getSpeedBonus(seconds) {
 }
 
 function getSpeedLabel(seconds) {
-  if (seconds <= 3) return '⚡ 𝐅𝐮𝐥𝐦𝐢𝐧𝐞𝐨'
-  if (seconds <= 5) return '🚀 𝐕𝐞𝐥𝐨𝐜𝐢𝐬𝐬𝐢𝐦𝐨'
-  if (seconds <= 8) return '🔥 𝐎𝐭𝐭𝐢𝐦𝐚 𝐯𝐞𝐥𝐨𝐜𝐢𝐭𝐚̀'
-  if (seconds <= 12) return '⚡ 𝐁𝐮𝐨𝐧𝐚 𝐯𝐞𝐥𝐨𝐜𝐢𝐭à'
-  return '🧠 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚'
+  if (seconds <= 3) return '*⚡ 𝐅𝐮𝐥𝐦𝐢𝐧𝐞𝐨*'
+  if (seconds <= 5) return '*🚀 𝐕𝐞𝐥𝐨𝐜𝐢𝐬𝐬𝐢𝐦𝐨*'
+  if (seconds <= 8) return '*🔥 𝐎𝐭𝐭𝐢𝐦𝐚 𝐯𝐞𝐥𝐨𝐜𝐢𝐭𝐚*̀'
+  if (seconds <= 12) return '*⚡ 𝐁𝐮𝐨𝐧𝐚 𝐯𝐞𝐥𝐨𝐜𝐢𝐭à*'
+  return '*🧠 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚*'
 }
 
 function getStreakBonus(streak) {
@@ -220,12 +221,12 @@ let handler = async (m, { conn, command, isAdmin }) => {
   global.bandieraGame = global.bandieraGame || {}
 
   if (command === 'indiziobandiera') {
-    if (!m.isGroup) return m.reply('⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢')
+    if (!m.isGroup) return m.reply('*⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢*')
     const game = global.bandieraGame[m.chat]
-    if (!game) return m.reply('⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚')
+    if (!game) return m.reply('*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚'*)
 
     if (game.hintUsed) {
-      return m.reply(`⚠️ 𝐇𝐚𝐢 𝐠𝐢à 𝐮𝐬𝐚𝐭𝐨 𝐥'𝐢𝐧𝐝𝐢𝐳𝐢𝐨\n\n${game.hintText}`)
+      return m.reply(`*⚠️ 𝐇𝐚𝐢 𝐠𝐢à 𝐮𝐬𝐚𝐭𝐨 𝐥'𝐢𝐧𝐝𝐢𝐳𝐢𝐨*\n\n${game.hintText}`)
     }
 
     game.hintUsed = true
@@ -251,9 +252,9 @@ ${F}`
 
     await conn.sendMessage(m.chat, {
       text: `${H}
-┃ ⛔ 𝐏𝐀𝐑𝐓𝐈𝐓𝐀 𝐈𝐍𝐓𝐄𝐑𝐑𝐎𝐓𝐓𝐀
+┃ *⛔ 𝐏𝐀𝐑𝐓𝐈𝐓𝐀 𝐈𝐍𝐓𝐄𝐑𝐑𝐎𝐓𝐓𝐀*
 ┃
-┃ 🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚: ${game.rispostaOriginale}
+┃ *🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚:* ${game.rispostaOriginale}
 ${F}`
     }, { quoted: m })
 
@@ -287,13 +288,12 @@ ${F}`
     m.chat,
     scelta.url,
     `${H}
-┃ 🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐍𝐀𝐙𝐈𝐎𝐍𝐄
+┃ *🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐍𝐀𝐙𝐈𝐎𝐍𝐄*
 ┃
 ┃ ${frase}
 ┃
-┃ 🏳️ 𝐈𝐧𝐝𝐨𝐯𝐢𝐧𝐚 𝐥𝐚 𝐧𝐚𝐳𝐢𝐨𝐧𝐞
-┃ ⏱️ 𝐓𝐞𝐦𝐩𝐨: 30𝐬
-┃ 🎯 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢: ${MAX_TENTATIVI} 𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞
+┃ ⏱️ *𝐓𝐞𝐦𝐩𝐨*: 30𝐬
+┃ 🎯 *𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢*: ${MAX_TENTATIVI} *𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞*
 ${F}`,
     m
   )
@@ -301,7 +301,7 @@ ${F}`,
   await delay(1200)
 
   await conn.sendMessage(m.chat, {
-    text: '💡 𝐔𝐬𝐚 𝐢𝐥 𝐩𝐮𝐥𝐬𝐚𝐧𝐭𝐞 𝐪𝐮𝐢 𝐬𝐨𝐭𝐭𝐨 𝐩𝐞𝐫 𝐥\'𝐢𝐧𝐝𝐢𝐳𝐢𝐨',
+    text: '*💡 𝐔𝐬𝐚 𝐢𝐥 𝐩𝐮𝐥𝐬𝐚𝐧𝐭𝐞 𝐪𝐮𝐢 𝐬𝐨𝐭𝐭𝐨 𝐩𝐞𝐫 𝐥\'𝐢𝐧𝐝𝐢𝐳𝐢𝐨*',
     interactiveButtons: gameButtons()
   }, { quoted: sent })
 
@@ -321,9 +321,9 @@ ${F}`,
 
       await conn.sendMessage(m.chat, {
         text: `${H}
-┃ ⏰ 𝐓𝐄𝐌𝐏𝐎 𝐒𝐂𝐀𝐃𝐔𝐓𝐎
+┃ *⏰ 𝐓𝐄𝐌𝐏𝐎 𝐒𝐂𝐀𝐃𝐔𝐓𝐎*
 ┃
-┃ 🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚: ${game.rispostaOriginale}
+┃ *🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚:* ${game.rispostaOriginale}
 ${F}`,
         interactiveButtons: playAgainButtons()
       })
@@ -383,14 +383,14 @@ handler.before = async (m, { conn }) => {
 
     await conn.sendMessage(m.chat, {
       text: `${H}
-┃ ✅ 𝐂𝐎𝐑𝐑𝐄𝐓𝐓𝐎!
+┃ *✅ 𝐂𝐎𝐑𝐑𝐄𝐓𝐓𝐎!*
 ┃
-┃ 🏳️ 𝐁𝐚𝐧𝐝𝐢𝐞𝐫𝐚: ${game.rispostaOriginale}
-┃ ⏱️ 𝐓𝐞𝐦𝐩𝐨: ${seconds}𝐬
-┃ 🎖️ 𝐄𝐬𝐢𝐭𝐨: ${speedLabel}
+┃ *🏳️ 𝐁𝐚𝐧𝐝𝐢𝐞𝐫𝐚:* ${game.rispostaOriginale}
+┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨:* ${seconds}𝐬
+┃ *🎖️ 𝐄𝐬𝐢𝐭𝐨:* ${speedLabel}
 ┃
-┃ 💰 𝐁𝐚𝐬𝐞: +${baseReward}
-${speedLine}${streakLine}┃ 💸 𝐓𝐨𝐭𝐚𝐥𝐞: +${totalReward}
+┃ *💰 𝐁𝐚𝐬𝐞:* +${baseReward}
+${speedLine}${streakLine}┃ *💸 𝐓𝐨𝐭𝐚𝐥𝐞* +${totalReward}
 ${F}`,
       interactiveButtons: playAgainButtons()
     }, { quoted: m })
@@ -406,10 +406,10 @@ ${F}`,
     user.bandieraStreak = 0
 
     await conn.reply(m.chat, `${H}
-┃ 🚫 𝐇𝐚𝐢 𝐟𝐢𝐧𝐢𝐭𝐨 𝐢 𝐭𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢
+┃ *🚫 𝐇𝐚𝐢 𝐟𝐢𝐧𝐢𝐭𝐨 𝐢 𝐭𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢*
 ┃
-┃ 🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚: ${game.rispostaOriginale}
-┃ 💥 𝐒𝐭𝐫𝐞𝐚𝐤 𝐚𝐳𝐳𝐞𝐫𝐚𝐭𝐚
+┃ *🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚:* ${game.rispostaOriginale}
+┃ *💥 𝐒𝐭𝐫𝐞𝐚𝐤 𝐚𝐳𝐳𝐞𝐫𝐚𝐭𝐚*
 ${F}`, m)
 
     delete global.bandieraGame[m.chat]
@@ -417,8 +417,8 @@ ${F}`, m)
   }
 
   await conn.reply(m.chat, `${H}
-┃ ❌ 𝐒𝐛𝐚𝐠𝐥𝐢𝐚𝐭𝐨
-┃ 📝 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢 𝐫𝐢𝐦𝐚𝐬𝐭𝐢: ${left}
+┃ *❌ 𝐒𝐛𝐚𝐠𝐥𝐢𝐚𝐭𝐨*
+┃ *📝 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢 𝐫𝐢𝐦𝐚𝐬𝐭𝐢:* ${left}
 ${F}`, m)
   return true
 }
