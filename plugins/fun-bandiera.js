@@ -1,6 +1,7 @@
 // by Bonzino
 
 import fetch from 'node-fetch'
+import { createCanvas, loadImage } from 'canvas'
 
 const H = '*╭━━━〔 🏳️ 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀 〕━━━⬣*'
 const F = '*╰━━━━━━━━━━━━━━━━⬣*'
@@ -105,6 +106,74 @@ async function loadAllFlags() {
 
   global.allFlagsCache = flags
   return flags
+}
+
+async function createFlagThumb(url) {
+  try {
+    const img = await loadImage(url)
+
+    const SIZE = 320
+    const PADDING = 14
+    const W = SIZE
+    const H = SIZE
+
+    const canvas = createCanvas(W, H)
+    const ctx = canvas.getContext('2d')
+
+    ctx.fillStyle = '#000000ff'
+    ctx.fillRect(0, 0, W, H)
+
+    const innerW = W - PADDING * 2
+    const innerH = H - PADDING * 2
+
+    const scale = Math.min(innerW / img.width, innerH / img.height)
+    const newW = Math.max(1, Math.round(img.width * scale))
+    const newH = Math.max(1, Math.round(img.height * scale))
+    const x = Math.round((W - newW) / 2)
+    const y = Math.round((H - newH) / 2)
+
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, x, y, newW, newH)
+
+    return canvas.toBuffer('image/jpeg', { quality: 0.9 })
+  } catch {
+    return null
+  }
+}
+
+async function sendFlagCard(conn, chat, url, caption, quoted) {
+  const thumb = await createFlagThumb(url)
+
+  if (thumb) {
+    const PAD = '\u2003\u2003'
+    const title = `${PAD}Quiz bandiere!${PAD}`
+
+    return conn.sendMessage(
+      chat,
+      {
+        text: caption,
+        contextInfo: {
+          externalAdReply: {
+            title,
+            mediaType: 1,
+            renderLargerThumbnail: false,
+            showAdAttribution: false,
+            thumbnail: thumb
+          },
+          jpegThumbnail: thumb
+        },
+        interactiveButtons: gameButtons()
+      },
+      { quoted }
+    )
+  }
+
+  return conn.sendMessage(chat, {
+    image: { url },
+    caption,
+    interactiveButtons: gameButtons()
+  }, { quoted })
 }
 
 function ensureUser(user) {
@@ -217,9 +286,7 @@ ${F}`,
   const scelta = pickRandom(bandiere)
   const frase = pickRandom(frasi)
 
-  const sent = await conn.sendMessage(m.chat, {
-    image: { url: scelta.url },
-    caption: `${H}
+  const sent = await sendFlagCard(conn, m.chat, scelta.url, `${H}
 ┃ 🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀
 ┃
 ┃ ${frase}
@@ -227,9 +294,7 @@ ${F}`,
 ┃ *🏳️ 𝐈𝐧𝐝𝐨𝐯𝐢𝐧𝐚 𝐥𝐚 𝐧𝐚𝐳𝐢𝐨𝐧𝐞*
 ┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨:* 30𝐬
 ┃ *🎯 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢:* ${MAX_TENTATIVI} 𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞
-${F}`,
-    interactiveButtons: gameButtons()
-  }, { quoted: m })
+${F}`, m)
 
   global.bandieraGame[m.chat] = {
     id: sent.key.id,

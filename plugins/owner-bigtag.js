@@ -1,3 +1,5 @@
+// Plugin bigtag by Bonzino
+
 let handler = async (m, { conn, text, participants, isROwner, command }) => {
     if (!isROwner) return
 
