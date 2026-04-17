@@ -149,7 +149,15 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
       chat,
       {
         text: caption,
-        jpegThumbnail: thumb
+        contextInfo: {
+          externalAdReply: {
+            title: 'Quiz bandiere',
+            mediaType: 1,
+            renderLargerThumbnail: false,
+            showAdAttribution: false,
+            thumbnail: thumb
+          }
+        }
       },
       { quoted }
     )
