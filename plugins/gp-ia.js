@@ -1,46 +1,21 @@
-// by ?????? ¡Á Bonzino
-
 import fetch from 'node-fetch'
 
 const chatHistory = new Map()
-const aiMessageIds = new Set()
 
 const config = {
-    name: '????? ???',
-    model: 'gpt-4o-mini',
-    historyLimit: 6
+    name: 'ð›¥ð—ðˆðš¶ð ðš©ðš¯ð“',
+    model: 'openai',
+    historyLimit: 15
 }
 
-const sys = (name) => `Sei ${config.name}, un assistente avanzato integrato in un bot WhatsApp.
+const sys = (name) => `Sei ${config.name}.
+Rispondi a ${name} seguendo fedelmente lo stile e la struttura degli esempi ricevuti.
 
-Parla con ${name} in modo naturale, umano, intelligente e credibile.
-
-Comprendi il contesto e adatta automaticamente stile, tono, profondit¨¤ e formato della risposta in base alla richiesta.
-
-Non essere freddo, distaccato o troppo sintetico senza motivo.
-
-Quando la conversazione ¨¨ personale o emotiva:
-- mostra empatia
-- non rispondere in modo secco
-- fai domande naturali se ha senso
-- accompagna la conversazione invece di chiuderla subito
-
-Quando la richiesta ¨¨ tecnica:
-- sii preciso
-- ragiona bene
-- se serve codice, scrivi codice corretto e completo
-
-Evita risposte artificiali, ripetitive o troppo generiche.
-
-Mantieni continuit¨¤ con la conversazione precedente e rispondi sempre nel modo pi¨´ utile, realistico e coinvolgente possibile.`
-
-function cleanText(text = '') {
-    return String(text)
-        .replace(/[^\x20-\x7E?-?\n\r\t]/g, '')
-        .replace(/\s{3,}/g, ' ')
-        .trim()
-        .slice(0, 4000)
-}
+REGOLE:
+1. Se ricevi codice o strutture tecniche, rispondi SOLTANTO con il codice aggiornato.
+2. NON aggiungere testo descrittivo, saluti o spiegazioni.
+3. Se ricevi testo normale, sii sintetico e diretto.
+4. Mantieni esattamente la logica e il formato che vedi nei messaggi precedenti.`
 
 async function call(messages) {
     try {
@@ -53,111 +28,47 @@ async function call(messages) {
                 seed: Math.floor(Math.random() * 999999)
             })
         })
-
-        const data = await res.text()
-
-        if (!res.ok) {
-            throw new Error(`API_${res.status}`)
-        }
-
-        return data
+        return await res.text()
     } catch (e) {
-        throw new Error(e.message || 'CORE_OFFLINE')
+        throw new Error('CORE_OFFLINE')
     }
 }
 
-function trimHistory(hist) {
-    const max = config.historyLimit * 2
-    if (hist.length > max) return hist.slice(-max)
-    return hist
-}
+let handler = async (m, { conn, text }) => {
+    if (!text) return 
 
-let handler = async (m, { conn, text, command }) => {
     const chatId = m.chat
-    const name = await conn.getName(m.sender) || 'User'
-    const isNewSession = /^(ia|gpt|axion)$/i.test(command)
+    const name = conn.getName(m.sender) || 'User'
 
-    if (!text || !text.trim()) return
-
-    if (!chatHistory.has(chatId) || isNewSession) {
-        chatHistory.set(chatId, [])
-    }
-
+    if (!chatHistory.has(chatId)) chatHistory.set(chatId, [])
     let hist = chatHistory.get(chatId)
 
-    await conn.sendMessage(m.chat, {
-        react: { text: '?', key: m.key }
-    })
-
     try {
+        await m.react('ðŸª')
+        
         const msgs = [
-            { role: 'system', content: cleanText(sys(name)) },
-            ...hist.map(msg => ({
-                role: msg.role,
-                content: cleanText(msg.content)
-            })),
-            { role: 'user', content: cleanText(text.trim()) }
+            { role: 'system', content: sys(name) },
+            ...hist,
+            { role: 'user', content: text }
         ]
 
-        const out = cleanText(await call(msgs))
+        const out = await call(msgs)
 
-        hist.push({
-            role: 'user',
-            content: cleanText(text.trim())
-        })
+        hist.push({ role: 'user', content: text })
+        hist.push({ role: 'assistant', content: out })
+        if (hist.length > config.historyLimit) hist.shift()
 
-        hist.push({
-            role: 'assistant',
-            content: out
-        })
-
-        hist = trimHistory(hist)
-        chatHistory.set(chatId, hist)
-
-        const sent = await conn.sendMessage(m.chat, {
-            text: out
-        }, { quoted: m })
-
-        if (sent?.key?.id) {
-            aiMessageIds.add(sent.key.id)
-        }
-
-        await conn.sendMessage(m.chat, {
-            react: { text: '??', key: m.key }
-        })
+        await conn.sendMessage(m.chat, { text: out.trim() }, { quoted: m })
+        await m.react('ðŸŒŒ')
 
     } catch (e) {
-        await conn.sendMessage(m.chat, {
-            react: { text: '?', key: m.key }
-        })
-
-        m.reply(`? Errore IA: ${e.message}`)
+        await m.react('âŒ')
+        m.reply(`[ERROR]: ${e.message}`)
     }
 }
 
 handler.help = ['ia']
 handler.tags = ['main']
-handler.command = /^(ia|gpt|axion)$/i
-
-handler.before = async (m, { conn }) => {
-    if (m.fromMe) return
-    if (!m.quoted) return
-
-    const text = (m.text || m.message?.extendedTextMessage?.text || '').trim()
-    if (!text) return
-
-    if (/^[./#!$]/.test(text)) return
-
-    const quotedId = m.quoted?.id || m.quoted?.key?.id
-    if (!quotedId) return
-
-    if (!aiMessageIds.has(quotedId)) return
-
-    return handler(m, {
-        conn,
-        text,
-        command: 'reply'
-    })
-}
+handler.command = /^(ia|gpt)$/i
 
 export default handler
