@@ -1,0 +1,1 @@
+global.botErrorChat = '120363424895913477@g.us';
