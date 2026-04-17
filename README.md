@@ -42,6 +42,8 @@ cd ~/axion-bot && \
 yarn install || npm install && \
 npm start
 
+```
+
 #### 🖥️ COLLEGAMENTO CON LINUX
 ```bash
 sudo apt update && sudo apt upgrade -y && \
@@ -52,11 +54,15 @@ cd ~/axion-bot && \
 yarn install || npm install && \
 npm start
 
+```
+
 #### ♻️ ELIMINA SESSIONI 
 ```bash
 cd ~/axion-bot
 rm -rf session
 npm start
+
+```
 
 ⚙️ Configurazione
 
