@@ -156,10 +156,12 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
         contextInfo: {
           externalAdReply: {
             title,
+            body: 'Indovina la nazione',
             mediaType: 1,
-            renderLargerThumbnail: false,
+            renderLargerThumbnail: true,
             showAdAttribution: false,
-            thumbnail: thumb
+            thumbnail: thumb,
+            sourceUrl: 'https://flagcdn.com'
           },
           jpegThumbnail: thumb
         },
@@ -286,7 +288,11 @@ ${F}`,
   const scelta = pickRandom(bandiere)
   const frase = pickRandom(frasi)
 
-  const sent = await sendFlagCard(conn, m.chat, scelta.url, `${H}
+  const sent = await sendFlagCard(
+    conn,
+    m.chat,
+    scelta.url,
+    `${H}
 ┃ 🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀
 ┃
 ┃ ${frase}
@@ -294,7 +300,9 @@ ${F}`,
 ┃ *🏳️ 𝐈𝐧𝐝𝐨𝐯𝐢𝐧𝐚 𝐥𝐚 𝐧𝐚𝐳𝐢𝐨𝐧𝐞*
 ┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨:* 30𝐬
 ┃ *🎯 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢:* ${MAX_TENTATIVI} 𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞
-${F}`, m)
+${F}`,
+    m
+  )
 
   global.bandieraGame[m.chat] = {
     id: sent.key.id,
