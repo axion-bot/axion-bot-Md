@@ -652,7 +652,7 @@ if (m.message?.protocolMessage?.type === 'MESSAGE_EDIT') {
                 if (chat.modoadmin && !isOwner && !isROwner && m.isGroup && !isAdmin && !user.premium) return
                 if (settings.soloCreatore && !isROwner) return
 
-                (if (plugin.dio && !isDio) {
+                if (plugin.dio && !isDio) {
                    fail('dio', m, this)
                    continue
                 }
