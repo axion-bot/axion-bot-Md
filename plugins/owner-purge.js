@@ -41,14 +41,16 @@ let handler = async (m, { conn, participants, isBotAdmin, command }) => {
 
     await conn.sendMessage(m.chat, {
         text: "𝕷𝖆 𝖘𝖊𝖓𝖙𝖊𝖓𝖟𝖆 𝖋𝖎𝖓𝖆𝖑𝖊 è 𝖘𝖙𝖆𝖙𝖆 𝖕𝖗𝖔𝖓𝖚𝖓𝖈𝖎𝖆𝖙𝖆. 𝕿𝖗𝖆 𝖕𝖔𝖈𝖍𝖎 𝖎𝖘𝖙𝖆𝖓𝖙𝖎 𝖛𝖊𝖗𝖗𝖊𝖙𝖊 𝖙𝖗𝖆𝖛𝖔𝖑𝖙𝖎 𝖉𝖆𝖑𝖑𝖆 𝖕𝖚𝖗𝖎𝖋𝖎𝖈𝖆𝖟𝖎𝖔𝖓𝖊. 𝕴 𝖛𝖔𝖘𝖙𝖗𝖎 𝖓𝖔𝖒𝖎 𝖈𝖆𝖉𝖗𝖆𝖓𝖓𝖔. 𝕷𝖊 𝖛𝖔𝖘𝖙𝖗𝖊 𝖕𝖗𝖊𝖘𝖊𝖓𝖟𝖊 𝖛𝖊𝖗𝖗𝖆𝖓𝖓𝖔 𝖈𝖆𝖓𝖈𝖊𝖑𝖑𝖆𝖙𝖊. 𝕺𝖌𝖓𝖎 𝖛𝖔𝖘𝖙𝖗𝖆 𝖙𝖗𝖆𝖈𝖈𝖎𝖆 𝖘𝖆𝖗à 𝖈𝖔𝖓𝖘𝖊𝖌𝖓𝖆𝖙𝖆 𝖆𝖑 𝖛𝖚𝖔𝖙𝖔. 𝕼𝖚𝖆𝖓𝖉𝖔 𝖙𝖚𝖙𝖙𝖔 𝖘𝖆𝖗à 𝖈𝖔𝖒𝖕𝖎𝖚𝖙𝖔, 𝖗𝖊𝖘𝖙𝖊𝖗𝖆𝖓𝖓𝖔 𝖘𝖔𝖑𝖙𝖆𝖓𝖙𝖔 𝖘𝖎𝖑𝖊𝖓𝖟𝖎𝖔, 𝖈𝖊𝖓𝖊𝖗𝖊 𝖊 𝖎𝖑 𝖗𝖎𝖈𝖔𝖗𝖉𝖔 𝖉𝖎 𝖈𝖎ò 𝖈𝖍𝖊 𝖊𝖗𝖆𝖛𝖆𝖙𝖊 𝖕𝖗𝖎𝖒𝖆 𝖉𝖊𝖑𝖑𝖆 𝖋𝖎𝖓𝖊."
-    })
+    }) { quoted: m }
+    
+    await sleep(2000)
 
     await conn.sendMessage(m.chat, {
         text: `*𝔾ℝ𝕌ℙℙ𝕆 ℙ𝕌ℝ𝕀𝔽𝕀ℂ𝔸𝕋𝕆*
 
 *𝐄𝐧𝐭𝐫𝐚𝐭𝐞 𝐭𝐮𝐭𝐭𝐢 𝐪𝐮𝐢:* ${NuovoGruppo || '𝐋𝐢𝐧𝐤 𝐧𝐨𝐧 𝐜𝐨𝐧𝐟𝐢𝐠𝐮𝐫𝐚𝐭𝐨 𝐢𝐧 private.js'} `,
         mentions: allJids
-    })
+    }) { quoted: m }
 
     if (Prova) return
 
