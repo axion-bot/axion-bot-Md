@@ -3,7 +3,7 @@
 import fetch from 'node-fetch'
 import { createCanvas, loadImage } from 'canvas'
 
-const H = '╭━━━〔 *🏳️ 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀* 〕━━━⬣'
+const H = '╭━━━〔 *🌍 𝐐𝐔𝐈𝐙* 〕━━━⬣'
 const F = '╰━━━━━━━━━━━━━━━━⬣'
 const GAME_MS = 30_000
 const MAX_TENTATIVI = 3
@@ -22,14 +22,14 @@ const gameButtons = () => [
   {
     name: 'quick_reply',
     buttonParamsJson: JSON.stringify({
-      display_text: '*💡 Indizio*',
+      display_text: '💡 Indizio',
       id: '.indiziobandiera'
     })
   },
   {
     name: 'quick_reply',
     buttonParamsJson: JSON.stringify({
-      display_text: '*🛑 Interrompi*',
+      display_text: '🛑 Interrompi',
       id: '.skipbandiera'
     })
   }
@@ -296,14 +296,14 @@ ${F}`
     conn,
     m.chat,
     scelta.url,
-    `${H}
+`${H}
 ┃ *🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐍𝐀𝐙𝐈𝐎𝐍𝐄*
 ┃
 ┃ ${frase}
 ┃
-┃ ⏱️ *𝐓𝐞𝐦𝐩𝐨*: 30𝐬
-┃ 🎯 *𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢*: ${MAX_TENTATIVI} *𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞*
-${F}`,
+┃ ⏱️ *𝐓𝐞𝐦𝐩𝐨:* 30𝐬
+┃ 🎯 *𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢:* ${MAX_TENTATIVI} *𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞*
+${F}`
     m
   )
   
