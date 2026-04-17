@@ -254,9 +254,23 @@ global.conn = makeWASocket(connectionOptions);
 global.store.bind(global.conn.ev);
 global.sendPluginErrorToChat = async function (title, err, extra = '') {
     try {
-        const jid = process.env.BOT_ERROR_CHAT;
+        const jid = String(process.env.BOT_ERROR_CHAT || '')
+            .trim()
+            .replace(/^['"]|['"]$/g, '');
 
-        if (!jid || !global.conn) return;
+        console.log('[DEBUG ERROR CHAT] jid:', jid);
+        console.log('[DEBUG ERROR CHAT] conn user:', global.conn?.user?.id);
+        console.log('[DEBUG ERROR CHAT] title:', title, '| plugin:', extra);
+
+        if (!jid) {
+            console.log('[DEBUG ERROR CHAT] BOT_ERROR_CHAT mancante o vuoto');
+            return;
+        }
+
+        if (!global.conn || !global.conn.user) {
+            console.log('[DEBUG ERROR CHAT] conn non pronta per invio');
+            return;
+        }
 
         const messageText = err?.message || String(err) || 'Errore sconosciuto';
         const stackText = String(err?.stack || err || 'Nessuno stack disponibile').slice(0, 3500);
@@ -271,7 +285,9 @@ ${extra ? `*Plugin:* ${extra}\n` : ''}*Messaggio:* ${messageText}
 ${stackText}
 \`\`\``;
 
+        console.log('[DEBUG ERROR CHAT] invio in corso...');
         await global.conn.sendMessage(jid, { text });
+        console.log('[DEBUG ERROR CHAT] inviato con successo');
     } catch (e) {
         console.error('[ERRORE] Invio errore plugin in chat fallito:', e);
     }
