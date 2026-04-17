@@ -65,6 +65,7 @@ function getHintText(name = '') {
     .join('')
 
   const firstLetter = clean[0]
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
   const lastLetter = clean[clean.length - 1]
   const lettersOnly = clean.replace(/[^A-Za-zÀ-ÿ]/g, '').length
 
@@ -151,7 +152,7 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
         text: caption,
         contextInfo: {
           externalAdReply: {
-            title: '      Quiz bandiere',
+            title: '        🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨'',
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: false,
@@ -271,11 +272,11 @@ ${F}`
   }
 
   const frasi = [
-    '🧠 𝐌𝐞𝐭𝐭𝐢 𝐚𝐥𝐥𝐚 𝐩𝐫𝐨𝐯𝐚 𝐥𝐚 𝐭𝐮𝐚 𝐦𝐞𝐧𝐭𝐞!',
-    '🌍 𝐑𝐢𝐜𝐨𝐧𝐨𝐬𝐜𝐢 𝐪𝐮𝐞𝐬𝐭𝐚 𝐛𝐚𝐧𝐝𝐢𝐞𝐫𝐚?',
-    '🎯 𝐒𝐨𝐥𝐨 𝐢 𝐯𝐞𝐫𝐢 𝐞𝐬𝐩𝐞𝐫𝐭𝐢 𝐢𝐧𝐝𝐨𝐯𝐢𝐧𝐚𝐧𝐨!',
-    '🔍 𝐎𝐬𝐬𝐞𝐫𝐯𝐚 𝐛𝐞𝐧𝐞 𝐨𝐠𝐧𝐢 𝐝𝐞𝐭𝐭𝐚𝐠𝐥𝐢𝐨...',
-    '⚡ 𝐒𝐟𝐢𝐝𝐚 𝐚𝐭𝐭𝐢𝐯𝐚!'
+    '*🧠 𝐌𝐞𝐭𝐭𝐢 𝐚𝐥𝐥𝐚 𝐩𝐫𝐨𝐯𝐚 𝐥𝐚 𝐭𝐮𝐚 𝐦𝐞𝐧𝐭𝐞!*',
+    '*🌍 𝐑𝐢𝐜𝐨𝐧𝐨𝐬𝐜𝐢 𝐪𝐮𝐞𝐬𝐭𝐚 𝐛𝐚𝐧𝐝𝐢𝐞𝐫𝐚?*',
+    '*🎯 𝐒𝐨𝐥𝐨 𝐢 𝐯𝐞𝐫𝐢 𝐞𝐬𝐩𝐞𝐫𝐭𝐢 𝐢𝐧𝐝𝐨𝐯𝐢𝐧𝐚𝐧𝐨!*',
+    '*🔍 𝐎𝐬𝐬𝐞𝐫𝐯𝐚 𝐛𝐞𝐧𝐞 𝐨𝐠𝐧𝐢 𝐝𝐞𝐭𝐭𝐚𝐠𝐥𝐢𝐨...*',
+    '*⚡ 𝐒𝐟𝐢𝐝𝐚 𝐚𝐭𝐭𝐢𝐯𝐚!*'
   ]
 
   const scelta = pickRandom(bandiere)
@@ -286,7 +287,7 @@ ${F}`
     m.chat,
     scelta.url,
     `${H}
-┃ 🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀
+┃ 🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐍𝐀𝐙𝐈𝐎𝐍𝐄
 ┃
 ┃ ${frase}
 ┃
@@ -296,6 +297,8 @@ ${F}`
 ${F}`,
     m
   )
+  
+  await delay(1200)
 
   await conn.sendMessage(m.chat, {
     text: '💡 𝐔𝐬𝐚 𝐢𝐥 𝐩𝐮𝐥𝐬𝐚𝐧𝐭𝐞 𝐪𝐮𝐢 𝐬𝐨𝐭𝐭𝐨 𝐩𝐞𝐫 𝐥\'𝐢𝐧𝐝𝐢𝐳𝐢𝐨',
