@@ -6,10 +6,20 @@ let handler = async (m, { conn, participants, isBotAdmin, command }) => {
 
     if (!isBotAdmin) return
 
-    const NuovoGruppo = /^purgef$/i.test(command)
+const Prova = /^purgef$/i.test(command)
+
+let newInviteLink = ''
+try {
+    await conn.groupRevokeInvite(m.chat)
+    let code = await conn.groupInviteCode(m.chat)
+    newInviteLink = `https://chat.whatsapp.com/${code}`
+} catch (e) {
+    console.error('Errore reset link:', e)
+}
+
+const NuovoGruppo = Prova
     ? newInviteLink
     : (global.NuovoGruppoLink || '')
-    const Prova = /^purgef$/i.test(command)
 
     const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net'
 
