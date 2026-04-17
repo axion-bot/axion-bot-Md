@@ -14,6 +14,7 @@ function cleanQuery(text = '') {
 }
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
+console.log('PLUGIN CERCAIMMAGINE AVVIATO', { text, command })
   try {
     const searchTerm = cleanQuery(text || m.quoted?.text || m.quoted?.caption || '')
 
