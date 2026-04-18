@@ -1,7 +1,4 @@
-import { performance } from 'perf_hooks';
-
 const handler = async (message, { conn, usedPrefix = '.' }) => {
-
     const userId = message.sender;
     const uptimeMs = process.uptime() * 1000;
     const uptimeStr = clockString(uptimeMs);
@@ -18,13 +15,16 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 
 ╭━━━〔 💰 sɪsᴛᴇᴍᴀ sᴏʟᴅɪ 〕━⬣
 ┃ 👛 ${usedPrefix}wallet
+┃ 🎁 ${usedPrefix}daily
 ┃ 💰 ${usedPrefix}deposita
 ┃ 🏧 ${usedPrefix}prelievo
-┃ 🏎️ ${usedPrefix}gara
-┃ 🎰 ${usedPrefix}slot
+┃ 🤝 ${usedPrefix}bonifico <reply/tag>
 ┃ 🥷 ${usedPrefix}crimine
 ┃ 😅 ${usedPrefix}elemosina
 ┃ 💼 ${usedPrefix}lavora
+┃ 🏪 ${usedPrefix}shop
+┃ 🎒 ${usedPrefix}zaino
+┃ 📤 ${usedPrefix}vendioggetto <numero>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📊 ɪɴғᴏ 〕━⬣

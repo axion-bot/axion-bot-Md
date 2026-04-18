@@ -60,7 +60,7 @@ async function inviaTopNotturna(conn, chatId, chatData, dataLabel) {
     testo += `
 
 *${medaglie[i]} ${i + 1}° 𝐏𝐎𝐒𝐓𝐎*
-*👤 @${jid.split('@')[0]}*
+👤 @${jid.split('@')[0]}
 *✉️ 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* *${formatNumber(data?.conteggio || 0)}*
 *💸 𝐏𝐫𝐞𝐦𝐢𝐨:* *+${formatNumber(premio)}€*`
   })
@@ -69,13 +69,12 @@ async function inviaTopNotturna(conn, chatId, chatData, dataLabel) {
 
 *──────────────*
 *🔥 𝐋𝐚 𝐠𝐢𝐨𝐫𝐧𝐚𝐭𝐚 è 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐭𝐚, 𝐝𝐚 𝐨𝐫𝐚 𝐬𝐢 𝐫𝐢𝐩𝐚𝐫𝐭𝐞!*
-*⏳ 𝐍𝐮𝐨𝐯𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚, 𝐧𝐮𝐨𝐯𝐚 𝐬𝐟𝐢𝐝𝐚.*
-*🌐 𝐏𝐞𝐫 𝐥𝐚 𝐬𝐭𝐨𝐫𝐢𝐜𝐚 𝐮𝐬𝐚:* *.topall*`
+*⏳ 𝐍𝐮𝐨𝐯𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚, 𝐧𝐮𝐨𝐯𝐚 𝐬𝐟𝐢𝐝𝐚.\n*`
 
   await conn.sendMessage(chatId, {
     text: testo,
     mentions: menzioni,
-    footer: '𝐏𝐫𝐞𝐦𝐢 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐢 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐢',
+    footer: '𝐏𝐫𝐞𝐦𝐢 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐢 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐢✅️',
     buttons: [
       { buttonId: `.top`, buttonText: { displayText: 'Top Oggi' }, type: 1 },
       { buttonId: `.topall`, buttonText: { displayText: 'TopAll' }, type: 1 }

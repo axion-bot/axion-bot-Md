@@ -18,11 +18,17 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 
 ╭━━━〔 🛠️ sᴛʀᴜᴍᴇɴᴛɪ 〕━⬣
 ┃ 💡 ${usedPrefix}font <numero> <messaggio>
-┃ 🔄 ${usedPrefix}converter <media>
+┃ 🔄 ${usedPrefix}converti <reply media>
 ┃ 🎛️ ${usedPrefix}audiofx <audio>
-┃ 📥${usedPrefix}downloader <link>
-┃ 🖼️${usedPrefix}toimg <sticker>
+┃ 📥 ${usedPrefix}download <link>
+┃ 🖼️ ${usedPrefix}toimg <sticker>
 ┃ 📹 ${usedPrefix}togif <sticker>
+┃ 🧠 ${usedPrefix}ia <messaggio>
+┃ ✨ ${usedPrefix}wm <messaggio>
+┃ 🗓️ ${usedPrefix}ricorda <orario>
+┃ 🔗 ${usedPrefix}link 
+┃ 📷 ${usedPrefix}linkqr
+┃ 🎶 ${usedPrefix}cur
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣

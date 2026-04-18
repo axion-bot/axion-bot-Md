@@ -1,4 +1,5 @@
-import { performance } from 'perf_hooks';
+//Menu giochi by 𝕯𝖊ⱥ𝖉𝖑𝐲 e Bonzino
+
 
 const handler = async (message, { conn, usedPrefix = '.' }) => {
 
@@ -21,37 +22,32 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🏟️ ${usedPrefix}schedina <euro>
 ┃ 🪢 ${usedPrefix}impiccato
 ┃ 🤣 ${usedPrefix}meme
-┃ 🧠 ${usedPrefix}vof (vero/falso)
+┃ 🧠 ${usedPrefix}vof <vero/falso>
 ┃ 🍣 ${usedPrefix}cibo
 ┃ 🚩 ${usedPrefix}bandiera
-┃ 🏆 ${usedPrefix}classificabandiera
+┃ 🏎️ ${usedPrefix}gara
+┃ 🎰 ${usedPrefix}slot
+┃ 🏆 ${usedPrefix}top
+┃ 🌐 ${usedPrefix}topall
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🎲 ғᴜɴ 〕━⬣
 ┃ 🔮 ${usedPrefix}random <reply/tag>
-┃ 🗓️ ${usedPrefix}ricorda <orario>
 ┃ 🔥 ${usedPrefix}flame <reply/tag>
 ┃ 💋 ${usedPrefix}bacia <reply/tag>
 ┃ 🤗 ${usedPrefix}abbraccia <reply/tag>
 ┃ 😏 ${usedPrefix}sega <reply/tag>
 ┃ 🤟 ${usedPrefix}ditalino <reply/tag>
 ┃ 🏷️ ${usedPrefix}sticker / ${usedPrefix}s
-┃ 🛑 ${usedPrefix}ia <messaggio>
-┃ ✨ ${usedPrefix}wm <messaggio>
-┃ 🎶 ${usedPrefix}cur
-┃ 🩵 ${usedPrefix}onlyfans <nome>
-┃ 💼 ${usedPrefix}curriculum
-┃ 🏬 ${usedPrefix}shop
-┃ 🎒 ${usedPrefix}zaino
-┃ 🤑 ${usedPrefix}vedioggetto <numero>
-┃ 📰 ${usedPrefix}dox
+┃ 🩵 ${usedPrefix}onlyfans <reply/tag>
+┃ 📰 ${usedPrefix}dox <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 💍 ғᴀᴍɪɢʟɪᴀ 〕━⬣
-┃ 💫 ${usedPrefix}stato
-┃ 🏠 ${usedPrefix}famiglia
-┃ 👰 ${usedPrefix}sposa
-┃ 💔 ${usedPrefix}divorzia
+┃ 💫 ${usedPrefix}stato <reply/tag>
+┃ 🏠 ${usedPrefix}famiglia <reply/tag>
+┃ 👰 ${usedPrefix}sposac <reply/tag>
+┃ 💔 ${usedPrefix}divorzia <reply/tag>
 ┃ 🤝 ${usedPrefix}amicizia <reply/tag>
 ┃ 👩 ${usedPrefix}madre <reply/tag>
 ┃ 👨 ${usedPrefix}padre <reply/tag>
