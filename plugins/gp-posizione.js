@@ -10,10 +10,12 @@ let handler = async (m, { conn }) => {
   }
 
   const chat = global.db.data.chats?.[m.chat] || {}
-  const totale = chat.classificaTotale || { utenti: {}, totali: 0 }
   const giornaliera = chat.classificaGiornaliera || { utenti: {}, totali: 0 }
+  const utentiGruppo = chat.users || {}
+  const user = global.db.data.users?.[m.sender] || {}
 
-  const classifica = Object.entries(totale.utenti || {})
+  const classifica = Object.entries(utentiGruppo)
+    .map(([jid, data]) => [jid, { conteggio: data?.messages || 0 }])
     .filter(([_, data]) => (data?.conteggio || 0) > 0)
     .sort((a, b) => (b[1]?.conteggio || 0) - (a[1]?.conteggio || 0))
 
@@ -24,11 +26,10 @@ let handler = async (m, { conn }) => {
   }
 
   const posizioneReale = posizione + 1
-  const totaleMessaggi = totale.utenti?.[m.sender]?.conteggio || 0
+  const totaleMessaggi = user.messages || 0
   const messaggiOggi = giornaliera.utenti?.[m.sender]?.conteggio || 0
 
   let medaglia = '🏅'
-
   if (posizioneReale === 1) medaglia = '🥇'
   else if (posizioneReale === 2) medaglia = '🥈'
   else if (posizioneReale === 3) medaglia = '🥉'

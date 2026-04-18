@@ -54,7 +54,7 @@ let handler = async (m, { conn }) => {
   await conn.sendMessage(m.chat, {
   text,
   mentions: [target],
-  footer: '𝐒𝐞𝐳𝐢𝐨𝐧𝐢 𝐫𝐚𝐩𝐢𝐝𝐞',
+  footer: '',
   buttons: [
     {
       buttonId: '.wallet',
