@@ -15,8 +15,8 @@ let handler = async (m, { conn }) => {
   const user = global.db.data.users[target] || {}
   const chat = global.db.data.chats?.[m.chat] || {}
 
-  const oggiCount = chat?.archivioMessaggi?.utenti?.[target]?.conteggio || 0
-  const totalMessages = Math.max(user.messages || 0, oggiCount)
+  const oggiCount = chat?.classificaGiornaliera?.utenti?.[target]?.conteggio || 0
+  const totalMessages = user.messages || 0
 
   const nome = await conn.getName(target)
   const monete = user.euro || 0

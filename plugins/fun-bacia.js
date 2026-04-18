@@ -1,29 +1,24 @@
- // plugins bacia by Bonzino
+// plugins bacia by Bonzino
 
-const S = v => String(v || '')
-const tag = (jid = '') => '@' + S(jid).split('@')[0].split(':')[0]
+const tag = (jid = '') => '@' + String(jid).split('@')[0].split(':')[0]
 
-function boldUnicode(s = '') {
-  let o = ''
-  for (const ch of s) {
-    const c = ch.codePointAt(0)
-    if (c >= 0x41 && c <= 0x5a) o += String.fromCodePoint(0x1D400 + (c - 0x41))
-    else if (c >= 0x61 && c <= 0x7a) o += String.fromCodePoint(0x1D41A + (c - 0x61))
-    else if (c >= 0x30 && c <= 0x39) o += String.fromCodePoint(0x1D7CE + (c - 0x30))
-    else o += ch
+function buildContextMsg(title) {
+  return {
+    key: {
+      participants: '0@s.whatsapp.net',
+      fromMe: false,
+      id: 'CTX'
+    },
+    message: {
+      locationMessage: {
+        name: title
+      }
+    },
+    participant: '0@s.whatsapp.net'
   }
-  return o
 }
 
-const buildContextMsg = title => ({
-  key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'CTX' },
-  message: {
-    locationMessage: { name: boldUnicode(title) }
-  },
-  participant: '0@s.whatsapp.net'
-})
-
-function resolveTarget(m) {
+function resolveTarget(m, text = '') {
   const ctx = m.message?.extendedTextMessage?.contextInfo || {}
 
   if (Array.isArray(m.mentionedJid) && m.mentionedJid.length) return m.mentionedJid[0]
@@ -33,55 +28,61 @@ function resolveTarget(m) {
   if (m.quoted?.participant) return m.quoted.participant
   if (ctx.participant) return ctx.participant
 
+  const numero = String(text || '').replace(/[^\d]/g, '')
+  if (numero.length >= 5) return `${numero}@s.whatsapp.net`
+
   return null
 }
 
-let handler = async (m, { conn }) => {
+let handler = async (m, { conn, text, usedPrefix, command }) => {
   const chat = m.chat || m.key?.remoteJid
   if (!chat) return
 
-  const sender = S(
+  const sender = String(
     m.sender ||
     m.key?.participant ||
     m.participant ||
     (m.key?.fromMe ? conn?.user?.id : '')
   )
 
-  const target = resolveTarget(m)
+  const target = resolveTarget(m, text)
+  const q = buildContextMsg('*💋 𝐁𝐀𝐂𝐈𝐎*')
 
   if (!target) {
-    const q = buildContextMsg('*bacio*')
-    await conn.sendMessage(chat, {
-      text: `${boldUnicode('*⚠️ Devi menzionare qualcuno o rispondere a un messaggio per baciarlo 💋*')}\n\n${boldUnicode('Esempio:')}\n\`.bacia @utente\``,
-      contextInfo: {
-        forwardingScore: 999,
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid: '120363424041538498@newsletter',
-          newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-          serverMessageId: 1
-        }
-      }
+    return conn.sendMessage(chat, {
+      text: `*⚠️ 𝐃𝐞𝐯𝐢 𝐦𝐞𝐧𝐳𝐢𝐨𝐧𝐚𝐫𝐞 𝐪𝐮𝐚𝐥𝐜𝐮𝐧𝐨 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚 𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐩𝐞𝐫 𝐛𝐚𝐜𝐢𝐚𝐫𝐥𝐨 💋*\n\n*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*\n*${usedPrefix}${command} @utente*`,
+      contextInfo: global.rcanal?.contextInfo || {}
     }, { quoted: q })
-    return
   }
 
-  const msg = `💋 ${tag(sender)} ${boldUnicode('*ha baciato*')} ${tag(target)} 😘`
-  const q = buildContextMsg('*bacio*')
+  if (target === sender) {
+    return conn.sendMessage(chat, {
+      text: `*💋 ${tag(sender)} 𝐬𝐢 è 𝐝𝐚𝐭𝐨 𝐮𝐧 𝐛𝐚𝐜𝐢𝐨 𝐝𝐚 𝐬𝐨𝐥𝐨 😳*`,
+      contextInfo: {
+        ...(global.rcanal?.contextInfo || {}),
+        mentionedJid: [sender]
+      },
+      mentions: [sender]
+    }, { quoted: q })
+  }
+
+  const senderNumero = String(sender).split('@')[0].split(':')[0]
 
   await conn.sendMessage(chat, {
-    text: msg,
+    text: `*💋 ${tag(sender)} 𝐡𝐚 𝐛𝐚𝐜𝐢𝐚𝐭𝐨 ${tag(target)} 😘*`,
     contextInfo: {
-      forwardingScore: 999,
-      isForwarded: true,
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363424041538498@newsletter',
-        newsletterName: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-        serverMessageId: 1
-      },
+      ...(global.rcanal?.contextInfo || {}),
       mentionedJid: [sender, target]
     },
-    mentions: [sender, target]
+    mentions: [sender, target],
+    buttons: [
+      {
+        buttonId: `${usedPrefix}${command} ${senderNumero}`,
+        buttonText: { displayText: '💞 Ricambia il bacio' },
+        type: 1
+      }
+    ],
+    headerType: 1
   }, { quoted: q })
 }
 
