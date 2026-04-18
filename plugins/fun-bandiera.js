@@ -162,7 +162,7 @@ async function sendFlagCard(conn, chat, url, caption, quoted) {
         text: caption,
         contextInfo: {
           externalAdReply: {
-            title: '      🌍 𝐐𝐮𝐢𝐳 𝐠𝐞𝐨𝐠𝐫𝐚𝐟𝐢𝐜𝐨',
+            title: "\u200B'',
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: false,
