@@ -45,7 +45,7 @@ let handler = async (m, { conn }) => {
 
   await conn.sendMessage(m.chat, {
     text,
-    footer: '𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐭𝐨𝐭𝐚𝐥𝐞 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨',
+    footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
     buttons: [
       {
         buttonId: '.top',

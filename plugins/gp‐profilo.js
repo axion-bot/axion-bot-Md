@@ -47,7 +47,7 @@ let handler = async (m, { conn }) => {
 *🧠 𝐋𝐢𝐯𝐞𝐥𝐥𝐨:* ${lvl.level} (${lvl.icon} ${lvl.name})
 *📈 𝐏𝐫𝐨𝐠𝐫𝐞𝐬𝐬𝐨:* ${lvl.percent}%
 *⬆️ 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨:* ${lvl.isMax ? '*𝐌𝐀𝐗*' : `${lvl.nextName} (${lvl.remaining} msg)`}
-*💸 Denaro:* ${monete}
+*💸 𝐃𝐞𝐧𝐚𝐫𝐨:* ${monete}
 *🎁 𝐒𝐭𝐫𝐞𝐚𝐤 𝐃𝐚𝐢𝐥𝐲:* ${dailyStreak} 𝐠𝐢𝐨𝐫𝐧𝐢
 *📸 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦:* ${instagram}`
 
