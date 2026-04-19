@@ -1,7 +1,12 @@
 let tassa = 0.02
 
+function formatNumber(num) {
+  return new Intl.NumberFormat('it-IT').format(num || 0)
+}
+
 let handler = async (m, { text, usedPrefix, command }) => {
   let who
+  
 
   if (m.isGroup) {
     if (m.mentionedJid?.[0]) {
@@ -16,31 +21,35 @@ let handler = async (m, { text, usedPrefix, command }) => {
   if (!who) {
     return m.reply(
 `╭━━━━━━━🏦━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━🏦━━━━━━━╯
 
-🚩 𝐃𝐞𝐯𝐢 𝐦𝐞𝐧𝐳𝐢𝐨𝐧𝐚𝐫𝐞 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞
+*🚩 𝐃𝐞𝐯𝐢 𝐦𝐞𝐧𝐳𝐢𝐨𝐧𝐚𝐫𝐞 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞*
 
-📌 𝐄𝐬𝐞𝐦𝐩𝐢:
-${usedPrefix + command} @utente 100
-${usedPrefix + command} 100`
+*📌 𝐄𝐬𝐞𝐦𝐩𝐢:*
+*${usedPrefix + command} @utente 100*
+*${usedPrefix + command} 100*`
     )
   }
 
   if (who === m.sender) {
-    return m.reply(`╭━━━━━━━⚠️━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+    return m.reply(
+`╭━━━━━━━⚠️━━━━━━━╮
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━⚠️━━━━━━━╯
 
-🚫 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐢𝐧𝐯𝐢𝐚𝐫𝐞 𝐝𝐞𝐧𝐚𝐫𝐨 𝐚 𝐭𝐞 𝐬𝐭𝐞𝐬𝐬𝐨`)
+*🚫 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐢𝐧𝐯𝐢𝐚𝐫𝐞 𝐝𝐞𝐧𝐚𝐫𝐨 𝐚 𝐭𝐞 𝐬𝐭𝐞𝐬𝐬𝐨*`
+    )
   }
 
   if (!text) {
-    return m.reply(`╭━━━━━━━💸━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+    return m.reply(
+`╭━━━━━━━💸━━━━━━━╮
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━💸━━━━━━━╯
 
-🚩 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐥𝐚 𝐪𝐮𝐚𝐧𝐭𝐢𝐭à 𝐝𝐚 𝐭𝐫𝐚𝐬𝐟𝐞𝐫𝐢𝐫𝐞`)
+*🚩 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐥𝐚 𝐪𝐮𝐚𝐧𝐭𝐢𝐭à 𝐝𝐚 𝐭𝐫𝐚𝐬𝐟𝐞𝐫𝐢𝐫𝐞*`
+    )
   }
 
   let txt = text
@@ -49,20 +58,24 @@ ${usedPrefix + command} 100`
   }
 
   if (isNaN(txt)) {
-    return m.reply(`╭━━━━━━━⚠️━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+    return m.reply(
+`╭━━━━━━━⚠️━━━━━━━╮
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━⚠️━━━━━━━╯
 
-🔢 𝐒𝐜𝐫𝐢𝐯𝐢 𝐬𝐨𝐥𝐨 𝐧𝐮𝐦𝐞𝐫𝐢`)
+*🔢 𝐒𝐜𝐫𝐢𝐯𝐢 𝐬𝐨𝐥𝐨 𝐧𝐮𝐦𝐞𝐫𝐢*`
+    )
   }
 
   let denaro = parseInt(txt)
   if (denaro < 1) {
-    return m.reply(`╭━━━━━━━💸━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+    return m.reply(
+`╭━━━━━━━💸━━━━━━━╮
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━💸━━━━━━━╯
 
-🚩 𝐈𝐥 𝐦𝐢𝐧𝐢𝐦𝐨 𝐭𝐫𝐚𝐬𝐟𝐞𝐫𝐢𝐛𝐢𝐥𝐞 è 𝟏`)
+*🚩 𝐈𝐥 𝐦𝐢𝐧𝐢𝐦𝐨 𝐭𝐫𝐚𝐬𝐟𝐞𝐫𝐢𝐛𝐢𝐥𝐞 è 𝟏*`
+    )
   }
 
   let users = global.db.data.users
@@ -77,11 +90,13 @@ ${usedPrefix + command} 100`
   let costoTotale = denaro + tassaImporto
 
   if (costoTotale > users[m.sender].euro) {
-    return m.reply(`╭━━━━━━━❌━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦
+    return m.reply(
+`╭━━━━━━━❌━━━━━━━╮
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 ✦*
 ╰━━━━━━━❌━━━━━━━╯
 
-💸 𝐃𝐞𝐧𝐚𝐫𝐨 𝐢𝐧𝐬𝐮𝐟𝐟𝐢𝐜𝐢𝐞𝐧𝐭𝐞`)
+*💸 𝐃𝐞𝐧𝐚𝐫𝐨 𝐢𝐧𝐬𝐮𝐟𝐟𝐢𝐜𝐢𝐞𝐧𝐭𝐞*`
+    )
   }
 
   users[m.sender].euro -= costoTotale
@@ -89,13 +104,13 @@ ${usedPrefix + command} 100`
 
   await m.reply(
 `╭━━━━━━━🏦━━━━━━━╮
-✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 𝐄𝐒𝐄𝐆𝐔𝐈𝐓𝐎 ✦
+*✦ 𝐁𝐎𝐍𝐈𝐅𝐈𝐂𝐎 𝐄𝐒𝐄𝐆𝐔𝐈𝐓𝐎 ✦*
 ╰━━━━━━━🏦━━━━━━━╯
 
-👤 𝐃𝐞𝐬𝐭𝐢𝐧𝐚𝐭𝐚𝐫𝐢𝐨: @${who.split('@')[0]}
-💸 𝐈𝐧𝐯𝐢𝐚𝐭𝐢: ${formatNumber(denaro)}
-🧾 𝐓𝐚𝐬𝐬𝐚 (2%): ${formatNumber(tassaImporto)}
-📉 𝐓𝐨𝐭𝐚𝐥𝐞 𝐬𝐜𝐚𝐥𝐚𝐭𝐨: ${formatNumber(costoTotale)}`,
+*👤 𝐃𝐞𝐬𝐭𝐢𝐧𝐚𝐭𝐚𝐫𝐢𝐨:* *@${who.split('@')[0]}*
+*💸 𝐈𝐧𝐯𝐢𝐚𝐭𝐢:* *${formatNumber(denaro)}*
+*🧾 𝐓𝐚𝐬𝐬𝐚 (2%):* *${formatNumber(tassaImporto)}*
+*📉 𝐓𝐨𝐭𝐚𝐥𝐞 𝐬𝐜𝐚𝐥𝐚𝐭𝐨:* *${formatNumber(costoTotale)}*`,
     null,
     { mentions: [who] }
   )
@@ -109,6 +124,3 @@ handler.command = /^(bonifico|dona)$/i
 
 export default handler
 
-function formatNumber(num) {
-  return new Intl.NumberFormat('it-IT').format(num)
-}
