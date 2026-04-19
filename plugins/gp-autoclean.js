@@ -111,7 +111,7 @@ async function announceCleanup(conn, summary) {
 ┃ *𝐒𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐢 𝐞𝐥𝐢𝐦𝐢𝐧𝐚𝐭𝐢 ${summary.tempRemoved} 𝐟𝐢𝐥𝐞 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐧𝐞𝐢 𝐜𝐨𝐧 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐨✅️*
 ╰━━━━━━━━━━━━━━━━━━━━⬣
 
->  𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+>  *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
       })
     } catch (e) {
