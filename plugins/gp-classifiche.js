@@ -40,9 +40,9 @@ async function inviaTopNotturna(conn, chatId, chatData, dataLabel) {
   const medaglie = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
   const menzioni = []
 
-  let testo = `*╭━━━━━━━🌙━━━━━━━╮*
+  let testo = `╭━━━━━━━🌙━━━━━━━╮
 *✦ 𝐓𝐎𝐏 𝟏𝟎 𝐆𝐈𝐎𝐑𝐍𝐀𝐋𝐈𝐄𝐑𝐀 ✦*
-*╰━━━━━━━🌙━━━━━━━╯*
+╰━━━━━━━🌙━━━━━━━╯
 
 *📅 𝐆𝐢𝐨𝐫𝐧𝐨:* *${dataLabel}*
 *📊 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* *${formatNumber(chatData.classificaGiornaliera?.totali || 0)}*
@@ -59,9 +59,7 @@ async function inviaTopNotturna(conn, chatId, chatData, dataLabel) {
 
     testo += `
 
-*${medaglie[i]} ${i + 1}° 𝐏𝐎𝐒𝐓𝐎*
-👤 @${jid.split('@')[0]}
-*✉️ 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* *${formatNumber(data?.conteggio || 0)}*
+*${medaglie[i]} ${i + 1}°* *@${jid.split('@')[0]}* • *${formatNumber(data?.conteggio || 0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*
 *💸 𝐏𝐫𝐞𝐦𝐢𝐨:* *+${formatNumber(premio)}€*`
   })
 
@@ -69,7 +67,7 @@ async function inviaTopNotturna(conn, chatId, chatData, dataLabel) {
 
 *──────────────*
 *🔥 𝐋𝐚 𝐠𝐢𝐨𝐫𝐧𝐚𝐭𝐚 è 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐭𝐚, 𝐝𝐚 𝐨𝐫𝐚 𝐬𝐢 𝐫𝐢𝐩𝐚𝐫𝐭𝐞!*
-*⏳ 𝐍𝐮𝐨𝐯𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚, 𝐧𝐮𝐨𝐯𝐚 𝐬𝐟𝐢𝐝𝐚.\n*`
+*⏳ 𝐍𝐮𝐨𝐯𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚, 𝐧𝐮𝐨𝐯𝐚 𝐬𝐟𝐢𝐝𝐚.*`
 
   await conn.sendMessage(chatId, {
     text: testo,
@@ -159,9 +157,9 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
 
   if (command === 'resettp') {
     if (!isAdmin && !isOwner && !m.fromMe) {
-      return m.reply(`*╭━━━━━━━🔒━━━━━━━╮*
+      return m.reply(`╭━━━━━━━🔒━━━━━━━╮
 *✦ 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎 ✦*
-*╰━━━━━━━🔒━━━━━━━╯*
+╰━━━━━━━🔒━━━━━━━╯
 
 *❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐫𝐞 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚*`)
     }
@@ -172,9 +170,9 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
       ultimoReset: oggi
     }
 
-    return m.reply(`*╭━━━━━━━🔄━━━━━━━╮*
+    return m.reply(`╭━━━━━━━🔄━━━━━━━╮
 *✦ 𝐑𝐄𝐒𝐄𝐓 ✦*
-*╰━━━━━━━🔄━━━━━━━╯*
+╰━━━━━━━🔄━━━━━━━╯
 
 *✅ 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐚 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐭𝐚*`)
   }
@@ -201,17 +199,17 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
       .reduce((acc, u) => acc + (u.messages || 0), 0)
 
     if (!classifica.length) {
-      return m.reply(`*╭━━━━━━━📊━━━━━━━╮*
+      return m.reply(`╭━━━━━━━📊━━━━━━━╮
 *✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦*
-*╰━━━━━━━📊━━━━━━━╯*
+╰━━━━━━━📊━━━━━━━╯
 
 *❌ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨*`)
     }
   } else {
     if (!chat.classificaGiornaliera || chat.classificaGiornaliera.totali === 0) {
-      return m.reply(`*╭━━━━━━━📊━━━━━━━╮*
+      return m.reply(`╭━━━━━━━📊━━━━━━━╮
 *✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦*
-*╰━━━━━━━📊━━━━━━━╯*
+╰━━━━━━━📊━━━━━━━╯
 
 *⏳ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐨𝐠𝐠𝐢*`)
     }
@@ -230,9 +228,9 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
     ? '*🌐 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐆𝐋𝐎𝐁𝐀𝐋𝐄*'
     : '*⏳ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐎𝐆𝐆𝐈*'
 
-  let testo = `*╭━━━━━━━📊━━━━━━━╮*
+  let testo = `╭━━━━━━━📊━━━━━━━╮
 *✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦*
-*╰━━━━━━━📊━━━━━━━╯*
+╰━━━━━━━📊━━━━━━━╯
 
 ${titolo}
 
@@ -248,9 +246,7 @@ ${titolo}
 
     testo += `
 
-*${medaglia} ${posizione}°*
-*@${jid.split('@')[0]}*
-*𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* *${formatNumber(data.conteggio || 0)}*`
+*${medaglia} ${posizione}°* *@${jid.split('@')[0]}* • *${formatNumber(data.conteggio || 0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*`
   })
 
   testo += `

@@ -68,19 +68,16 @@ async function controllaRicompensaMessaggi(m, conn) {
     user.euro += totale
     user.messageRewardIndex += 1
 
-    const prossimo = getMessageRewardData(user)
-
     await conn.sendMessage(m.chat, {
       text:
-`*🎉 @${m.sender.split('@')[0]} 𝐇𝐀𝐈 𝐒𝐂𝐀𝐋𝐀𝐓𝐎 𝐔𝐍 𝐍𝐔𝐎𝐕𝐎 𝐓𝐑𝐀𝐆𝐔𝐀𝐑𝐃𝐎!*
-
-*📝 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐢:* *${formatNumber(traguardo)}*
-*💰 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐛𝐚𝐬𝐞:* *${formatNumber(premioBase)}€*
-${evento}: *+${formatNumber(bonus)}€*
-*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐨𝐭𝐭𝐞𝐧𝐮𝐭𝐨:* *${formatNumber(totale)}€*
-
-*🎯 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐭𝐫𝐚𝐠𝐮𝐚𝐫𝐝𝐨:* *${formatNumber(prossimo.traguardo)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*
-*💎 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐩𝐫𝐞𝐦𝐢𝐨 𝐛𝐚𝐬𝐞:* *${formatNumber(prossimo.premioBase)}€*`,
+`╭━━━〔 🏆 𝐍𝐔𝐎𝐕𝐎 𝐎𝐁𝐈𝐄𝐓𝐓𝐈𝐕𝐎 𝐑𝐀𝐆𝐆𝐈𝐔𝐍𝐓𝐎 〕━━━⬣
+┃ *📝 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐢:* *${formatNumber(traguardo)}*
+┃ *💰 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐛𝐚𝐬𝐞:* *${formatNumber(premioBase)}€*
+┃ ${evento}: *+${formatNumber(bonus)}€*
+┃ *🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐨𝐭𝐭𝐞𝐧𝐮𝐭𝐨:* *${formatNumber(totale)}€*
+┃
+┃ *🚀 𝐂𝐨𝐧𝐭𝐢𝐧𝐮𝐚 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞 𝐩𝐞𝐫 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐫𝐞 𝐫𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐞 𝐬𝐞𝐦𝐩𝐫𝐞 𝐩𝐢ù 𝐚𝐥𝐭𝐞!*
+╰━━━━━━━━━━━━━━━━━━━━⬣`,
       mentions: [m.sender]
     }, { quoted: m })
   } catch (e) {
@@ -134,19 +131,19 @@ let handler = async (m, { conn }) => {
   const { traguardo, premioBase } = getMessageRewardData(user)
 
   return m.reply(
-`*🎁 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐚 𝐫𝐢𝐭𝐢𝐫𝐚𝐭𝐚!*
+`╭━━━〔 🎁 𝐑𝐈𝐂𝐎𝐌𝐏𝐄𝐍𝐒𝐀 𝐆𝐈𝐎𝐑𝐍𝐀𝐋𝐈𝐄𝐑𝐀 〕━━━⬣
+┃ *💰 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐛𝐚𝐬𝐞:* *${formatNumber(base)}€*
+┃ *🔥 𝐁𝐨𝐧𝐮𝐬 𝐬𝐭𝐫𝐞𝐚𝐤:* *+${formatNumber(bonus)}€*
+┃ *🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐨𝐭𝐭𝐞𝐧𝐮𝐭𝐨:* *${formatNumber(reward)}€*
+┃
+┃ *🔥 𝐂𝐨𝐧𝐭𝐢𝐧𝐮𝐚 𝐥𝐚 𝐬𝐭𝐫𝐞𝐚𝐤 𝐩𝐞𝐫 𝐨𝐭𝐭𝐞𝐧𝐞𝐫𝐞 𝐛𝐨𝐧𝐮𝐬 𝐬𝐞𝐦𝐩𝐫𝐞 𝐩𝐢ù 𝐚𝐥𝐭𝐢!*
+╰━━━━━━━━━━━━━━━━━━━━⬣
 
-*💰 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐛𝐚𝐬𝐞:* *${formatNumber(base)}€*
-*🔥 𝐁𝐨𝐧𝐮𝐬 𝐬𝐭𝐫𝐞𝐚𝐤:* *+${formatNumber(bonus)}€*
-*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐨𝐭𝐭𝐞𝐧𝐮𝐭𝐨:* *${formatNumber(reward)}€*
-
-*📅 𝐒𝐭𝐫𝐞𝐚𝐤 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:* *${formatNumber(user.dailyStreak)}*
-*👑 𝐌𝐢𝐠𝐥𝐢𝐨𝐫 𝐬𝐭𝐫𝐞𝐚𝐤:* *${formatNumber(user.maxDailyStreak)}*
-*💼 𝐒𝐚𝐥𝐝𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:* *${formatNumber(user.euro)}€*
-
-*📨 𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* *${formatNumber(user.totalMessages)}*
-*🎯 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐭𝐫𝐚𝐠𝐮𝐚𝐫𝐝𝐨 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢:* *${formatNumber(traguardo)}*
-*💎 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐩𝐫𝐞𝐦𝐢𝐨 𝐛𝐚𝐬𝐞:* *${formatNumber(premioBase)}€*`)
+╭━━━〔 📊 𝐒𝐓𝐀𝐓𝐈𝐒𝐓𝐈𝐂𝐇𝐄 〕━━━⬣
+┃ *📅 𝐒𝐭𝐫𝐞𝐚𝐤 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:* *${formatNumber(user.dailyStreak)}*
+┃ *👑 𝐌𝐢𝐠𝐥𝐢𝐨𝐫 𝐬𝐭𝐫𝐞𝐚𝐤:* *${formatNumber(user.maxDailyStreak)}*
+┃ *💼 𝐒𝐚𝐥𝐝𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:* *${formatNumber(user.euro)}€*
+╰━━━━━━━━━━━━━━━━━━━━⬣`)
 }
 
 handler.before = async function (m, { conn }) {
