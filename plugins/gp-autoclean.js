@@ -107,11 +107,12 @@ async function announceCleanup(conn, summary) {
     try {
       await conn.sendMessage(chatId, {
         text:
-`╭━━━〔 🧹 𝐏𝐔𝐋𝐈𝐙𝐈𝐀 𝐀𝐔𝐓𝐎𝐌𝐀𝐓𝐈𝐂𝐀 〕━━━⬣
+`╭━━━〔 *🧹 𝐀𝐔𝐓𝐎𝐂𝐋𝐄𝐀𝐍* 〕━━━⬣
 ┃ *𝐒𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐢 𝐞𝐥𝐢𝐦𝐢𝐧𝐚𝐭𝐢 ${summary.tempRemoved} 𝐟𝐢𝐥𝐞 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐧𝐞𝐢 𝐜𝐨𝐧 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐨✅️*
 ╰━━━━━━━━━━━━━━━━━━━━⬣
 
-> △𝐗𝐈𝐎𝐍 𝐁𝐎𝐓`
+>  𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+
       })
     } catch (e) {
       console.error('cleanup announce error:', chatId, e)
