@@ -1,35 +1,33 @@
-//versione con m.reply con variabili funzionanti e il who  (se non taggavi nessuno provava a usare il testo puro come ID
-
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-    // 1. Estrazione bersaglio robusta
-    let rawTarget = m.mentionedJid?.[0] || (m.quoted ? m.quoted.sender : null);
-    if (!rawTarget && text) rawTarget = text;
+    // 1. Estrazione bersaglio
+    let who = m.mentionedJid?.[0] || (m.quoted ? m.quoted.sender : null);
+    
+    // Se non c'è tag/quote, pulisce il testo per vedere se è un numero
+    if (!who && text) {
+        const cleanNumber = text.replace(/[^0-9]/g, '');
+        if (cleanNumber.length >= 10) who = cleanNumber + '@s.whatsapp.net';
+    }
 
-    if (!rawTarget) {
+    if (!who) {
         return conn.sendMessage(m.chat, { 
-            text: `⚠️ Tagga o scrivi il numero della persona da segnalare.\n\nEsempio: ${usedPrefix}${command} @utente` 
+            text: `⚠️ Tagga un utente, rispondi a un messaggio o scrivi il numero.\n\nEsempio: ${usedPrefix}${command} @utente` 
         }, { quoted: m });
     }
 
-    // Estrae solo i numeri per formare un JID valido
-    const targetNumber = rawTarget.replace(/[^0-9]/g, '');
-    if (targetNumber.length < 10) {
-        return conn.sendMessage(m.chat, { text: '❌ Numero o tag non valido.' }, { quoted: m });
-    }
-    const who = targetNumber + '@s.whatsapp.net';
+    const targetNumber = who.split('@')[0];
 
     if (who === conn.user.jid) {
-        return conn.sendMessage(m.chat, { text: '❌ Non posso segnalare me stesso.' }, { quoted: m });
+        return m.reply('❌ Non posso segnalare me stesso.');
     }
 
     await conn.sendMessage(m.chat, { 
-        text: `🚀 Avvio segnalazione forzata contro @${targetNumber}...`, 
+        text: `🚀 Avvio procedura disciplinare contro @${targetNumber}...`, 
         mentions: [who] 
     }, { quoted: m });
 
     try {
         for (let i = 0; i < 5; i++) {
-            // Tentativo di Segnalazione
+            // 1. Segnalazione (Report) - Struttura corretta Baileys
             try {
                 await conn.query({
                     tag: 'iq',
@@ -40,31 +38,40 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
                     },
                     content: [{
                         tag: 'report',
-                        attrs: { jid: who }
+                        attrs: { 
+                            jid: who,
+                            spam: 'true' // Specifica il motivo se necessario
+                        }
                     }]
                 });
-            } catch (e) {
-                console.log("Tentativo report fallito, procedo col blocco...");
+            } catch (err) {
+                console.log(`[Report ${i+1}] Fallito o non supportato.`);
             }
 
-            // Blocco e Sblocco ripetuto
-            await conn.updateBlockStatus(who, 'block');
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Pausa 1 sec
-            await conn.updateBlockStatus(who, 'unblock');
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Pausa 1 sec
+            // 2. Ciclo Blocco/Sblocco (con controllo errore 400)
+            try {
+                await conn.updateBlockStatus(who, 'block');
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Aumentato a 1.5s per evitare 400 Bad Request
+                await conn.updateBlockStatus(who, 'unblock');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            } catch (err) {
+                console.log(`[BlockCycle ${i+1}] Errore: ${err.message}`);
+                // Se riceviamo 400, WhatsApp ci sta dicendo di rallentare
+                if (err.message.includes('400')) break; 
+            }
         }
 
         // Blocco definitivo finale
         await conn.updateBlockStatus(who, 'block');
 
         await conn.sendMessage(m.chat, { 
-            text: `✅ Operazione completata. L'utente @${targetNumber} è stato segnalato ripetutamente e bloccato definitivamente dal bot.`, 
+            text: `✅ Operazione completata.\n\nL'utente @${targetNumber} è stato segnalato e rimosso dai contatti attivi.`, 
             mentions: [who] 
         }, { quoted: m });
 
     } catch (e) {
         console.error(e);
-        await conn.sendMessage(m.chat, { text: '❌ Errore durante l\'operazione. È probabile che WhatsApp abbia limitato le azioni del bot.' }, { quoted: m });
+        await m.reply('❌ Errore critico durante l\'esecuzione. Il server potrebbe aver limitato temporaneamente l\'account del bot.');
     }
 }
 
