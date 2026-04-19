@@ -68,6 +68,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['pfp @utente / reply / numero']
 handler.tags = ['tools']
+handler.admin = true
 handler.command = ['pfp', 'fotoprofilo', 'pic']
 
 export default handler
