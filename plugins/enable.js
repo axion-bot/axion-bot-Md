@@ -155,7 +155,12 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       requireAdmin()
       chat.modoadmin = isEnable
       thumbFeature = 'modoadmin'
-      result = box('𝐌𝐎𝐃𝐎 𝐀𝐃𝐌𝐈𝐍', `${isEnable ? '✅' : '❌'} 𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭`)
+      result = box(
+        '𝐌𝐎𝐃𝐎 𝐀𝐃𝐌𝐈𝐍',
+        isEnable
+          ? '✅ 𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢'
+          : '❌ 𝐎𝐫𝐚 𝐭𝐮𝐭𝐭𝐢 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢'
+      )
       break
 
     case 'benvenuto':
@@ -204,31 +209,31 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 
   const thumbnail = await getThumbBuffer(thumbFeature)
 
-try {
-  await conn.sendMessage(m.chat, {
-    text: result,
-    contextInfo: {
-      forwardingScore: 999,
-      isForwarded: true,
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterJid || '120363424041538498@newsletter',
-        newsletterName: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterName || '𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓',
-        serverMessageId: -1
-      },
-      externalAdReply: {
-        title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
-        body: `Utenza: ${senderName}`,
-        ...(thumbnail ? { thumbnail } : {}),
-        mediaType: 1,
-        renderLargerThumbnail: false,
-        showAdAttribution: false
+  try {
+    await conn.sendMessage(m.chat, {
+      text: result,
+      contextInfo: {
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterJid || '120363424041538498@newsletter',
+          newsletterName: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterName || '𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓',
+          serverMessageId: -1
+        },
+        externalAdReply: {
+          title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
+          body: `Utenza: ${senderName}`,
+          ...(thumbnail ? { thumbnail } : {}),
+          mediaType: 1,
+          renderLargerThumbnail: false,
+          showAdAttribution: false
+        }
       }
-    }
-  }, { quoted: m })
-} catch (e) {
-  console.error('Errore invio preview funzione:', e)
-  return m.reply(result)
-}
+    }, { quoted: m })
+  } catch (e) {
+    console.error('Errore invio preview funzione:', e)
+    return m.reply(result)
+  }
 }
 
 handler.help = ['attiva <feature>', 'disattiva <feature>']
