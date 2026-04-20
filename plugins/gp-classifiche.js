@@ -87,11 +87,11 @@ async function processaTopNotturnaSeNecessaria(conn, currentChatId) {
   const minuto = now.getMinutes()
 
   if (ora !== 0 || minuto > 10) return
-
+ 
   const dataOggi = now.toDateString()
   const ieri = new Date(now)
   ieri.setDate(ieri.getDate() - 1)
-  const dataIeri = ieri.toDateString()
+  const dataIeri = ieri.toLocaleDateString('it-IT')
 
   const chats = global.db.data.chats || {}
   const keys = Object.keys(chats).filter(id => id.endsWith('@g.us'))
