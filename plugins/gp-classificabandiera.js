@@ -86,9 +86,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
   const medaglie = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
   const menzioni = classifica.map(user => user.jid)
+
   const sottotitolo = ordinaPerGiocate
-    ? '*📊 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐨𝐫𝐝𝐢𝐧𝐚𝐭𝐚 𝐩𝐞𝐫 𝐠𝐢𝐨𝐜𝐚𝐭𝐞*'
-    : '*🏆 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐨𝐫𝐝𝐢𝐧𝐚𝐭𝐚 𝐩𝐞𝐫 𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞*'
+    ? '*📊 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐩𝐞𝐫 𝐠𝐢𝐨𝐜𝐚𝐭𝐞*'
+    : '*🏆 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐩𝐞𝐫 𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞*'
 
   let testo = `╭━━━━━━━📊━━━━━━━╮
 *✦ 𝐓𝐎𝐏 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐀 ✦*
@@ -106,15 +107,11 @@ ${sottotitolo}
     if (ordinaPerGiocate) {
       testo += `
 
-*${medaglia} ${i + 1}°* *@${tag}*
-*🎮 𝐆𝐢𝐨𝐜𝐚𝐭𝐞:* ${formatNumber(user.giocate)} *(𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞: ${formatNumber(user.vittorie)})*
-*📈 𝐖𝐢𝐧𝐫𝐚𝐭𝐞:* ${percent}%`
+*${medaglia} ${i + 1}°* *@${tag}* — *🎮 ${formatNumber(user.giocate)}* *(𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞: ${formatNumber(user.vittorie)})* • *📈 ${percent}%*`
     } else {
       testo += `
 
-*${medaglia} ${i + 1}°* *@${tag}*
-*🏆 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞:* ${formatNumber(user.vittorie)} *(𝐠𝐢𝐨𝐜𝐚𝐭𝐞: ${formatNumber(user.giocate)})*
-*📈 𝐖𝐢𝐧𝐫𝐚𝐭𝐞:* ${percent}%`
+*${medaglia} ${i + 1}°* *@${tag}* — *🏆 ${formatNumber(user.vittorie)}* *(𝐠𝐢𝐨𝐜𝐚𝐭𝐞: ${formatNumber(user.giocate)})* • *📈 ${percent}%*`
     }
   })
 
@@ -128,8 +125,16 @@ ${sottotitolo}
     text: testo,
     mentions: menzioni,
     buttons: [
-      { buttonId: `${usedPrefix}topbandiera`, buttonText: { displayText: '🏆 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞' }, type: 1 },
-      { buttonId: `${usedPrefix}topbandieragiocate`, buttonText: { displayText: '🎮 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐆𝐢𝐨𝐜𝐚𝐭𝐞' }, type: 1 }
+      {
+        buttonId: `${usedPrefix}topbandiera`,
+        buttonText: { displayText: '🏆 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞' },
+        type: 1
+      },
+      {
+        buttonId: `${usedPrefix}topbandieragiocate`,
+        buttonText: { displayText: '🎮 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐆𝐢𝐨𝐜𝐚𝐭𝐞' },
+        type: 1
+      }
     ],
     headerType: 1
   }, { quoted: m })
