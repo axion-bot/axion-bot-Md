@@ -35,7 +35,7 @@ let handler = async (m, { conn }) => {
   }
 
   const thumbnailBuffer = typeof profilo === 'string'
-    ? await (await fetch(profilo)).buffer()
+    ? Buffer.from(await (await fetch(profilo)).arrayBuffer())
     : profilo
 
   const text = `╭━━━━━━━✨━━━━━━━╮
@@ -51,38 +51,42 @@ let handler = async (m, { conn }) => {
 *🎁 𝐒𝐭𝐫𝐞𝐚𝐤 𝐃𝐚𝐢𝐥𝐲:* ${dailyStreak} 𝐠𝐢𝐨𝐫𝐧𝐢
 *📸 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦:* ${instagram}
 
-> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
   await conn.sendMessage(m.chat, {
-  text,
-  mentions: [target],
-  footer: '',
-  buttons: [
-    {
-      buttonId: '.wallet',
-      buttonText: { displayText: '💰 Portafoglio' },
-      type: 1
-    },
-    {
-      buttonId: '.posizione',
-      buttonText: { displayText: '🏆 Posizione' },
-      type: 1
+    text,
+    mentions: [target],
+    contextInfo: {
+      ...(global.rcanal?.contextInfo || {}),
+      mentionedJid: [target],
+      externalAdReply: {
+        title: nome,
+        body: ' ',
+        thumbnail: thumbnailBuffer,
+        mediaType: 1,
+        renderLargerThumbnail: false,
+        showAdAttribution: false
+      }
     }
-  ],
-  headerType: 1,
-  contextInfo: {
-    ...(global.rcanal?.contextInfo || {}),
-    mentionedJid: [target],
-    externalAdReply: {
-      title: nome,
-      body: ' ',
-      thumbnail: thumbnailBuffer,
-      mediaType: 1,
-      renderLargerThumbnail: false,
-      showAdAttribution: false
-    }
-  }
-}, { quoted: m })
+  }, { quoted: m })
+
+  await conn.sendMessage(m.chat, {
+    text: '*𝐒𝐄𝐋𝐄𝐙𝐈𝐎𝐍𝐀 𝐔𝐍’𝐎𝐏𝐙𝐈𝐎𝐍𝐄:*',
+    footer: '> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+    buttons: [
+      {
+        buttonId: '.wallet',
+        buttonText: { displayText: '💰 Portafoglio' },
+        type: 1
+      },
+      {
+        buttonId: '.posizione',
+        buttonText: { displayText: '🏆 Posizione' },
+        type: 1
+      }
+    ],
+    headerType: 1
+  }, { quoted: m })
 }
 
 handler.help = ['profilo', 'profile']
