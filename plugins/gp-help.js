@@ -149,7 +149,6 @@ handler.before = async function (m) {
   const participants = meta.participants || []
   const isStaff = isStaffJid(m.sender, participants)
 
-  // 👉 CLICK RISOLTO
   if (txt === 'help_risolto') {
     if (!isStaff) {
       await this.sendMessage(m.chat, {
@@ -175,7 +174,6 @@ handler.before = async function (m) {
     return true
   }
 
-  // 👉 RICEZIONE MOTIVO
   if (pendingReasons.has(m.sender)) {
     const data = pendingReasons.get(m.sender)
     pendingReasons.delete(m.sender)
