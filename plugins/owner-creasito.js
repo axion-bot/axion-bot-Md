@@ -1,5 +1,6 @@
 import fs from 'fs'
-import { uploadFile } from '../lib/uploadFile.js' 
+import axios from 'axios'
+import FormData from 'form-data'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`*⚠️ Formato richiesto:*
@@ -63,28 +64,35 @@ ${usedPrefix + command} Descrizione | Link GitHub`)
     fs.writeFileSync(path, htmlContent)
 
     try {
-        // Utilizziamo la funzione di upload interna del bot (solitamente Telegra.ph)
-        // che è molto più stabile per file HTML
-        const media = fs.readFileSync(path)
-        const eternalLink = await uploadFile(media)
+        // Funzione di upload interna per evitare SyntaxError di importazione
+        const bodyForm = new FormData()
+        bodyForm.append('file', fs.createReadStream(path))
+        
+        const response = await axios.post('https://telegra.ph/upload', bodyForm, {
+            headers: {
+                ...bodyForm.getHeaders()
+            }
+        })
+        
+        const eternalLink = 'https://telegra.ph' + response.data[0].src
 
         let linkMsg = `🛸 *𝛥𝐗𝐈𝚶𝐍 𝐄𝐓𝐄𝐑𝐍𝐀𝐋 𝐏𝐎𝐑𝐓𝐀𝐋*\n\n`
         linkMsg += `🌐 *Link Sito:* ${eternalLink}\n`
         linkMsg += `♾️ *Durata:* Permanente\n`
         linkMsg += `🛡️ *Privilegi:* Solo Owner\n\n`
-        linkMsg += `Ti ho inviato anche il file fisico qui sotto.`
+        linkMsg += `Il file index.html è stato allegato.`
 
         await conn.sendMessage(m.chat, { text: linkMsg }, { quoted: m })
         
         await conn.sendMessage(m.chat, { 
-            document: media, 
+            document: fs.readFileSync(path), 
             fileName: `index.html`, 
             mimetype: 'text/html'
         }, { quoted: m })
 
     } catch (e) {
         console.error(e)
-        m.reply('❌ Errore nel caricamento online (Status 412/Upload Failed). Ti invio il file index.html manualmente.')
+        m.reply('❌ Errore durante l\'upload. Ti invio il file manualmente.')
         await conn.sendMessage(m.chat, { 
             document: fs.readFileSync(path), 
             fileName: `index.html`, 
