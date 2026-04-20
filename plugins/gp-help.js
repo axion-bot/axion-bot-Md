@@ -65,14 +65,14 @@ function getButtonId(m) {
     if (msg.listResponseMessage?.singleSelectReply?.selectedRowId) {
       return msg.listResponseMessage.singleSelectReply.selectedRowId
     }
-
-    if (m.text) return m.text
   } catch {}
 
   return ''
 }
 
-let handler = async (m, { conn, text }) => {
+let handler = async (m, { conn, text, command }) => {
+  if (command !== 'supporto') return
+
   if (!m.isGroup) {
     return m.reply('*⚠️ 𝐔𝐬𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨 𝐬𝐨𝐥𝐨 𝐢𝐧 𝐮𝐧 𝐠𝐫𝐮𝐩𝐩𝐨*')
   }
@@ -119,7 +119,6 @@ let handler = async (m, { conn, text }) => {
   const sent = await conn.sendMessage(supportGroup, {
     text: msg,
     mentions: [m.sender],
-    footer: '𝐒𝐞𝐠𝐧𝐚𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐫𝐢𝐜𝐞𝐯𝐮𝐭𝐚',
     buttons: [
       { buttonId: 'help_risolto', buttonText: { displayText: '✅ 𝐑𝐢𝐬𝐨𝐥𝐭𝐨' }, type: 1 }
     ],
@@ -137,9 +136,9 @@ let handler = async (m, { conn, text }) => {
 }
 
 handler.before = async function (m) {
-  const txt = getButtonId(m)
+  const btnId = getButtonId(m)
 
-  if (txt === 'help_risolto') {
+  if (btnId === 'help_risolto') {
     let meta
     try {
       meta = await this.groupMetadata(m.chat)
@@ -176,7 +175,7 @@ handler.before = async function (m) {
   }
 
   if (pendingReasons.has(m.sender)) {
-    if (!m.text) return true
+    if (!m.text || m.text.startsWith('.')) return true
 
     const data = pendingReasons.get(m.sender)
     pendingReasons.delete(m.sender)
