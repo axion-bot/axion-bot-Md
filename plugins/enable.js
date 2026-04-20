@@ -1,4 +1,5 @@
 import fs from 'fs'
+import sharp from 'sharp'
 
 let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedPrefix }) => {
   const isEnable = /^(attiva|enable|1)$/i.test(command)
@@ -32,13 +33,23 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
     default: './media/funzioni/default.png'
   }
 
-  const getThumbBuffer = feature => {
+  const getThumbBuffer = async feature => {
     try {
       const file = thumbs[feature] || thumbs.default
-      return fs.readFileSync(file)
+      const input = fs.readFileSync(file)
+
+      return await sharp(input)
+        .resize(800, 450, { fit: 'cover' })
+        .jpeg({ quality: 80 })
+        .toBuffer()
     } catch {
       try {
-        return fs.readFileSync(thumbs.default)
+        const input = fs.readFileSync(thumbs.default)
+
+        return await sharp(input)
+          .resize(800, 450, { fit: 'cover' })
+          .jpeg({ quality: 80 })
+          .toBuffer()
       } catch {
         return null
       }
@@ -187,7 +198,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       throw box('𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐄 𝐒𝐂𝐎𝐍𝐎𝐒𝐂𝐈𝐔𝐓𝐀', '⚠️ 𝐋𝐚 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐧𝐨𝐧 è 𝐯𝐚𝐥𝐢𝐝𝐚')
   }
 
-  const thumbnail = getThumbBuffer(thumbFeature)
+  const thumbnail = await getThumbBuffer(thumbFeature)
 
   try {
     await conn.sendMessage(m.chat, {
@@ -196,7 +207,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
         ...(global.rcanal?.contextInfo || {}),
         externalAdReply: {
           title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
-          body: ' ',
+          body: `Utenza: ${senderName}`,
           ...(thumbnail ? { thumbnail } : {}),
           mediaType: 1,
           renderLargerThumbnail: false,
