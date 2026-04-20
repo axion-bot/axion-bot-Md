@@ -18,24 +18,36 @@ ${body}
     return [...owners, botNumber]
   }
 
+  const protectedUsers = getProtectedUsers()
+
   let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender
+  let reason = ''
 
   if (!mentionedJid && text) {
-    const trimmed = text.trim()
+    const parts = text.trim().split(/\s+/)
+    const firstArg = parts[0]
 
-    if (trimmed.endsWith('@s.whatsapp.net') || trimmed.endsWith('@c.us')) {
-      mentionedJid = trimmed
+    if (firstArg?.endsWith('@s.whatsapp.net') || firstArg?.endsWith('@c.us')) {
+      mentionedJid = firstArg
+      reason = parts.slice(1).join(' ')
     } else {
-      const number = trimmed.replace(/[^0-9]/g, '')
-      if (number.length >= 8 && number.length <= 15) {
+      const number = firstArg?.replace(/[^0-9]/g, '')
+      if (number && number.length >= 8 && number.length <= 15) {
         mentionedJid = number + '@s.whatsapp.net'
+        reason = parts.slice(1).join(' ')
       }
     }
+  } else if (mentionedJid && text) {
+    const cleanText = text
+      .replace(/@\d+/g, '')
+      .replace(/[^a-zA-Z0-9À-ÿ\s]/g, ' ')
+      .trim()
+
+    reason = cleanText
   }
 
   const groupMetadata = await conn.groupMetadata(chatId)
   const groupOwner = groupMetadata.owner || chatId.split('-')[0] + '@s.whatsapp.net'
-  const protectedUsers = getProtectedUsers()
 
   if (!(isAdmin || isOwner || isROwner)) {
     throw box(
@@ -51,15 +63,20 @@ ${body}
       box(
         '⚠️',
         '𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎',
-        `*𝐓𝐚𝐠𝐠𝐚 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞.*
+        `*𝐓𝐚𝐠𝐠𝐚, 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐨 𝐬𝐜𝐫𝐢𝐯𝐢 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞.*
 
-*📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* *${usedPrefix}${command} @utente*`
+*📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
+*${usedPrefix}${command} @utente spam*
+*${usedPrefix}${command} 393123456789 spam*`
       ),
       m
     )
   }
 
-  if (mentionedJid === groupOwner || protectedUsers.includes(mentionedJid)) {
+  if (
+    mentionedJid === groupOwner ||
+    protectedUsers.includes(mentionedJid)
+  ) {
     throw box(
       '👑',
       '𝐀𝐙𝐈𝐎𝐍𝐄 𝐍𝐄𝐆𝐀𝐓𝐀',
@@ -67,14 +84,21 @@ ${body}
     )
   }
 
+  global.db.data.users ??= {}
   global.db.data.users[mentionedJid] ??= {}
+
   const user = global.db.data.users[mentionedJid]
+
   if (typeof user.warn !== 'number') user.warn = 0
 
   const tag = '@' + mentionedJid.split('@')[0]
+  const reasonText = reason?.trim() ? reason.trim() : '𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
 
   if (command === 'warn') {
     user.warn += 1
+    user.lastWarnReason = reasonText
+    user.lastWarnBy = m.sender
+    user.lastWarnAt = Date.now()
 
     if (user.warn >= 3) {
       user.warn = 0
@@ -86,7 +110,10 @@ ${body}
           '🚨',
           '𝐔𝐓𝐄𝐍𝐓𝐄 𝐄𝐒𝐏𝐔𝐋𝐒𝐎',
           `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-*📉 𝐌𝐨𝐭𝐢𝐯𝐨:* 𝐑𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐢 𝟑/𝟑 𝐰𝐚𝐫𝐧`
+*📉 𝐌𝐨𝐭𝐢𝐯𝐨:* ${reasonText}
+*📊 𝐖𝐚𝐫𝐧:* 𝟑/𝟑
+
+*🚫 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
         ),
         mentions: [mentionedJid]
       }, { quoted: m })
@@ -97,9 +124,10 @@ ${body}
         '⚠️',
         '𝐖𝐀𝐑𝐍',
         `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
+*📉 𝐌𝐨𝐭𝐢𝐯𝐨:* ${reasonText}
 *📊 𝐒𝐭𝐚𝐭𝐨:* ${user.warn}/𝟑 𝐰𝐚𝐫𝐧
 
-*🚫 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐯𝐞𝐫𝐫à 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
+*⚠️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐯𝐞𝐫𝐫à 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
       ),
       mentions: [mentionedJid]
     }, { quoted: m })
