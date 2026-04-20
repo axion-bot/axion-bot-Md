@@ -1,8 +1,8 @@
 global.animalShopSession = global.animalShopSession || {}
 
 const ANIMALI_SHOP = [
-  { id: 'gatto', tipo: 'Gatto', emoji: '🐱', prezzo: 3500 },
-  { id: 'cane', tipo: 'Cane', emoji: '🐶', prezzo: 4200 },
+  { id: 'gatto', tipo: 'Gatto', emoji: '🐱', prezzo: 1000 },
+  { id: 'cane', tipo: 'Cane', emoji: '🐶', prezzo: 2000 },
   { id: 'coniglio', tipo: 'Coniglio', emoji: '🐰', prezzo: 2500 },
   { id: 'tartaruga', tipo: 'Tartaruga', emoji: '🐢', prezzo: 3800 },
   { id: 'pappagallo', tipo: 'Pappagallo', emoji: '🦜', prezzo: 5000 }
