@@ -1,6 +1,10 @@
 import fs from 'fs'
 import fetch from 'node-fetch'
 
+function stato(value) {
+  return value ? '🟢 *𝐀𝐭𝐭𝐢𝐯𝐨*' : '⚪ *𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐨*'
+}
+
 let handler = async (m, { conn, usedPrefix }) => {
   const chat = global.db?.data?.chats?.[m.chat] || {}
   const bot = global.db?.data?.settings?.[conn.user.jid] || {}
@@ -24,39 +28,38 @@ let handler = async (m, { conn, usedPrefix }) => {
     } catch {}
   }
 
-  const estado = (value) => value ? '🟢 ᴀᴛᴛɪᴠᴏ' : '⚪ ᴅɪsᴀᴛᴛɪᴠᴏ'
+  const text = `╭━━━━━━━⚙️━━━━━━━╮
+*✦ 𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 ✦*
+╰━━━━━━━⚙️━━━━━━━╯
 
-  const text = `
-『 𝚫𝐗𝐈𝐎𝐍 • 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 』
-╼━━━━━━━━━━━━━━╾
+*🛡️ 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚*
+*◈ 𝐀𝐧𝐭𝐢𝐥𝐢𝐧𝐤:* ${stato(chat.antiLink)}
+*◈ 𝐀𝐧𝐭𝐢𝐬𝐩𝐚𝐦:* ${stato(chat.antispam)}
+*◈ 𝐀𝐧𝐭𝐢𝐛𝐨𝐭:* ${stato(chat.antiBot)}
+*◈ 𝐀𝐧𝐭𝐢𝐓𝐚𝐠:* ${stato(chat.antiTag)}
+*◈ 𝐀𝐧𝐭𝐢𝐩𝐨𝐫𝐧𝐨:* ${stato(chat.antiporno)}
+*◈ 𝐀𝐧𝐭𝐢𝐠𝐨𝐫𝐞:* ${stato(chat.antigore)}
+*◈ 𝐀𝐧𝐭𝐢𝐭𝐫𝐚𝐯𝐚:* ${stato(chat.antitrava)}
 
-🛡️ *sɪᴄᴜʀᴇᴢᴢᴀ*
-◈ antilink → ${estado(chat.antiLink)}
-◈ antispam → ${estado(chat.antispam)}
-◈ antibot → ${estado(chat.antiBot)}
-◈ antitag → ${estado(chat.antiTag)}
-◈ antiporno → ${estado(chat.antiporno)}
-◈ antigore → ${estado(chat.antigore)}
-◈ antitrava → ${estado(chat.antitrava)}
+*📱 𝐑𝐞𝐭𝐞*
+*◈ 𝐀𝐧𝐭𝐢𝐈𝐧𝐬𝐭𝐚:* ${stato(chat.antiInsta)}
+*◈ 𝐀𝐧𝐭𝐢𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦:* ${stato(chat.antiTelegram)}
+*◈ 𝐀𝐧𝐭𝐢𝐓𝐢𝐤𝐓𝐨𝐤:* ${stato(chat.antiTiktok)}
 
-📱 *ʀᴇᴛᴇ*
-◈ antiinsta → ${estado(chat.antiInsta)}
-◈ antitelegram → ${estado(chat.antiTelegram)}
-◈ antitiktok → ${estado(chat.antiTiktok)}
+*⚙️ 𝐆𝐞𝐬𝐭𝐢𝐨𝐧𝐞*
+*◈ 𝐌𝐨𝐝𝐨 𝐀𝐝𝐦𝐢𝐧:* ${stato(chat.modoadmin)}
+*◈ 𝐁𝐞𝐧𝐯𝐞𝐧𝐮𝐭𝐨:* ${stato(chat.welcome)}
+*◈ 𝐀𝐝𝐝𝐢𝐨:* ${stato(chat.goodbye)}
 
-⚙️ *ɢᴇsᴛɪᴏɴᴇ*
-◈ modoadmin → ${estado(chat.modoadmin)}
-◈ benvenuto → ${estado(chat.welcome)}
-◈ addio → ${estado(chat.goodbye)}
+*🔒 𝐏𝐫𝐢𝐯𝐚𝐭𝐨*
+*◈ 𝐀𝐧𝐭𝐢𝐩𝐫𝐢𝐯𝐚𝐭𝐨:* ${stato(bot.antiprivato)}
 
-🔒 *ᴘʀɪᴠᴀᴛᴏ*
-◈ antiprivato → ${estado(bot.antiprivato)}
+*──────────────*
 
-╼━━━━━━━━━━━━━━╾
-┃ Attiva → ${usedPrefix}1 <funzione>
-┃ Disattiva → ${usedPrefix}0 <funzione>
-╰━━━━━━━━━━━━━━╾
-`.trim()
+*🟢 𝐀𝐭𝐭𝐢𝐯𝐚:* *${usedPrefix}1 <funzione>*
+*⚪ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚:* *${usedPrefix}0 <funzione>*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
   await conn.sendMessage(m.chat, {
     text,
@@ -64,7 +67,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       ...(global.rcanal?.contextInfo || {}),
       ...(thumbnail ? {
         externalAdReply: {
-          title: '𝚫𝐗𝐈𝐎𝐍 • 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
+          title: '𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
           body: 'Stato moduli del sistema',
           thumbnail,
           mediaType: 1,

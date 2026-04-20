@@ -1,65 +1,96 @@
-let linkRegex = /(?:https?:\/\/|www\.)[^\s]*instagram[^\s]*|(?:^|\s)[^\s]*instagram[^\s]*\.(com|it|net|org|ru|me|co|io|tv)(?:\/[^\s]*)?/i;
+// Plugin AntiInsta by Bonzino
 
-export async function before(m, { isAdmin, isPrems, isBotAdmin, conn }) {
-  if (m.isBaileys || m.fromMe) return true;
-  if (!m.isGroup) return false;
+const linkRegex = /(?:https?:\/\/|www\.)[^\s]*instagram[^\s]*|(?:^|\s)[^\s]*instagram[^\s]*\.(com|it|net|org|ru|me|co|io|tv)(?:\/[^\s]*)?/i
 
-  let chat = global.db.data.chats[m.chat];
-  if (!chat) return false;
+export async function before(m, { isAdmin, isOwner, isBotAdmin, isPrems, isROwner, conn }) {
+  if (m.isBaileys || m.fromMe) return true
+  if (!m.isGroup) return false
+  if (!m.message) return true
 
-  let warnLimit = 3;
-  let senderId = m.key.participant;
-  let messageId = m.key.id;
+  const chat = global.db.data.chats[m.chat] || {}
+  if (!chat.antiInsta) return true
 
-  const isInstagramLink = linkRegex.exec(m.text);
+  if (isAdmin || isOwner || isROwner || isPrems) return true
 
-  if (chat.antiInsta && isInstagramLink && !isAdmin && !isPrems && isBotAdmin) {
+  const isInstagramLink = linkRegex.exec(m.text || '')
+  if (!isInstagramLink) return true
 
-    global.db.data.users[m.sender] ??= {};
-    global.db.data.users[m.sender].warn ??= 0;
-    global.db.data.users[m.sender].warnReasons ??= [];
+  const user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
+  if (typeof user.warn !== 'number') user.warn = 0
+  if (!Array.isArray(user.warnReasons)) user.warnReasons = []
 
-    global.db.data.users[m.sender].warn += 1;
-    global.db.data.users[m.sender].warnReasons.push('link instagram');
+  user.warn += 1
+  user.warnReasons.push('link instagram')
 
-    // Elimina il messaggio
+  const senderTag = m.sender.split('@')[0]
+  const warnLimit = 3
+  const warnCount = user.warn
+  const remaining = warnLimit - warnCount
+
+  try {
     await conn.sendMessage(m.chat, {
       delete: {
         remoteJid: m.chat,
         fromMe: false,
-        id: messageId,
-        participant: senderId,
-      },
-    });
+        id: m.key.id,
+        participant: m.key.participant || m.sender
+      }
+    })
+  } catch {}
 
-    let warnCount = global.db.data.users[m.sender].warn;
-    let remaining = warnLimit - warnCount;
+  if (warnCount < warnLimit) {
+    await conn.sendMessage(m.chat, {
+      text: `╭━━━━━━━📸━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐈𝐍𝐒𝐓𝐀 ✦*
+╰━━━━━━━📸━━━━━━━╯
 
-    if (warnCount < warnLimit) {
+*@${senderTag}*
+*⚠️ 𝐋𝐢𝐧𝐤 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨*
+*📌 𝐀𝐯𝐯𝐢𝐬𝐨:* *${warnCount}/${warnLimit}*
+*⏳ 𝐑𝐢𝐦𝐚𝐧𝐞𝐧𝐭𝐢:* *${remaining}*
 
-      await conn.sendMessage(m.chat, {
-        text: `
-📡 LINK INSTAGRAM RILEVATO
+*🚷 𝐀𝐥𝐥𝐚 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐚 𝐯𝐢𝐨𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨*
 
-⚠️ Avvertimento: ${warnCount}/${warnLimit}
-🔹 Rimangono: ${remaining}
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+      mentions: [m.sender]
+    }, { quoted: m })
 
-Prossima violazione → espulsione.
-━━━━━━━━━━━━━━━━━━`
-      });
-
-    } else {
-
-      global.db.data.users[m.sender].warn = 0;
-      global.db.data.users[m.sender].warnReasons = [];
-
-      await conn.sendMessage(m.chat, {
-        text: `*_Limite superato, l'utente è stato espulso dal gruppo._*`
-      });
-
-      await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
-    }
+    return false
   }
 
-  return true;
+  user.warn = 0
+  user.warnReasons = []
+
+  if (!isBotAdmin) {
+    await conn.sendMessage(m.chat, {
+      text: `╭━━━━━━━📸━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐈𝐍𝐒𝐓𝐀 ✦*
+╰━━━━━━━📸━━━━━━━╯
+
+*@${senderTag}*
+*⚠️ 𝐇𝐚 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨 𝟑/𝟑 𝐚𝐯𝐯𝐢𝐬𝐢*
+*❌ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐥𝐨: 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐚𝐝𝐦𝐢𝐧*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+      mentions: [m.sender]
+    }, { quoted: m })
+
+    return false
+  }
+
+  await conn.sendMessage(m.chat, {
+    text: `╭━━━━━━━📸━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐈𝐍𝐒𝐓𝐀 ✦*
+╰━━━━━━━📸━━━━━━━╯
+
+*@${senderTag}*
+*🚷 𝐑𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*
+*📌 𝐌𝐨𝐭𝐢𝐯𝐨:* *𝐋𝐢𝐧𝐤 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+    mentions: [m.sender]
+  }, { quoted: m })
+
+  await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+  return false
 }

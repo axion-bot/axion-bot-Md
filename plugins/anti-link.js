@@ -1,3 +1,5 @@
+// Plugin AntiLink by Bonzino
+
 import { downloadContentFromMessage } from '@realvare/baileys'
 import ffmpeg from 'fluent-ffmpeg'
 import { createWriteStream, readFile } from 'fs'
@@ -27,7 +29,9 @@ const SHORT_URL_REGEX = new RegExp(
   'gi'
 )
 
-const tag = jid => '@' + String(jid || '').split('@')[0]
+function tag(jid) {
+  return '@' + String(jid || '').split('@')[0]
+}
 
 function isWhatsAppLink(url) {
   return WHATSAPP_GROUP_REGEX.test(url) || WHATSAPP_CHANNEL_REGEX.test(url)
@@ -36,16 +40,16 @@ function isWhatsAppLink(url) {
 function getPlatform(text = '') {
   const t = String(text).toLowerCase()
 
-  if (WHATSAPP_GROUP_REGEX.test(t) || WHATSAPP_CHANNEL_REGEX.test(t)) return 'WHATSAPP'
-  if (t.includes('instagram.com')) return 'INSTAGRAM'
-  if (t.includes('tiktok.com')) return 'TIKTOK'
-  if (t.includes('youtube.com') || t.includes('youtu.be')) return 'YOUTUBE'
-  if (t.includes('facebook.com')) return 'FACEBOOK'
-  if (t.includes('twitter.com') || t.includes('x.com')) return 'TWITTER'
-  if (t.includes('t.me')) return 'TELEGRAM'
-  if (SHORT_URL_REGEX.test(t)) return 'LINK SOSPETTO'
+  if (WHATSAPP_GROUP_REGEX.test(t) || WHATSAPP_CHANNEL_REGEX.test(t)) return '𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩'
+  if (t.includes('instagram.com')) return '𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦'
+  if (t.includes('tiktok.com')) return '𝐓𝐢𝐤𝐓𝐨𝐤'
+  if (t.includes('youtube.com') || t.includes('youtu.be')) return '𝐘𝐨𝐮𝐓𝐮𝐛𝐞'
+  if (t.includes('facebook.com')) return '𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤'
+  if (t.includes('twitter.com') || t.includes('x.com')) return '𝐓𝐰𝐢𝐭𝐭𝐞𝐫'
+  if (t.includes('t.me')) return '𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦'
+  if (SHORT_URL_REGEX.test(t)) return '𝐋𝐢𝐧𝐤 𝐒𝐨𝐬𝐩𝐞𝐭𝐭𝐨'
 
-  return 'LINK'
+  return '𝐋𝐢𝐧𝐤'
 }
 
 async function containsSuspiciousLink(text) {
@@ -66,55 +70,83 @@ function extractTextFromMessage(m) {
 }
 
 async function sendWarn(conn, m, warn, platform) {
-  await conn.sendMessage(
-    m.chat,
-    {
-      text: `*『 ⚠️ 』 ${tag(m.sender)} 𝐀𝐯𝐯𝐢𝐬𝐨 ${warn}/3 𝐩𝐞𝐫 𝐥𝐢𝐧𝐤 ${platform}.*\n\n*𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐚𝐯𝐯𝐢𝐬𝐨 𝐯𝐞𝐫𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨.*\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
-      mentions: [m.sender]
-    },
-    { quoted: m }
-  )
+  const remaining = 3 - warn
+
+  await conn.sendMessage(m.chat, {
+    text: `╭━━━━━━━🔗━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐋𝐈𝐍𝐊 ✦*
+╰━━━━━━━🔗━━━━━━━╯
+
+*${tag(m.sender)}*
+*⚠️ 𝐋𝐢𝐧𝐤 ${platform} 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨*
+*📌 𝐀𝐯𝐯𝐢𝐬𝐨:* *${warn}/3*
+*⏳ 𝐑𝐢𝐦𝐚𝐧𝐞𝐧𝐭𝐢:* *${remaining}*
+
+*🚷 𝐀𝐥𝐥𝐚 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐚 𝐯𝐢𝐨𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+    mentions: [m.sender]
+  }, { quoted: m })
 }
 
 async function sendKickMessage(conn, m, platform) {
-  await conn.sendMessage(
-    m.chat,
-    {
-      text: `*『 🚫 』 ${tag(m.sender)} 𝐫𝐢𝐦𝐨𝐬𝐬𝐨.*\n\n*𝐌𝐨𝐭𝐢𝐯𝐨:* 𝐒𝐩𝐚𝐦 𝐥𝐢𝐧𝐤 ${platform}\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
-      mentions: [m.sender]
-    },
-    { quoted: m }
-  )
+  await conn.sendMessage(m.chat, {
+    text: `╭━━━━━━━🔗━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐋𝐈𝐍𝐊 ✦*
+╰━━━━━━━🔗━━━━━━━╯
+
+*${tag(m.sender)}*
+*🚷 𝐑𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*
+*📌 𝐌𝐨𝐭𝐢𝐯𝐨:* *𝐒𝐩𝐚𝐦 𝐥𝐢𝐧𝐤 ${platform}*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+    mentions: [m.sender]
+  }, { quoted: m })
 }
 
 async function sendNoPerms(conn, m) {
-  await conn.sendMessage(
-    m.chat,
-    {
-      text: `*『 ⚠️ 』 ${tag(m.sender)} 𝐧𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞.*\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
-      mentions: [m.sender]
-    },
-    { quoted: m }
-  )
+  await conn.sendMessage(m.chat, {
+    text: `╭━━━━━━━🔗━━━━━━━╮
+*✦ 𝐀𝐍𝐓𝐈 𝐋𝐈𝐍𝐊 ✦*
+╰━━━━━━━🔗━━━━━━━╯
+
+*${tag(m.sender)}*
+*⚠️ 𝐇𝐚 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨 𝟑/𝟑 𝐚𝐯𝐯𝐢𝐬𝐢*
+*❌ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐥𝐨: 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐚𝐝𝐦𝐢𝐧*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+    mentions: [m.sender]
+  }, { quoted: m })
 }
 
 export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner }) {
   if (!m.isGroup || isAdmin || isOwner || isROwner || m.fromMe) return false
 
-  const chat = global.db.data.chats[m.chat]
-  if (!chat?.antiLink) return false
+  const chat = global.db.data.chats[m.chat] || {}
+  if (!chat.antiLink) return false
 
   try {
     const text = extractTextFromMessage(m)
     if (!(await containsSuspiciousLink(text))) return false
 
-    const user = global.db.data.users[m.sender]
-    if (!user) return false
-
+    const user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
     if (typeof user.warn !== 'number') user.warn = 0
+    if (!Array.isArray(user.warnReasons)) user.warnReasons = []
 
     const platform = getPlatform(text)
     user.warn += 1
+    user.warnReasons.push(`link ${platform.toLowerCase()}`)
+
+    try {
+      await conn.sendMessage(m.chat, {
+        delete: {
+          remoteJid: m.chat,
+          fromMe: false,
+          id: m.key.id,
+          participant: m.key.participant || m.sender
+        }
+      })
+    } catch {}
 
     if (user.warn < 3) {
       await sendWarn(conn, m, user.warn, platform)
@@ -122,6 +154,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner }
     }
 
     user.warn = 0
+    user.warnReasons = []
 
     if (!isBotAdmin) {
       await sendNoPerms(conn, m)

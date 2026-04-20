@@ -9,6 +9,15 @@ function getPercent(vittorie, giocate) {
   return Math.round((vittorie / giocate) * 100)
 }
 
+function getWinrateEmoji(percent) {
+  if (percent >= 90) return '👑'
+  if (percent >= 75) return '🔥'
+  if (percent >= 60) return '⚡'
+  if (percent >= 40) return '📈'
+  if (percent >= 20) return '📉'
+  return '💀'
+}
+
 function normalizeDigits(str = '') {
   return String(str).replace(/\D/g, '')
 }
@@ -102,16 +111,17 @@ ${sottotitolo}
   classifica.forEach((user, i) => {
     const medaglia = medaglie[i] || '🏅'
     const percent = getPercent(user.vittorie, user.giocate)
+    const winrateEmoji = getWinrateEmoji(percent)
     const tag = user.jid.split('@')[0]
 
     if (ordinaPerGiocate) {
       testo += `
 
-*${medaglia} ${i + 1}°* *@${tag}* — *🎮 ${formatNumber(user.giocate)}* *(𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞: ${formatNumber(user.vittorie)})* • *📈 ${percent}%*`
+*${medaglia} ${i + 1}°* *@${tag}* — *🎮 ${formatNumber(user.giocate)}* *(𝐯𝐢𝐭𝐭𝐨𝐫𝐢𝐞: ${formatNumber(user.vittorie)})* • *${winrateEmoji} ${percent}%*`
     } else {
       testo += `
 
-*${medaglia} ${i + 1}°* *@${tag}* — *🏆 ${formatNumber(user.vittorie)}* *(𝐠𝐢𝐨𝐜𝐚𝐭𝐞: ${formatNumber(user.giocate)})* • *📈 ${percent}%*`
+*${medaglia} ${i + 1}°* *@${tag}* — *🏆 ${formatNumber(user.vittorie)}* *(𝐠𝐢𝐨𝐜𝐚𝐭𝐞: ${formatNumber(user.giocate)})* • *${winrateEmoji} ${percent}%*`
     }
   })
 
@@ -127,12 +137,12 @@ ${sottotitolo}
     buttons: [
       {
         buttonId: `${usedPrefix}topbandiera`,
-        buttonText: { displayText: '🏆 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞' },
+        buttonText: { displayText: '🏆 Ordina per: Vittorie' },
         type: 1
       },
       {
         buttonId: `${usedPrefix}topbandieragiocate`,
-        buttonText: { displayText: '🎮 𝐎𝐫𝐝𝐢𝐧𝐚 𝐩𝐞𝐫 𝐆𝐢𝐨𝐜𝐚𝐭𝐞' },
+        buttonText: { displayText: '🎮 Ordina per: Giocate' },
         type: 1
       }
     ],
