@@ -190,19 +190,18 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
   const thumbnail = getThumbBuffer(thumbFeature)
 
   try {
-    return await conn.sendMessage(m.chat, {
+    await conn.sendMessage(m.chat, {
       text: result,
       contextInfo: {
-        ...(thumbnail ? {
-          externalAdReply: {
-            title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
-            body: `Utenza: ${senderName}`,
-            thumbnail,
-            mediaType: 1,
-            renderLargerThumbnail: false,
-            showAdAttribution: false
-          }
-        } : {})
+        ...(global.rcanal?.contextInfo || {}),
+        externalAdReply: {
+          title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
+          body: ' ',
+          ...(thumbnail ? { thumbnail } : {}),
+          mediaType: 1,
+          renderLargerThumbnail: false,
+          showAdAttribution: false
+        }
       }
     }, { quoted: m })
   } catch (e) {
