@@ -2,112 +2,107 @@
 
 const tiktokRegex = /(?:https?:\/\/|www\.)[^\s]*tiktok[^\s]*|(?:^|\s)[^\s]*tiktok[^\s]*\.(com|it|net|org|ru|me|co|io|tv)(?:\/[^\s]*)?/i
 
-export async function before(m, { isAdmin, isPrems, isBotAdmin, isOwner, isROwner, conn }) {
+const box = (title, body) => `╭━━━━━━━⚠️━━━━━━━╮
+*✦ ${title} ✦*
+╰━━━━━━━⚠️━━━━━━━╯
+
+${body}
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+
+function getMessageText(m) {
+  return (
+    m.text ||
+    m.message?.conversation ||
+    m.message?.extendedTextMessage?.text ||
+    m.message?.imageMessage?.caption ||
+    m.message?.videoMessage?.caption ||
+    m.message?.documentMessage?.caption ||
+    ''
+  )
+}
+
+export async function before(m, { isAdmin, isPrems, isBotAdmin, conn }) {
   if (m.isBaileys || m.fromMe) return true
   if (!m.isGroup) return false
-  if (!m.message) return true
 
-  const chat = global.db.data.chats[m.chat] || {}
-  if (!chat.antiTiktok) return true
+  const chat = global.db.data.chats[m.chat]
+  if (!chat?.antiTiktok) return false
+  if (isAdmin || isPrems) return false
 
-  if (isAdmin || isOwner || isROwner || isPrems) return true
+  const text = getMessageText(m)
+  const isTiktokLink = tiktokRegex.test(text)
+  if (!isTiktokLink) return false
 
-  const isTiktokLink = tiktokRegex.exec(m.text || '')
-  if (!isTiktokLink) return true
+  global.db.data.users[m.sender] ??= {}
+  global.db.data.users[m.sender].warn ??= 0
+  global.db.data.users[m.sender].warnReasons ??= []
 
-  const user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
-  if (typeof user.warn !== 'number') user.warn = 0
-  if (!Array.isArray(user.warnReasons)) user.warnReasons = []
+  global.db.data.users[m.sender].warn += 1
+  global.db.data.users[m.sender].warnReasons.push('link tiktok')
 
-  user.warn += 1
-  user.warnReasons.push('link tiktok')
-
-  const senderTag = m.sender.split('@')[0]
   const warnLimit = 3
-  const warnCount = user.warn
-  const remaining = warnLimit - warnCount
+  const warnCount = global.db.data.users[m.sender].warn
+  const mention = `@${m.sender.split('@')[0]}`
 
-  try {
-    await conn.sendMessage(m.chat, {
-      delete: {
-        remoteJid: m.chat,
-        fromMe: false,
-        id: m.key.id,
-        participant: m.key.participant || m.sender
-      }
-    })
-  } catch (e) {
-    console.error('Errore nella cancellazione del messaggio:', e)
+  if (isBotAdmin) {
+    try {
+      await conn.sendMessage(m.chat, {
+        delete: {
+          remoteJid: m.chat,
+          fromMe: false,
+          id: m.key.id,
+          participant: m.key.participant || m.sender
+        }
+      })
+    } catch {}
   }
 
   if (warnCount < warnLimit) {
     await conn.sendMessage(m.chat, {
-      text: `╭━━━━━━━🎵━━━━━━━╮
-*✦ 𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊 ✦*
-╰━━━━━━━🎵━━━━━━━╯
+      text: box(
+        '𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊',
+        `*❌ 𝐋𝐢𝐧𝐤 𝐓𝐢𝐤𝐓𝐨𝐤 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨*
 
-*@${senderTag}*
-*⚠️ 𝐋𝐢𝐧𝐤 𝐓𝐢𝐤𝐓𝐨𝐤 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨*
-*📌 𝐀𝐯𝐯𝐢𝐬𝐨:* *${warnCount}/${warnLimit}*
-*⏳ 𝐑𝐢𝐦𝐚𝐧𝐞𝐧𝐭𝐢:* *${remaining}*
+${mention}
 
-*🚷 𝐀𝐥𝐥𝐚 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐚 𝐯𝐢𝐨𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+*⚠️ 𝐖𝐚𝐫𝐧:* ${warnCount}/${warnLimit}
+*👢 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
+      ),
       mentions: [m.sender]
     }, { quoted: m })
 
-    return false
+    return true
   }
 
-  user.warn = 0
-  user.warnReasons = []
+  global.db.data.users[m.sender].warn = 0
+  global.db.data.users[m.sender].warnReasons = []
 
-  if (!isBotAdmin) {
-    await conn.sendMessage(m.chat, {
-      text: `╭━━━━━━━🎵━━━━━━━╮
-*✦ 𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊 ✦*
-╰━━━━━━━🎵━━━━━━━╯
-
-*@${senderTag}*
-*⚠️ 𝐇𝐚 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨 𝟑/𝟑 𝐚𝐯𝐯𝐢𝐬𝐢*
-*❌ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐥𝐨: 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐚𝐝𝐦𝐢𝐧*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-      mentions: [m.sender]
-    }, { quoted: m })
-
-    return false
+  if (isBotAdmin) {
+    try {
+      await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+    } catch {}
   }
 
-  try {
-    await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+  await conn.sendMessage(m.chat, {
+    text: box(
+      '𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊',
+      isBotAdmin
+        ? `*🚫 𝐋𝐢𝐦𝐢𝐭𝐞 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨*
 
-    await conn.sendMessage(m.chat, {
-      text: `╭━━━━━━━🎵━━━━━━━╮
-*✦ 𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊 ✦*
-╰━━━━━━━🎵━━━━━━━╯
+${mention}
 
-*@${senderTag}*
-*🚷 𝐑𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*
-*📌 𝐌𝐨𝐭𝐢𝐯𝐨:* *𝐋𝐢𝐧𝐤 𝐓𝐢𝐤𝐓𝐨𝐤*
+*📊 𝐖𝐚𝐫𝐧:* 3/3
+*👢 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
+        : `*🚫 𝐋𝐢𝐦𝐢𝐭𝐞 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-      mentions: [m.sender]
-    }, { quoted: m })
-  } catch {
-    await conn.sendMessage(m.chat, {
-      text: `╭━━━━━━━🎵━━━━━━━╮
-*✦ 𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊 ✦*
-╰━━━━━━━🎵━━━━━━━╯
+${mention}
 
-*@${senderTag}*
-*⚠️ 𝐃𝐨𝐯𝐫𝐞𝐛𝐛𝐞 𝐞𝐬𝐬𝐞𝐫𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨, 𝐦𝐚 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐟𝐚𝐫𝐥𝐨*
+*📊 𝐖𝐚𝐫𝐧:* 3/3
+*⚠️ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐞𝐫𝐜𝐡𝐞́ 𝐧𝐨𝐧 𝐬𝐨𝐧𝐨 𝐚𝐝𝐦𝐢𝐧*`
+    ),
+    mentions: [m.sender]
+  }, { quoted: m })
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-      mentions: [m.sender]
-    }, { quoted: m })
-  }
-
-  return false
+  return true
 }

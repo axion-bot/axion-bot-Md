@@ -80,7 +80,10 @@ handler.before = async function (m, { conn, isAdmin, isOwner, isROwner, isBotAdm
       }
 
       const SIGHTENGINE_USER = global.APIKeys.sightengine_user
-      const SIGHTENGINE_SECRET = global.APIKeys.sightengine_secret
+const SIGHTENGINE_SECRET = global.APIKeys.sightengine_secret
+
+console.log('Sightengine user:', SIGHTENGINE_USER)
+console.log('Sightengine secret:', SIGHTENGINE_SECRET ? 'OK' : 'MANCANTE')
 
       if (!SIGHTENGINE_USER || !SIGHTENGINE_SECRET) return true
 

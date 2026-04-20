@@ -56,6 +56,8 @@ global.APIKeys = {
     removebg:        'FEx4CYmYN1QRQWD1mbZp87jV',
     openrouter:      'axion',
     lastfm:          '36f859a1fc4121e7f0e931806507d5f9',
+    sightengine_user: '1244671441',
+    sightengine_secret: 'uvqy7fWkiqLbrs4YbdDTnn3a3ZvuEhjM',
 }
 
 let filePath = fileURLToPath(import.meta.url)
