@@ -36,6 +36,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 📖 ${usedPrefix}setbio <messaggio>
 ┃ 🚨 ${usedPrefix}setname <messaggio>
 ┃ 🖼️ ${usedPrefix}pic <reply/tag>
+┃ 🔍${usedPrefix}rivela <media>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🔒 ɪᴍᴘᴏsᴛᴀᴢɪᴏɴɪ 〕━⬣
@@ -47,6 +48,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╭━━━〔 👥 ɢᴇsᴛɪᴏɴᴇ ᴜᴛᴇɴᴛɪ 〕━⬣
 ┃ ⚔️ ${usedPrefix}kick
 ┃ 🔮 ${usedPrefix}resuscita
+┃ ❓️${usedPrefix}info <utente>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🔗 ʟɪɴᴋ ɢʀᴜᴘᴘᴏ 〕━⬣

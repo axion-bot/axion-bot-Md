@@ -20,6 +20,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🛡️ ${usedPrefix}addmod
 ┃ ❌ ${usedPrefix}delmod
 ┃ 🗑️ ${usedPrefix}resetmod
+┃ 🚫 ${usedPrefix}blocca/sblocca <utente>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🤖 ɢᴇsᴛɪᴏɴᴇ ʙᴏᴛ 〕━⬣
@@ -29,6 +30,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🆔 ${usedPrefix}getid <link>
 ┃ 👋 ${usedPrefix}out
 ┃ 🌐 ${usedPrefix}aggiorna
+┃ 🔄 ${usedPrefix}restart
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 ✨ ғᴜɴᴢɪᴏɴɪ sᴘᴇᴄɪᴀʟɪ 〕━⬣
@@ -39,7 +41,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ ☀️ ${usedPrefix}unbanchat
 ┃ 🧑‍💻 ${usedPrefix}dispositivo <reply/tag>
 ┃ 🗂️ ${usedPrefix}getpl
-┃ 📥 ${usedPrefix}dipendenze <installa moduli mancanti>
+┃ 📥 ${usedPrefix}picchetti <installa moduli mancanti>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣

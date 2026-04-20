@@ -21,6 +21,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🔄 ${usedPrefix}converti <reply media>
 ┃ 🎛️ ${usedPrefix}audiofx <audio>
 ┃ 📥 ${usedPrefix}download <link>
+┃ 🌦 ${usedPrefix}meteo <città>
 ┃ 🖼️ ${usedPrefix}toimg <sticker>
 ┃ 📹 ${usedPrefix}togif <sticker>
 ┃ 🧠 ${usedPrefix}ia <messaggio>

@@ -40,6 +40,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 *◈ 𝐀𝐧𝐭𝐢𝐩𝐨𝐫𝐧𝐨:* ${stato(chat.antiporno)}
 *◈ 𝐀𝐧𝐭𝐢𝐠𝐨𝐫𝐞:* ${stato(chat.antigore)}
 *◈ 𝐀𝐧𝐭𝐢𝐭𝐫𝐚𝐯𝐚:* ${stato(chat.antitrava)}
+*◈ 𝐀𝐧𝐭𝐢𝐌𝐞𝐝𝐢𝐚:* ${stato(chat.antimedia)}
 
 *📱 𝐑𝐞𝐭𝐞*
 *◈ 𝐀𝐧𝐭𝐢𝐈𝐧𝐬𝐭𝐚:* ${stato(chat.antiInsta)}

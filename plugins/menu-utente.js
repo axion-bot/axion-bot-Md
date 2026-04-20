@@ -1,23 +1,31 @@
-//Menu giochi by 𝕯𝖊ⱥ𝖉𝖑𝐲 e Bonzino
-
-
 const handler = async (message, { conn, usedPrefix = '.' }) => {
+  const userId = message.sender
+  const uptimeMs = process.uptime() * 1000
+  const uptimeStr = clockString(uptimeMs)
+  const totalUsers = Object.keys(global.db?.data?.users || {}).length
 
-    const userId = message.sender;
-    const uptimeMs = process.uptime() * 1000;
-    const uptimeStr = clockString(uptimeMs);
-    const totalUsers = Object.keys(global.db?.data?.users || {}).length;
-
-    const menuBody = `
-『 𝚫𝐗𝐈𝐎𝐍 • 𝐆𝐀𝐌𝐄 』
+  const menuBody = `
+『 𝚫𝐗𝐈𝐎𝐍 • 𝐌𝐄𝐍𝐔 𝐔𝐓𝐄𝐍𝐓𝐄 』
 ╼━━━━━━━━━━━━━━╾
   ◈ *ᴜsᴇʀ:* @${userId.split('@')[0]}
   ◈ *ᴜᴘᴛɪᴍᴇ:* ${uptimeStr}
   ◈ *ᴜᴛᴇɴᴛɪ:* ${totalUsers}
-  ◈ *ᴄᴀᴛᴇɢᴏʀɪᴀ:* ɢɪᴏᴄʜɪ
+  ◈ *ᴄᴀᴛᴇɢᴏʀɪᴀ:* ᴄᴏᴍᴀɴᴅɪ ᴜᴛᴇɴᴛᴇ
 ╼━━━━━━━━━━━━━━╾
 
-╭━━━〔 🕹️ ɢɪᴏᴄʜɪ 〕━⬣
+╭━━━〔 👤 𝐏𝐑𝐎𝐅𝐈𝐋𝐎 〕━⬣
+┃ 👤 ${usedPrefix}profilo
+┃ 📈 ${usedPrefix}stats
+┃ 🏅 ${usedPrefix}mytop
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🏆 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐇𝐄 〕━⬣
+┃ 🏆 ${usedPrefix}top
+┃ 🌐 ${usedPrefix}topall
+┃ 🚩 ${usedPrefix}topbandiera
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🕹️ 𝐆𝐈𝐎𝐂𝐇𝐈 〕━⬣
 ┃ ❌⭕ ${usedPrefix}tris
 ┃ 🏟️ ${usedPrefix}schedina <euro>
 ┃ 🪢 ${usedPrefix}impiccato
@@ -27,26 +35,27 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🚩 ${usedPrefix}bandiera
 ┃ 🏎️ ${usedPrefix}gara
 ┃ 🎰 ${usedPrefix}slot
-┃ 🏆 ${usedPrefix}top
-┃ 🌐 ${usedPrefix}topall
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 🎲 ғᴜɴ 〕━⬣
+╭━━━〔 🎲 𝐅𝐔𝐍 〕━⬣
 ┃ 🔮 ${usedPrefix}random <reply/tag>
 ┃ 🔥 ${usedPrefix}flame <reply/tag>
 ┃ 💋 ${usedPrefix}bacia <reply/tag>
 ┃ 🤗 ${usedPrefix}abbraccia <reply/tag>
 ┃ 😏 ${usedPrefix}sega <reply/tag>
 ┃ 🤟 ${usedPrefix}ditalino <reply/tag>
-┃ 🏷️ ${usedPrefix}sticker / ${usedPrefix}s
+┃ 💥 ${usedPrefix}bonk <reply/tag>
+┃ 📄 ${usedPrefix}curriculum <reply/tag>
+┃ 🍑 ${usedPrefix}figa <reply/tag>
+┃ ⏳ ${usedPrefix}tempo <reply/tag>
 ┃ 🩵 ${usedPrefix}onlyfans <reply/tag>
 ┃ 📰 ${usedPrefix}dox <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 💍 ғᴀᴍɪɢʟɪᴀ 〕━⬣
+╭━━━〔 💍 𝐑𝐄𝐋𝐀𝐙𝐈𝐎𝐍𝐈 〕━⬣
 ┃ 💫 ${usedPrefix}stato <reply/tag>
 ┃ 🏠 ${usedPrefix}famiglia <reply/tag>
-┃ 👰 ${usedPrefix}sposac <reply/tag>
+┃ 👰 ${usedPrefix}sposa <reply/tag>
 ┃ 💔 ${usedPrefix}divorzia <reply/tag>
 ┃ 🤝 ${usedPrefix}amicizia <reply/tag>
 ┃ 👩 ${usedPrefix}madre <reply/tag>
@@ -61,32 +70,33 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🗑️ ${usedPrefix}delrelazione <tipo> <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 🆘 sᴜᴘᴘᴏʀᴛᴏ 〕━⬣
-┃ 🆘 ${usedPrefix}help <motivo>
+╭━━━〔 🆘 𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎 〕━⬣
+┃ 🆘 ${usedPrefix}supporto <motivo>
+┃ 🚨 ${usedPrefix}segnala <problema>
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 📌 ɪɴғᴏ 〕━⬣
+╭━━━〔 📌 𝐈𝐍𝐅𝐎 〕━⬣
 ┃ ᴠᴇʀsɪᴏɴᴇ: 1.0
 ┃ sᴛᴀᴛᴜs: ᴏɴʟɪɴᴇ ⚡
 ╰━━━━━━━━━━━━━━━━⬣
-`.trim();
+`.trim()
 
-    await conn.sendMessage(message.chat, {
-        text: menuBody,
-        mentions: [userId]
-    }, { quoted: message });
-};
-
-function clockString(ms) {
-    const d = Math.floor(ms / 86400000);
-    const h = Math.floor(ms / 3600000) % 24;
-    const m = Math.floor(ms / 60000) % 60;
-    const s = Math.floor(ms / 1000) % 60;
-    return `${d}d ${h}h ${m}m ${s}s`;
+  await conn.sendMessage(message.chat, {
+    text: menuBody,
+    mentions: [userId]
+  }, { quoted: message })
 }
 
-handler.help = ['giochi', 'menugiochi'];
-handler.tags = ['menu'];
-handler.command = /^(giochi|menugiochi)$/i;
+function clockString(ms) {
+  const d = Math.floor(ms / 86400000)
+  const h = Math.floor(ms / 3600000) % 24
+  const m = Math.floor(ms / 60000) % 60
+  const s = Math.floor(ms / 1000) % 60
+  return `${d}d ${h}h ${m}m ${s}s`
+}
 
-export default handler;
+handler.help = ['utente', 'menuutente']
+handler.tags = ['menu']
+handler.command = /^(utente|menuutente)$/i
+
+export default handler
