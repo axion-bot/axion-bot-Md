@@ -159,6 +159,5 @@ ${body}
 handler.command = /^(warn|unwarn)$/i
 handler.group = true
 handler.botAdmin = true
-handler.admin = true
 
 export default handler
