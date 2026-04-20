@@ -1,14 +1,7 @@
-let handler = async (m, { conn }) => {
-
-  await conn.sendMessage(m.chat, {
-    text: 'TEST',
-    ...global.rcanal
-  }, { quoted: m })
-
+let handler = async (m) => {
+  m.reply('FUNZIONA')
 }
 
-handler.help = ['testheader']
-handler.tags = ['test']
-handler.command = /^(test)$/i
+handler.command = /^test$/i
 
 export default handler
