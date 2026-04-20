@@ -1,21 +1,17 @@
 import fs from 'fs'
-import fetch from 'node-fetch'
+import axios from 'axios'
 import FormData from 'form-data'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`*⚠️ Formato richiesto:*
-${usedPrefix + command} Descrizione | Link GitHub
-
-*Esempio:*
-${usedPrefix + command} Sistema avanzato di gestione | https://github.com/Axion/Axion-Bot`)
+${usedPrefix + command} Descrizione | Link GitHub`)
 
     let [desc, git] = text.split('|').map(v => v.trim())
     if (!desc) return m.reply(`*❌ Inserisci almeno una descrizione!*`)
 
     const botName = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
-    m.reply('🌌 *ACCESSO OWNER AUTORIZZATO.*\nInizializzazione protocollo 𝛥𝐗𝐈𝚶𝐍...')
+    m.reply('🌌 *ACCESSO OWNER AUTORIZZATO.*\nGenerazione portale eterno in corso...')
 
-    // Configurazione Sezione GitHub
     let githubSection = git ? `
         <div class="card">
             <h2 class="cyan-text">💾 SOURCE CODE</h2>
@@ -23,7 +19,6 @@ ${usedPrefix + command} Sistema avanzato di gestione | https://github.com/Axion/
             <a href="${git}" class="btn git-btn" target="_blank">GITHUB REPO</a>
         </div>` : ''
 
-    // Struttura HTML Completa
     let htmlContent = `
 <!DOCTYPE html>
 <html lang="it">
@@ -33,68 +28,71 @@ ${usedPrefix + command} Sistema avanzato di gestione | https://github.com/Axion/
     <title>${botName} - Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --panel: rgba(20, 20, 30, 0.8); --accent: #00f2ff; --secondary: #7000ff; --text: #e0e0e0; }
-        body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; text-align: center; }
+        :root { --bg: #050505; --panel: rgba(20, 20, 30, 0.9); --accent: #00f2ff; --secondary: #7000ff; --text: #e0e0e0; }
+        body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; text-align: center; background-image: radial-gradient(circle at 50% 50%, #101020 0%, #050505 100%); }
         header { padding: 100px 20px; background: linear-gradient(to bottom, rgba(0, 242, 255, 0.1), transparent); }
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; letter-spacing: 5px; background: linear-gradient(90deg, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; letter-spacing: 5px; background: linear-gradient(90deg, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
         .container { max-width: 900px; margin: -50px auto 50px auto; padding: 0 20px; }
-        .card { background: var(--panel); backdrop-filter: blur(10px); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; padding: 40px; margin-bottom: 30px; }
-        .cyan-text { color: var(--accent); font-family: 'Orbitron', sans-serif; }
-        .btn { display: inline-block; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: 'Orbitron', sans-serif; transition: 0.4s; margin-top: 20px; }
-        .main-btn { background: linear-gradient(45deg, var(--accent), var(--secondary)); color: white; }
+        .card { background: var(--panel); backdrop-filter: blur(10px); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .cyan-text { color: var(--accent); font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+        .btn { display: inline-block; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: 'Orbitron', sans-serif; transition: 0.4s; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .main-btn { background: linear-gradient(45deg, var(--accent), var(--secondary)); color: white; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
         .git-btn { border: 2px solid var(--accent); color: var(--accent); }
+        .git-btn:hover { background: var(--accent); color: black; }
         footer { padding: 40px; font-size: 0.8rem; color: #555; letter-spacing: 2px; }
     </style>
 </head>
 <body>
     <header>
         <h1>𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓</h1>
-        <p style="color: var(--accent);">STAZIONE DI CONTROLLO OPERATIVA</p>
+        <p style="color: var(--accent); letter-spacing: 3px;">STAZIONE DI CONTROLLO OPERATIVA</p>
     </header>
     <div class="container">
         <div class="card">
             <h2 class="cyan-text">OVERVIEW</h2>
-            <p style="font-size: 1.1rem;">${desc}</p>
+            <p style="font-size: 1.1rem; line-height: 1.6;">${desc}</p>
             <a href="https://wa.me/${conn.user.jid.split('@')[0]}" class="btn main-btn">AVVIA PROTOCOLLO</a>
         </div>
         ${githubSection}
     </div>
-    <footer>© 2026 AXION CORP. EXCLUSIVE OWNER ACCESS.</footer>
+    <footer>© 2026 AXION CORP. PERMANENT UPLINK.</footer>
 </body>
 </html>`
 
-    const path = `./tmp/AxionPortal_${m.sender.split('@')[0]}.html`
+    const path = `./tmp/index.html`
     if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp')
     fs.writeFileSync(path, htmlContent)
 
     try {
-        const form = new FormData()
-        form.append('file', fs.createReadStream(path))
-        
-        const res = await fetch('https://file.io/?expires=1d', {
-            method: 'POST',
-            body: form
+        // Caricamento su Catbox (Link che non scade)
+        const fd = new FormData()
+        fd.append('reqtype', 'fileupload')
+        fd.append('fileToUpload', fs.createReadStream(path))
+
+        const response = await axios.post('https://catbox.moe/user/api.php', fd, {
+            headers: fd.getHeaders()
         })
-        
-        const json = await res.json()
-        
-        let linkMsg = `🛸 *𝛥𝐗𝐈𝚶𝐍 𝐏𝐎𝐑𝐓𝐀𝐋 𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄𝐃*\n\n`
-        linkMsg += `🌐 *Link Sito:* ${json.link}\n`
-        linkMsg += `🛡️ *Privilegi:* Solo Owner\n`
-        linkMsg += `⏳ *Scadenza Link:* 24 Ore\n\n`
-        linkMsg += `Il file HTML è stato allegato per l'archiviazione permanente.`
+
+        const eternalLink = response.data
+
+        let linkMsg = `🛸 *𝛥𝐗𝐈𝚶𝐍 𝐄𝐓𝐄𝐑𝐍𝐀𝐋 𝐏𝐎𝐑𝐓𝐀𝐋*\n\n`
+        linkMsg += `🌐 *Link Sito:* ${eternalLink}\n`
+        linkMsg += `♾️ *Durata:* Permanente (Sito Attivo Sempre)\n`
+        linkMsg += `🛡️ *Privilegi:* Solo Owner\n\n`
+        linkMsg += `Ho allegato il file index.html se desideri caricarlo su GitHub Pages.`
 
         await conn.sendMessage(m.chat, { text: linkMsg }, { quoted: m })
         
         await conn.sendMessage(m.chat, { 
             document: fs.readFileSync(path), 
-            fileName: `AXION_PORTAL.html`, 
+            fileName: `index.html`, 
             mimetype: 'text/html'
         }, { quoted: m })
 
     } catch (e) {
-        m.reply('❌ Errore nel caricamento online, invio solo il file locale.')
-        await conn.sendMessage(m.chat, { document: fs.readFileSync(path), fileName: `AXION_PORTAL.html`, mimetype: 'text/html' }, { quoted: m })
+        console.error(e)
+        m.reply('❌ Errore nel caricamento online. Ti invio il file manualmente.')
+        await conn.sendMessage(m.chat, { document: fs.readFileSync(path), fileName: `index.html`, mimetype: 'text/html' }, { quoted: m })
     }
 
     if (fs.existsSync(path)) fs.unlinkSync(path)
@@ -103,6 +101,6 @@ ${usedPrefix + command} Sistema avanzato di gestione | https://github.com/Axion/
 handler.help = ['creasito']
 handler.tags = ['owner']
 handler.command = /^(creasito|makesite)$/i
-handler.owner = true 
+handler.owner = true
 
 export default handler
