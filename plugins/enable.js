@@ -189,21 +189,28 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 
   const thumbBuffer = getThumbBuffer(thumbFeature)
 
-  await conn.sendMessage(m.chat, {
-    text: result,
-    contextInfo: {
-      ...(global.rcanal?.contextInfo || {}),
-      externalAdReply: {
-        title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
-        body: `Utenza: ${senderName}`,
-        thumbnail: thumbBuffer,
-        sourceUrl: '',
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        showAdAttribution: false
+  try {
+    await conn.sendMessage(m.chat, {
+      text: result,
+      contextInfo: {
+        ...(global.rcanal?.contextInfo || {}),
+        ...(thumbBuffer ? {
+          externalAdReply: {
+            title: '𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
+            body: `Utenza: ${senderName}`,
+            thumbnail: thumbBuffer,
+            sourceUrl: '',
+            mediaType: 1,
+            renderLargerThumbnail: true,
+            showAdAttribution: false
+          }
+        } : {})
       }
-    }
-  }, { quoted: m })
+    }, { quoted: m })
+  } catch (e) {
+    console.error('Errore invio funzione:', e)
+    await m.reply(result)
+  }
 }
 
 handler.help = ['attiva <feature>', 'disattiva <feature>']
