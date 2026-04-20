@@ -762,7 +762,7 @@ try {
 } catch (e) {
                     m.error = e
                     console.error(`[ERRORE] Errore nell'esecuzione del plugin per la chat ${m.chat}, mittente ${m.sender}:`, e)
-                    if (e.message.includes('rate-overlimit')) {
+                    if (String(e?.message || e || '').includes('rate-overlimit')) {
                         console.warn('[AVVISO] Rate limit raggiunto, ritento dopo 2 secondi...')
                         await delay(2000)
                     }
