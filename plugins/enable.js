@@ -198,6 +198,10 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       throw box('𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐄 𝐒𝐂𝐎𝐍𝐎𝐒𝐂𝐈𝐔𝐓𝐀', '⚠️ 𝐋𝐚 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐧𝐨𝐧 è 𝐯𝐚𝐥𝐢𝐝𝐚')
   }
 
+  result += `
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+
   const thumbnail = await getThumbBuffer(thumbFeature)
 
   try {
