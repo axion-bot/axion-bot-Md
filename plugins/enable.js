@@ -21,6 +21,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
     antitag: './media/funzioni/antitag.png',
     antigore: './media/funzioni/antigore.png',
     antiporno: './media/funzioni/antiporno.png',
+    antimedia: './media/funzioni/antimedia.png',
     antiporn: './media/funzioni/antiporno.png',
     modoadmin: './media/funzioni/modoadmin.png',
     soloadmin: './media/funzioni/modoadmin.png',
@@ -84,7 +85,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 *🛡️ 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚:*
 *antilink, antispam, antibot*
 *antiporno, antigore, antitrava*
-*antitag, antiprivato*
+*antitag, antiprivato, antimedia*
 
 *📱 𝐑𝐞𝐭𝐞:*
 *antiinsta, antitelegram, antitiktok*
@@ -116,6 +117,21 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       requireAdmin()
       chat.antiInsta = isEnable
       result = box('𝐀𝐍𝐓𝐈 𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌', `${isEnable ? '✅' : '❌'} 𝐅𝐢𝐥𝐭𝐫𝐨 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦 ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨'}`)
+      break
+
+    case 'antimedia':
+      requireAdmin()
+      chat.antimedia = isEnable
+      result = box(
+        '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀',
+        isEnable
+          ? `✅ 𝐅𝐢𝐥𝐭𝐫𝐨 𝐦𝐞𝐝𝐢𝐚 𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨
+
+📸 𝐃𝐚 𝐨𝐫𝐚 𝐢𝐧 𝐩𝐨𝐢 𝐬𝐨𝐧𝐨 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐢 𝐬𝐨𝐥𝐨 𝐢 𝐦𝐞𝐝𝐢𝐚 𝐯𝐢𝐞𝐰 𝐨𝐧𝐜𝐞 / 𝐮𝐧𝐚 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞`
+          : `❌ 𝐅𝐢𝐥𝐭𝐫𝐨 𝐦𝐞𝐝𝐢𝐚 𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨
+
+📸 𝐎𝐫𝐚 𝐬𝐨𝐧𝐨 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐢 𝐚𝐧𝐜𝐡𝐞 𝐢 𝐦𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐢`
+      )
       break
 
     case 'antitelegram':
