@@ -13,7 +13,7 @@ function bare(j = '') {
 let handler = async (m, { conn }) => {
   const target = m.sender
   const user = global.db.data.users[target] || {}
-  const chat = global.db.data.chats?.[m.chat] || {}
+  const chat = global.db.data.chats?.[m.chat] || {
 
   const oggiCount = chat?.classificaGiornaliera?.utenti?.[target]?.conteggio || 0
   const totalMessages = user.messages || 0
@@ -21,6 +21,9 @@ let handler = async (m, { conn }) => {
 
   const nome = await conn.getName(target)
   const monete = user.euro || 0
+  const animaleDomestico = user.animale
+  ? `${user.animale.emoji} ${user.animale.nome}`
+  : '*𝐍𝐞𝐬𝐬𝐮𝐧𝐨*'
   const dailyStreak = Number(user.dailyStreak || 0)
   const lvl = getLevelFull(totalMessages)
 
@@ -49,8 +52,8 @@ let handler = async (m, { conn }) => {
 *📈 𝐏𝐫𝐨𝐠𝐫𝐞𝐬𝐬𝐨:* ${lvl.percent}%
 *⬆️ 𝐏𝐫𝐨𝐬𝐬𝐢𝐦𝐨:* ${lvl.isMax ? '*𝐌𝐀𝐗*' : `${lvl.nextName} (${lvl.remaining} msg)`}
 *💸 𝐃𝐞𝐧𝐚𝐫𝐨:* ${monete}
-*🎁 𝐒𝐭𝐫𝐞𝐚𝐤 𝐃𝐚𝐢𝐥𝐲:* ${dailyStreak} 𝐠𝐢𝐨𝐫𝐧𝐢
-*🕹 𝐂𝐨𝐦𝐚𝐧𝐝𝐢 𝐔𝐬𝐚𝐭𝐢:* ${totalCommands} 
+**🕹 𝐂𝐨𝐦𝐚𝐧𝐝𝐢 𝐔𝐬𝐚𝐭𝐢:* ${totalCommands}
+*🐾 𝐀𝐧𝐢𝐦𝐚𝐥𝐞 𝐃𝐨𝐦𝐞𝐬𝐭𝐢𝐜𝐨:* ${animaleDomestico}
 *📸 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦:* ${instagram}
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`

@@ -17,6 +17,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 👤 ${usedPrefix}profilo
 ┃ 📈 ${usedPrefix}stats
 ┃ 🏅 ${usedPrefix}mytop
+┃ 📷 ${usedPrefix}setig 
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 🏆 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐇𝐄 〕━⬣
