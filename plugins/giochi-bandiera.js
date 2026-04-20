@@ -445,7 +445,6 @@ ${F}${WM}`, m)
 ┃ *📝 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢 𝐫𝐢𝐦𝐚𝐬𝐭𝐢:* ${left}
 ${F}${WM}`, m)
   return true
-}
 
 handler.help = ['bandiera', 'skipbandiera', 'indiziobandiera']
 handler.tags = ['fun']
