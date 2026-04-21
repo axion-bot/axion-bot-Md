@@ -101,7 +101,6 @@ ${truncate(item.stack, 3000)}
   try {
     await conn.reply(m.chat, '*🔄 𝐂𝐨𝐧𝐭𝐫𝐨𝐥𝐥𝐨 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐢...*', m)
 
-    const { fileName: backupFileName } = createDatabaseBackup()
     const projectRoot = process.cwd()
     const pluginsDir = path.join(projectRoot, 'plugins')
 
@@ -156,6 +155,13 @@ ${truncate(item.stack, 3000)}
         return `📄 ${oldPath} (+${stats.plus}/-${stats.minus})`
       })
 
+    let backupDone = false
+
+    if (updatedFiles.length > 0) {
+      createDatabaseBackup()
+      backupDone = true
+    }
+
     execSync('git reset --hard origin/main && git pull', {
       encoding: 'utf-8'
     })
@@ -170,7 +176,10 @@ ${truncate(item.stack, 3000)}
       resultMsg += '\n\nℹ️ *𝐍𝐞𝐬𝐬𝐮𝐧 𝐟𝐢𝐥𝐞 𝐝𝐚 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐫𝐞*'
     }
 
-    resultMsg += `\n\n✅ *𝐁𝐚𝐜𝐤𝐮𝐩 𝐃𝐁 𝐞𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚𝐦𝐞𝐧𝐭𝐞*`
+    if (backupDone) {
+      resultMsg += `\n\n✅ *𝐁𝐚𝐜𝐤𝐮𝐩 𝐃𝐁 𝐞𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚𝐦𝐞𝐧𝐭𝐞*`
+    }
+
     resultMsg += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
 
     await conn.reply(m.chat, truncate(resultMsg), m)

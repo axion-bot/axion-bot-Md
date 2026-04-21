@@ -197,12 +197,11 @@ async function controllaTraguardoGruppo(m, conn) {
         })
       }
 
-      const premiText = premiati.length
-        ? premiati
-            .slice(0, 10)
-            .map(v => `*• @${v.jid.split('@')[0]}* — *${formatNumber(v.count)} msg* *(+${formatNumber(v.premio)}€)*`)
-            .join('\n')
-        : '*𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐫𝐞𝐦𝐢𝐨 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐨 𝐝𝐢 𝐫𝐞𝐜𝐞𝐧𝐭𝐞.*'
+      const premiText = premiati.length ? premiati
+      .slice(0, 10)
+      .map(v => `• @${v.jid.split('@')[0]} — *${formatNumber(v.count)} msg* *(+${formatNumber(v.premio)}€)*`)
+      .join('\n')
+  : '*𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐫𝐞𝐦𝐢𝐨 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐨 𝐝𝐢 𝐫𝐞𝐜𝐞𝐧𝐭𝐞.*'
 
       await conn.sendMessage(m.chat, {
         text:

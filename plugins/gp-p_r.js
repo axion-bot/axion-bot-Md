@@ -32,7 +32,67 @@ var handler = async (m, { conn, text, command }) => {
   }
 
   try {
-    await conn.groupParticipantsUpdate(m.chat, users, action)
+    const metadata = await conn.groupMetadata(m.chat)
+    const participantMap = new Map(
+      (metadata.participants || []).map(p => [p.id, !!p.admin])
+    )
+
+    const ownerNumbers = (global.owner || []).map(v => String(Array.isArray(v) ? v[0] : v))
+    const ownerJids = ownerNumbers.map(v => v.replace(/\D/g, '') + '@s.whatsapp.net')
+    const isBotOwnerTarget = jid => ownerJids.includes(jid)
+
+    const alreadyOk = []
+    const blockedOwners = []
+    const toUpdate = []
+
+    for (const user of users) {
+      const isAdminNow = participantMap.get(user) || false
+
+      if (action === 'promote') {
+        if (isAdminNow) alreadyOk.push(user)
+        else toUpdate.push(user)
+      } else {
+        if (isBotOwnerTarget(user)) blockedOwners.push(user)
+        else if (!isAdminNow) alreadyOk.push(user)
+        else toUpdate.push(user)
+      }
+    }
+
+    if (!toUpdate.length) {
+      let warningText = ''
+
+      if (blockedOwners.length) {
+        warningText = '*⛔️ 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐫𝐞𝐭𝐫𝐨𝐜𝐞𝐝𝐞𝐫𝐞 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫 𝐝𝐞𝐥 𝐛𝐨𝐭.*'
+      } else {
+        warningText = action === 'promote'
+          ? "*⚠️ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐠𝐢à 𝐚𝐝𝐦𝐢𝐧.*"
+          : "*⚠️ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐠𝐢à 𝐫𝐞𝐭𝐫𝐨𝐜𝐞𝐬𝐬𝐨.*"
+      }
+
+      const mentionsList = [sender, ...alreadyOk, ...blockedOwners]
+      const shownList = [...alreadyOk, ...blockedOwners]
+      const tagList = shownList.length
+        ? shownList.map(u => `• @${u.split('@')[0]}`).join('\n')
+        : `• @${users[0].split('@')[0]}`
+
+      const msg = `*╭━━━━━━━${icon}━━━━━━━╮*
+*✦ ${title} ✦*
+*╰━━━━━━━${icon}━━━━━━━╯*
+
+${warningText}
+
+*👥 𝐔𝐭𝐞𝐧𝐭𝐢:*
+${tagList}
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+
+      return conn.sendMessage(m.chat, {
+        text: msg,
+        mentions: mentionsList
+      }, { quoted: m })
+    }
+
+    await conn.groupParticipantsUpdate(m.chat, toUpdate, action)
 
     let thumb = 'https://i.ibb.co/2kR7x9J/avatar.png'
     try {
@@ -43,22 +103,44 @@ var handler = async (m, { conn, text, command }) => {
       ? await (await fetch(thumb)).buffer()
       : thumb
 
-    const tagList = users.map(u => `• @${u.split('@')[0]}`).join('\n')
+    const targetLabel = toUpdate.length === 1
+      ? `@${toUpdate[0].split('@')[0]}`
+      : 'gli utenti selezionati'
+
+    const actionText = action === 'promote'
+  ? `*@${sender.split('@')[0]} 𝐡𝐚 𝐝𝐚𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.*`
+  : `*@${sender.split('@')[0]} 𝐡𝐚 𝐭𝐨𝐥𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.*`
+
+    const tagList = toUpdate.map(u => `• @${u.split('@')[0]}`).join('\n')
+
+    let extraText = ''
+
+    if (alreadyOk.length) {
+      const alreadyList = alreadyOk.map(u => `• @${u.split('@')[0]}`).join('\n')
+      extraText += action === 'promote'
+        ? `\n\n*⚠️ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐠𝐢à 𝐚𝐝𝐦𝐢𝐧.*\n${alreadyList}`
+        : `\n\n*⚠️ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐠𝐢à 𝐫𝐞𝐭𝐫𝐨𝐜𝐞𝐬𝐬𝐨.*\n${alreadyList}`
+    }
+
+    if (blockedOwners.length) {
+      const ownerList = blockedOwners.map(u => `• @${u.split('@')[0]}`).join('\n')
+      extraText += `\n\n*⛔️ 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐫𝐞𝐭𝐫𝐨𝐜𝐞𝐝𝐞𝐫𝐞 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫 𝐝𝐞𝐥 𝐛𝐨𝐭.*\n${ownerList}`
+    }
 
     const msg = `*╭━━━━━━━${icon}━━━━━━━╮*
 *✦ ${title} ✦*
 *╰━━━━━━━${icon}━━━━━━━╯*
 
-*👤 𝐄𝐬𝐞𝐜𝐮𝐭𝐨𝐫𝐞:* @${sender.split('@')[0]}
-*📌 𝐀𝐳𝐢𝐨𝐧𝐞:* ${title}
-*✅ 𝐄𝐬𝐢𝐭𝐨:* 𝐂𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨
+${actionText}
 
 *👥 𝐔𝐭𝐞𝐧𝐭𝐢:*
-${tagList}`
+${tagList}${extraText}
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
     await conn.sendMessage(m.chat, {
       text: msg,
-      mentions: [sender, ...users],
+      mentions: [sender, ...toUpdate, ...alreadyOk, ...blockedOwners],
       contextInfo: {
         ...(global.rcanal?.contextInfo || {}),
         externalAdReply: {
@@ -73,7 +155,11 @@ ${tagList}`
     }, { quoted: m })
 
   } catch (e) {
-    conn.reply(m.chat, '*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥𝐥𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚 𝐝𝐞𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢.*', m)
+    conn.reply(
+      m.chat,
+      '*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥𝐥𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚 𝐝𝐞𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+      m
+    )
   }
 }
 
