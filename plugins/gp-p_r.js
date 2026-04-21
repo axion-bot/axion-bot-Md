@@ -142,8 +142,7 @@ ${tagList}
 
     await conn.groupParticipantsUpdate(m.chat, users, action)
     markRoleAction(m.chat, action, users)
-    await global.sendRoleChangeMessage(conn, m.chat, sender, users, action, m)
-
+    
   } catch (e) {
     conn.reply(
       m.chat,
