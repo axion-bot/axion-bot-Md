@@ -222,43 +222,26 @@ export async function participantsUpdate({ id, participants, action, author }) {
             }
             
             switch (action) {
-                case 'add':
-                    if (!global.db.data.chats[id]) global.db.data.chats[id] = {}
-                    if (!global.db.data.chats[id].users) global.db.data.chats[id].users = {}
+    case 'add':
+        if (!global.db.data.chats[id]) global.db.data.chats[id] = {}
+        if (!global.db.data.chats[id].users) global.db.data.chats[id].users = {}
 
-                    if (!global.db.data.chats[id].users[normalizedUser]) {
-                        global.db.data.chats[id].users[normalizedUser] = {}
-                    }
-
-                    if (!global.db.data.chats[id].users[normalizedUser].joinedAt) {
-                        global.db.data.chats[id].users[normalizedUser].joinedAt = Date.now()
-                    }
-                    break
-
-                case 'remove':
-                    break
-
-                case 'promote':
-                case 'demote': {
-                    const sender = author
-                        ? this.decodeJid(author)
-                        : (this.user?.jid ? this.decodeJid(this.user.jid) : null)
-
-                    if (!sender) break
-                    if (!global.sendRoleChangeMessage) break
-                    if (global.isRecentRoleAction?.(id, action, [normalizedUser])) break
-
-                    await global.sendRoleChangeMessage(
-                        this,
-                        id,
-                        sender,
-                        [normalizedUser],
-                        action
-                    )
-                    break
-                }
-            }
+        if (!global.db.data.chats[id].users[normalizedUser]) {
+            global.db.data.chats[id].users[normalizedUser] = {}
         }
+
+        if (!global.db.data.chats[id].users[normalizedUser].joinedAt) {
+            global.db.data.chats[id].users[normalizedUser].joinedAt = Date.now()
+        }
+        break
+
+    case 'remove':
+        break
+
+    case 'promote':
+    case 'demote':
+        break
+}
     } catch (e) {
         console.error(`[ERRORE] Errore in participantsUpdate per ${id}:`, e)
     }
@@ -320,13 +303,16 @@ export async function handler(chatUpdate) {
     }
 
     m = smsg(this, m, global.store)
-    if (!m || !m.key || !m.chat || !m.sender) return
-    
+if (!m || !m.key || !m.chat || !m.sender) return
+
 if (m.fromMe) return
-if (m.key.participant && m.key.participant.includes(':') && m.key.participant.split(':')[1]?.includes('@')) return(m.key) {
-        m.key.remoteJid = this.decodeJid(m.key.remoteJid)
-        if (m.key.participant) m.key.participant = this.decodeJid(m.key.participant)
+if (m.key.participant && m.key.participant.includes(':') && m.key.participant.split(':')[1]?.includes('@')) return
+
+if (m.key) {
+    m.key.remoteJid = this.decodeJid(m.key.remoteJid)
+    if (m.key.participant) m.key.participant = this.decodeJid(m.key.participant)
     }
+    
     if (!m.key.remoteJid) return
     if (!this.originalGroupParticipantsUpdate) {
         this.originalGroupParticipantsUpdate = this.groupParticipantsUpdate
