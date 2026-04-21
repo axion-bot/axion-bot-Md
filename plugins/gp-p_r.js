@@ -52,33 +52,10 @@ async function getThumbnailBuffer(conn, chat) {
 }
 
 global.sendRoleChangeMessage = async function (conn, chatId, sender, users, action, quoted = null) {
-  console.log('ROLE MESSAGE DEBUG - INIZIO', {
-    chatId,
-    sender,
-    users,
-    action,
-    quoted: !!quoted
-  })
-
   users = [...new Set((users || []).map(normalizeJid))]
   sender = normalizeJid(sender)
 
-  console.log('ROLE MESSAGE DEBUG - NORMALIZED', {
-    chatId,
-    sender,
-    users,
-    action
-  })
-
-  if (!users.length || !sender) {
-    console.log('ROLE MESSAGE DEBUG - BLOCCATA: users o sender mancanti', {
-      chatId,
-      sender,
-      users,
-      action
-    })
-    return
-  }
+  if (!users.length || !sender) return
   
   const icon = action === 'promote' ? '👑' : '🙇‍♂️'
   const title = action === 'promote'
@@ -92,8 +69,8 @@ global.sendRoleChangeMessage = async function (conn, chatId, sender, users, acti
     : 'gli utenti selezionati'
 
   const actionText = action === 'promote'
-    ? `*@${sender.split('@')[0]} 𝐡𝐚 𝐝𝐚𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.* 👑`
-    : `*@${sender.split('@')[0]} 𝐡𝐚 𝐭𝐨𝐥𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.* 🙇‍♂️`
+    ? `*@${sender.split('@')[0]} 𝐡𝐚 𝐝𝐚𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.*`
+    : `*@${sender.split('@')[0]} 𝐡𝐚 𝐭𝐨𝐥𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 ${targetLabel}.*`
 
   const tagList = users.map(u => `• @${u.split('@')[0]}`).join('\n')
 
@@ -103,17 +80,7 @@ global.sendRoleChangeMessage = async function (conn, chatId, sender, users, acti
 
 ${actionText}
 
-*👥 𝐔𝐭𝐞𝐧𝐭𝐢:*
-${tagList}
-
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
-
-console.log('ROLE MESSAGE DEBUG - PRIMA DI SENDMESSAGE', {
-    chatId,
-    sender,
-    users,
-    action
-  })
 
   await conn.sendMessage(chatId, {
     text: msg,
