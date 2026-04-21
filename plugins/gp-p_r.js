@@ -33,9 +33,14 @@ var handler = async (m, { conn, text, command }) => {
 
   try {
     const metadata = await conn.groupMetadata(m.chat)
-    const participantMap = new Map(
-      (metadata.participants || []).map(p => [p.id, !!p.admin])
-    )
+    const normalizeJid = jid => String(jid || '').split(':')[0]
+
+const participantMap = new Map(
+  (metadata.participants || []).map(p => [
+    normalizeJid(p.id),
+    p.admin === 'admin' || p.admin === 'superadmin'
+  ])
+)
 
     const ownerNumbers = (global.owner || []).map(v => String(Array.isArray(v) ? v[0] : v))
     const ownerJids = ownerNumbers.map(v => v.replace(/\D/g, '') + '@s.whatsapp.net')
@@ -46,7 +51,7 @@ var handler = async (m, { conn, text, command }) => {
     const toUpdate = []
 
     for (const user of users) {
-      const isAdminNow = participantMap.get(user) || false
+      const isAdminNow = participantMap.get(normalizeJid(user)) || false
 
       if (action === 'promote') {
         if (isAdminNow) alreadyOk.push(user)
