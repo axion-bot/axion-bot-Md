@@ -94,10 +94,10 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╰━━━━━━━━━━━━━━━━⬣
 `.trim()
 
-await conn.sendMessage(message.chat, {
+  await conn.sendMessage(message.chat, {
     text: menuBody,
     mentions: [userId],
-    footer: '> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+    footer: '> *𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓*',
     buttons: [
       {
         buttonId: `${usedPrefix}menu`,
@@ -107,6 +107,7 @@ await conn.sendMessage(message.chat, {
     ],
     headerType: 1
   }, { quoted: message })
+}
 
 function clockString(ms) {
   const d = Math.floor(ms / 86400000)
