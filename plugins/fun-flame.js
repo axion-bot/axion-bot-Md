@@ -255,6 +255,7 @@ handler.help = ['flame', 'stopflame']
 handler.tags = ['giochi']
 handler.command = /^(flame|stopflame)$/i
 handler.group = true
+handler.disable = true
 
 export default handler
 
