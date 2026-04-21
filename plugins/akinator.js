@@ -1,4 +1,4 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import axios from 'axios'
 
 const sessions = new Map()

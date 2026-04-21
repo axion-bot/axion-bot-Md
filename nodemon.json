@@ -1,0 +1,8 @@
+{
+  "ignore": [
+    "database.json",
+    "tmp/*",
+    "session/*",
+    "creds.json"
+  ]
+}
