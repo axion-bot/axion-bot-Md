@@ -62,22 +62,33 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
-  await conn.sendMessage(m.chat, {
-    text,
-    contextInfo: {
-      ...(global.rcanal?.contextInfo || {}),
-      ...(thumbnail ? {
-        externalAdReply: {
-          title: '𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
-          body: 'Stato moduli del sistema',
-          thumbnail,
-          mediaType: 1,
-          renderLargerThumbnail: false,
-          showAdAttribution: false
-        }
-      } : {})
+await conn.sendMessage(m.chat, {
+  text,
+  footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+  buttons: [
+    {
+      buttonId: `${usedPrefix}menu`,
+      buttonText: {
+        displayText: '⬅️ Menu Principale'
+      },
+      type: 1
     }
-  }, { quoted: m })
+  ],
+  headerType: 1,
+  contextInfo: {
+    ...(global.rcanal?.contextInfo || {}),
+    ...(thumbnail ? {
+      externalAdReply: {
+        title: '𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
+        body: 'Stato moduli del sistema',
+        thumbnail,
+        mediaType: 1,
+        renderLargerThumbnail: false,
+        showAdAttribution: false
+      }
+    } : {})
+  }
+}, { quoted: m })
 }
 
 handler.help = ['funzioni']

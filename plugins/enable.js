@@ -1,5 +1,6 @@
-import fs from 'fs'
-import sharp from 'sharp'
+// Enable by Bonzino
+
+import { getThumbBuffer } from '../lib/thumb.js'
 
 let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedPrefix }) => {
   const isEnable = /^(attiva|enable|1)$/i.test(command)
@@ -12,50 +13,6 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 
   const chat = chats[m.chat]
   const bot = settings[conn.user.jid]
-
-  const thumbs = {
-    antilink: './media/funzioni/antilink.png',
-    antiinsta: './media/funzioni/antiinsta.png',
-    antitelegram: './media/funzioni/antitelegram.png',
-    antitiktok: './media/funzioni/antitiktok.png',
-    antitag: './media/funzioni/antitag.png',
-    antigore: './media/funzioni/antigore.png',
-    antiporno: './media/funzioni/antiporno.png',
-    antimedia: './media/funzioni/antimedia.png',
-    antiporn: './media/funzioni/antiporno.png',
-    modoadmin: './media/funzioni/modoadmin.png',
-    soloadmin: './media/funzioni/modoadmin.png',
-    benvenuto: './media/funzioni/benvenuto.png',
-    addio: './media/funzioni/addio.png',
-    antiprivato: './media/funzioni/antiprivato.png',
-    antibot: './media/funzioni/antibot.png',
-    antispam: './media/funzioni/antispam.png',
-    antitrava: './media/funzioni/antitrava.png',
-    default: './media/funzioni/default.png'
-  }
-
-  const getThumbBuffer = async feature => {
-    try {
-      const file = thumbs[feature] || thumbs.default
-      const input = fs.readFileSync(file)
-
-      return await sharp(input)
-        .resize(800, 450, { fit: 'cover' })
-        .jpeg({ quality: 80 })
-        .toBuffer()
-    } catch {
-      try {
-        const input = fs.readFileSync(thumbs.default)
-
-        return await sharp(input)
-          .resize(800, 450, { fit: 'cover' })
-          .jpeg({ quality: 80 })
-          .toBuffer()
-      } catch {
-        return null
-      }
-    }
-  }
 
   let senderName = 'Utente'
   try {
@@ -218,38 +175,6 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       chat.antitrava = isEnable
       result = box('𝐀𝐍𝐓𝐈 𝐓𝐑𝐀𝐕𝐀', `${isEnable ? '✅' : '❌'} 𝐅𝐢𝐥𝐭𝐫𝐨 𝐭𝐞𝐬𝐭𝐨 𝐭𝐫𝐚𝐯𝐚 ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐨'}`)
       break
-
-    case 'tutte':
-    case 'tutti':
-      requireAdmin()
-
-      chat.antiLink = isEnable
-      chat.antiInsta = isEnable
-      chat.antiTelegram = isEnable
-      chat.antiTiktok = isEnable
-      chat.antiTag = isEnable
-      chat.antigore = isEnable
-      chat.antiporno = isEnable
-      chat.antimedia = isEnable
-      chat.modoadmin = isEnable
-      chat.welcome = isEnable
-      chat.goodbye = isEnable
-      chat.antiBot = isEnable
-      chat.antispam = isEnable
-      chat.antitrava = isEnable
-
-      thumbFeature = 'default'
-
-      result = box(
-        '𝐓𝐔𝐓𝐓𝐄 𝐋𝐄 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
-        isEnable
-          ? `✅ 𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐢 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐞 𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐞`
-          : `❌ 𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐢 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐞 𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐞`
-      )
-      break
-
-    default:
-      throw box('𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐄 𝐒𝐂𝐎𝐍𝐎𝐒𝐂𝐈𝐔𝐓𝐀', '⚠️ 𝐋𝐚 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐚 𝐧𝐨𝐧 è 𝐯𝐚𝐥𝐢𝐝𝐚')
   }
 
   result += `
@@ -284,9 +209,3 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
     return m.reply(result)
   }
 }
-
-handler.help = ['attiva <feature>', 'disattiva <feature>']
-handler.tags = ['group']
-handler.command = ['attiva', 'disattiva', 'enable', 'disable', '1', '0']
-
-export default handler

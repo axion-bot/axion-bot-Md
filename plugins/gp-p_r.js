@@ -1,6 +1,7 @@
 // by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
 
 import fetch from 'node-fetch'
+import { getThumbBuffer } from '../lib/thumb.js'
 
 const S = v => String(v || '')
 const ROLE_EVENT_CACHE_MS = 8000
@@ -40,17 +41,6 @@ function cleanupRoleActionCache() {
   }
 }
 
-async function getThumbnailBuffer(conn, chat) {
-  let thumb = 'https://i.ibb.co/2kR7x9J/avatar.png'
-  try {
-    thumb = await conn.profilePictureUrl(chat, 'image')
-  } catch {}
-
-  return typeof thumb === 'string'
-    ? await (await fetch(thumb)).buffer()
-    : thumb
-}
-
 global.sendRoleChangeMessage = async function (conn, chatId, sender, users, action, quoted = null) {
   users = [...new Set((users || []).map(normalizeJid))]
   sender = normalizeJid(sender)
@@ -62,7 +52,7 @@ global.sendRoleChangeMessage = async function (conn, chatId, sender, users, acti
     ? '𝐏𝐑𝐎𝐌𝐎𝐙𝐈𝐎𝐍𝐄'
     : '𝐑𝐄𝐓𝐑𝐎𝐂𝐄𝐒𝐒𝐈𝐎𝐍𝐄'
 
-  const thumbnailBuffer = await getThumbnailBuffer(conn, chatId)
+  const thumbnailBuffer = await getThumbBuffer(action)
 
   const targetLabel = users.length === 1
     ? `@${users[0].split('@')[0]}`
