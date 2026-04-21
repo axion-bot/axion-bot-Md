@@ -1,5 +1,3 @@
-// Plugin aggiorna by 𝕯𝖊ⱥ𝖉𝖑𝐲 e Bonzino
-
 import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
@@ -44,7 +42,9 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 
 \`\`\`
 ${truncate(item.stack, 3000)}
-\`\`\``
+\`\`\`
+
+> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
 
     return conn.reply(m.chat, fullMsg, m)
   }
@@ -112,13 +112,15 @@ ${truncate(item.stack, 3000)}
 
     await sleep(1500)
 
-    let resultMsg = '*✅ 𝐀𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨!*'
+    let resultMsg = `*✅ 𝐀𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐨!*`
 
     if (updatedFiles.length > 0) {
       resultMsg += `\n\n📦 *𝐅𝐢𝐥𝐞 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐭𝐢:* ${updatedFiles.length}\n\n${updatedFiles.join('\n')}`
     } else {
       resultMsg += '\n\nℹ️ *𝐍𝐞𝐬𝐬𝐮𝐧 𝐟𝐢𝐥𝐞 𝐝𝐚 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐫𝐞*'
     }
+
+    resultMsg += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
 
     await conn.reply(m.chat, truncate(resultMsg), m)
 
@@ -144,48 +146,51 @@ ${truncate(item.stack, 3000)}
       }
     }
 
-if (pluginErrors.length > 0) {
-  for (const item of pluginErrors) {
-    const debugId = createDebugId()
+    if (pluginErrors.length > 0) {
+      for (const item of pluginErrors) {
+        const debugId = createDebugId()
 
-    global.updateDebugErrors[debugId] = {
-      ...item,
-      createdAt: Date.now()
-    }
+        global.updateDebugErrors[debugId] = {
+          ...item,
+          createdAt: Date.now()
+        }
 
-    const shortMsg =
+        const shortMsg =
 `*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐧𝐞𝐥 𝐩𝐥𝐮𝐠𝐢𝐧*
 
 📄 *𝐅𝐢𝐥𝐞:* ${item.file}
-💥 *𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨:* ${item.message}`
+💥 *𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨:* ${item.message}
 
-    await conn.sendMessage(m.chat, {
-      text: shortMsg,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-      buttons: [
-        {
-          buttonId: `${usedPrefix}debugplugin ${debugId}`,
-          buttonText: { displayText: '🔧 Debug completo' },
-          type: 1
+> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+
+        await conn.sendMessage(m.chat, {
+          text: shortMsg,
+          footer: 'Axion Bot',
+          buttons: [
+            {
+              buttonId: `${usedPrefix}debugplugin ${debugId}`,
+              buttonText: { displayText: '🔧 Debug completo' },
+              type: 1
+            }
+          ],
+          headerType: 1
+        }, { quoted: m })
+
+        if (pluginErrors.length > 1) {
+          await sleep(1200)
         }
-      ],
-      headerType: 1
-    }, { quoted: m })
+      }
 
-    if (pluginErrors.length > 1) {
-      await sleep(1200)
+      await m.react('⚠️')
+      return
     }
-  }
 
-  await m.react('⚠️')
-  return
-}
     await m.react('✅')
 
   } catch (err) {
     await conn.reply(
       m.chat,
-      `*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨:*\n\n${err.message}`,
+      `*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨:*\n\n${err.message}\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
       m
     )
     await m.react('❌')
