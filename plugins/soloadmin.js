@@ -54,7 +54,7 @@ handler.before = async function (m, { isAdmin, isBotAdmin, isOwner, isROwner }) 
   if (!isCommandMessage(text)) return false
 
   const box = (title, desc) => `╭━━━━━━━⚙️━━━━━━━╮
-*✦ ${title} ✦*
+✦ ${title} ✦
 ╰━━━━━━━⚙️━━━━━━━╯
 
 *${desc}*
