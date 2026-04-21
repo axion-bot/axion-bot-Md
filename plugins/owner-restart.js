@@ -77,16 +77,24 @@ let handler = async (m, { conn, isOwner }) => {
     fs.writeFileSync(RESTART_FILE, JSON.stringify(payload, null, 2))
 
     const isPm2 =
-      process.env.pm_id !== undefined ||
-      process.env.PM_ID !== undefined ||
-      process.env.NODE_APP_INSTANCE !== undefined
+  process.env.pm_id !== undefined ||
+  process.env.PM_ID !== undefined ||
+  process.env.NODE_APP_INSTANCE !== undefined
 
-    if (isPm2) {
-      setTimeout(() => {
-        process.exit(0)
-      }, 500)
-      return
-    }
+if (isPm2) {
+  setTimeout(() => {
+    process.exit(0)
+  }, 500)
+} else {
+  setTimeout(() => {
+    spawn(process.argv[0], process.argv.slice(1), {
+      detached: true,
+      stdio: 'inherit'
+    }).unref()
+
+    process.exit(0)
+  }, 500)
+}
 
     const child = spawn(process.argv[0], process.argv.slice(1), {
       cwd: process.cwd(),
