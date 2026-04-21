@@ -82,7 +82,7 @@ ${actionText}
   body: ' ',
   ...(thumbnailBuffer ? { thumbnail: thumbnailBuffer } : {}),
   mediaType: 1,
-  renderLargerThumbnail: true,
+  renderLargerThumbnail: false,
   showAdAttribution: false
 }
   }
