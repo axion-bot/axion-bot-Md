@@ -26,26 +26,6 @@ async function editMessage(conn, chatId, key, text, mentions = []) {
   )
 }
 
-function buildRestartCommand() {
-  const nodeExec = process.argv[0]
-  const scriptArgs = process.argv.slice(1)
-
-  const quotedNode = `"${nodeExec.replace(/"/g, '\\"')}"`
-  const quotedArgs = scriptArgs.map(arg => `"${String(arg).replace(/"/g, '\\"')}"`).join(' ')
-
-  if (process.platform === 'win32') {
-    return {
-      cmd: 'cmd',
-      args: ['/c', `timeout /t 3 /nobreak >nul && ${quotedNode} ${quotedArgs}`]
-    }
-  }
-
-  return {
-    cmd: 'sh',
-    args: ['-c', `sleep 3; exec ${quotedNode} ${quotedArgs}`]
-  }
-}
-
 let handler = async (m, { conn, isOwner }) => {
   if (!isOwner) {
     return m.reply('*𝐒𝐨𝐥𝐨 𝐢𝐥 𝐩𝐫𝐨𝐩𝐫𝐢𝐞𝐭𝐚𝐫𝐢𝐨 può 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*')
@@ -86,13 +66,13 @@ let handler = async (m, { conn, isOwner }) => {
       await editMessage(conn, m.chat, key, frame, [m.sender])
     }
 
-const payload = {
-  type: 'manual_restart',
-  chat: m.chat,
-  sender: m.sender,
-  startedAt: Date.now(),
-  errors
-}
+    const payload = {
+      type: 'manual_restart',
+      chat: m.chat,
+      sender: m.sender,
+      startedAt: Date.now(),
+      errors
+    }
 
     fs.writeFileSync(RESTART_FILE, JSON.stringify(payload, null, 2))
 
@@ -108,15 +88,18 @@ const payload = {
       return
     }
 
-    const restart = buildRestartCommand()
-
-    const child = spawn(restart.cmd, restart.args, {
+    const child = spawn(process.argv[0], process.argv.slice(1), {
       cwd: process.cwd(),
-      detached: true,
-      stdio: 'ignore'
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        AXION_INTERNAL_RESTART: '1'
+      }
     })
 
-    child.unref()
+    child.on('error', err => {
+      console.error('restart spawn error:', err)
+    })
 
     setTimeout(() => {
       process.exit(0)
@@ -127,6 +110,7 @@ const payload = {
     try {
       fs.mkdirSync(path.dirname(RESTART_FILE), { recursive: true })
       fs.writeFileSync(RESTART_FILE, JSON.stringify({
+        type: 'manual_restart',
         chat: m.chat,
         sender: m.sender,
         startedAt: Date.now(),
