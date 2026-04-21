@@ -221,7 +221,7 @@ export async function participantsUpdate({ id, participants, action, author }) {
               global.nameCache.set(normalizedUser, userName);
             }
             
-            switch (action) {
+switch (action) {
     case 'add':
         if (!global.db.data.chats[id]) global.db.data.chats[id] = {}
         if (!global.db.data.chats[id].users) global.db.data.chats[id].users = {}
@@ -242,6 +242,7 @@ export async function participantsUpdate({ id, participants, action, author }) {
     case 'demote':
         break
 }
+        }
     } catch (e) {
         console.error(`[ERRORE] Errore in participantsUpdate per ${id}:`, e)
     }
