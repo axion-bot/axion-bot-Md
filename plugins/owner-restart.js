@@ -1,8 +1,5 @@
-//Plugin Restart by Bonzino
-
 import fs from 'fs'
 import path from 'path'
-import { spawn } from 'child_process'
 
 const RESTART_FILE = path.resolve('./tmp/restart-state.json')
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -76,42 +73,26 @@ let handler = async (m, { conn, isOwner }) => {
 
     fs.writeFileSync(RESTART_FILE, JSON.stringify(payload, null, 2))
 
+    try {
+      await conn.ws.close()
+    } catch {}
+
     const isPm2 =
-  process.env.pm_id !== undefined ||
-  process.env.PM_ID !== undefined ||
-  process.env.NODE_APP_INSTANCE !== undefined
+      process.env.pm_id !== undefined ||
+      process.env.PM_ID !== undefined ||
+      process.env.NODE_APP_INSTANCE !== undefined
 
-if (isPm2) {
-  setTimeout(() => {
-    process.exit(0)
-  }, 500)
-} else {
-  setTimeout(() => {
-    spawn(process.argv[0], process.argv.slice(1), {
-      detached: true,
-      stdio: 'inherit'
-    }).unref()
-
-    process.exit(0)
-  }, 500)
-}
-
-    const child = spawn(process.argv[0], process.argv.slice(1), {
-      cwd: process.cwd(),
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        AXION_INTERNAL_RESTART: '1'
-      }
-    })
-
-    child.on('error', err => {
-      console.error('restart spawn error:', err)
-    })
+    if (isPm2) {
+      setTimeout(() => {
+        process.exit(0)
+      }, 500)
+      return
+    }
 
     setTimeout(() => {
       process.exit(0)
     }, 500)
+
   } catch (e) {
     errors++
 
