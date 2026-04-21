@@ -19,7 +19,6 @@ import pino from 'pino';
 import { makeWASocket, protoType, serialize } from './lib/simple.js';
 import { Low, JSONFile } from 'lowdb';
 import NodeCache from 'node-cache';
-const state = JSON.parse(fs.readFileSync(RESTART_FILE, 'utf-8'));
 
 const DisconnectReason = {
     connectionClosed: 428,
@@ -390,7 +389,7 @@ async function notifyRestartComplete(conn) {
     try {
         if (!existsSync(RESTART_FILE)) return;
 
-        const state = JSON.parse(fs.readFileSync(RESTART_FILE));
+        const state = JSON.parse(fs.readFileSync(RESTART_FILE, 'utf-8'));
         const elapsed = ((Date.now() - state.startedAt) / 1000).toFixed(1);
         const errors = state.errors || 0;
 
