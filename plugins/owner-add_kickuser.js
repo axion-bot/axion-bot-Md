@@ -132,7 +132,9 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   // 🚫 BLOCCO SICUREZZA
-  if (target === m.chat) {
+  const hasExplicitTarget = Boolean(groupId || inviteCode)
+
+if (target === m.chat && !hasExplicitTarget) {
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
