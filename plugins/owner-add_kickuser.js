@@ -87,7 +87,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 
     if (groupIdFound || inviteCodeFound) {
       explicitTargetText = normalizedInput
-
       rawNumber = normalizedInput
         .replace(/https:\/\/chat\.whatsapp\.com\/([A-Za-z0-9]+)/gi, ' ')
         .replace(/(\d{10,}@g\.us)/gi, ' ')
@@ -161,7 +160,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 *✦ 𝐆𝐑𝐔𝐏𝐏𝐎 𝐃𝐈 𝐃𝐄𝐒𝐓𝐈𝐍𝐀𝐙𝐈𝐎𝐍𝐄 𝐄𝐑𝐑𝐀𝐓𝐎 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐇𝐚𝐢 𝐢𝐧𝐝𝐢𝐜𝐚𝐭𝐨 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨, 𝐦𝐚 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐫𝐢𝐬𝐨𝐥𝐯𝐞𝐫𝐥𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚𝐦𝐞𝐧𝐭𝐞.*
+*𝐇𝐚𝐢 𝐢𝐧𝐝𝐢𝐜𝐚𝐭𝐨 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨, 𝐦𝐚 𝐧𝐨𝐧 è 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐬𝐨𝐥𝐭𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚𝐦𝐞𝐧𝐭𝐞.*
 *𝐏𝐞𝐫 𝐬𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚 𝐧𝐨𝐧 𝐡𝐨 𝐭𝐨𝐜𝐜𝐚𝐭𝐨 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞.*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
@@ -175,11 +174,8 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 
     const normalize = jid => String(conn.decodeJid(jid || '') || '').split(':')[0]
     const senderJid = normalize(m.sender)
-    const botJid = normalize(conn.user?.jid || '')
 
     const senderParticipant = participants.find(p => normalize(p.id) === senderJid)
-    const botParticipant = participants.find(p => normalize(p.id) === botJid)
-
     const senderIsAdmin = senderParticipant
       ? (
           senderParticipant.admin === 'admin' ||
@@ -188,29 +184,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
           senderParticipant.isAdmin === true
         )
       : false
-
-    const botIsAdmin = botParticipant
-      ? (
-          botParticipant.admin === 'admin' ||
-          botParticipant.admin === 'superadmin' ||
-          botParticipant.admin === true ||
-          botParticipant.isAdmin === true
-        )
-      : false
-
-    if (!botIsAdmin) {
-      return conn.reply(
-        m.chat,
-        `*╭━━━━━━━🤖━━━━━━━╮*
-*✦ 𝐁𝐎𝐓 𝐍𝐎𝐍 𝐀𝐃𝐌𝐈𝐍 ✦*
-*╰━━━━━━━🤖━━━━━━━╯*
-
-*❌ 𝐍𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐝𝐢 𝐝𝐞𝐬𝐭𝐢𝐧𝐚𝐳𝐢𝐨𝐧𝐞 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐚𝐦𝐦𝐢𝐧.*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-        m
-      )
-    }
 
     if (!isSameGroup && !(isOwner || isROwner) && !senderIsAdmin) {
       return conn.reply(
@@ -287,15 +260,28 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
       m,
       { mentions: [userJid] }
     )
-  } catch {
+  } catch (e) {
+    console.log('ERRORE GROUP ACTION:', e)
+
+    const err = String(e?.message || e || '').toLowerCase()
+
+    let msg = `*𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚𝐫𝐞 𝐥'𝐮𝐭𝐞𝐧𝐭𝐞.*`
+
+    if (err.includes('403') || err.includes('admin') || err.includes('not-authorized')) {
+      msg = `*❌ 𝐈𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 𝐡𝐚 𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢 𝐧𝐞𝐜𝐞𝐬𝐬𝐚𝐫𝐢 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐝𝐢 𝐝𝐞𝐬𝐭𝐢𝐧𝐚𝐳𝐢𝐨𝐧𝐞.*`
+    } else if (err.includes('privacy') || err.includes('invite')) {
+      msg = `*❌ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐚𝐯𝐞𝐫𝐞 𝐩𝐫𝐢𝐯𝐚𝐜𝐲 𝐜𝐡𝐢𝐮𝐬𝐚 𝐨 𝐫𝐢𝐜𝐡𝐢𝐞𝐝𝐞𝐫𝐞 𝐢𝐧𝐯𝐢𝐭𝐨 𝐭𝐫𝐚𝐦𝐢𝐭𝐞 𝐥𝐢𝐧𝐤.*`
+    } else if (err.includes('not a participant') || err.includes('participant')) {
+      msg = `*❌ 𝐋'𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐫𝐢𝐬𝐮𝐥𝐭𝐚 𝐠𝐞𝐬𝐭𝐢𝐛𝐢𝐥𝐞 𝐢𝐧 𝐪𝐮𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`
+    }
+
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚𝐫𝐞 𝐥'𝐮𝐭𝐞𝐧𝐭𝐞.*
-*𝐈𝐥 𝐛𝐨𝐭 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐧𝐨𝐧 𝐞𝐬𝐬𝐞𝐫𝐞 𝐚𝐦𝐦𝐢𝐧, 𝐥'𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐚𝐯𝐞𝐫𝐞 𝐩𝐫𝐢𝐯𝐚𝐜𝐲 𝐜𝐡𝐢𝐮𝐬𝐚 𝐨 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐧𝐨𝐧 𝐞𝐬𝐬𝐞𝐫𝐞 𝐚𝐜𝐜𝐞𝐬𝐬𝐢𝐛𝐢𝐥𝐞.*
+${msg}
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
       m
