@@ -15,9 +15,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *${usedPrefix}kickuser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*
 
 *📌 𝐒𝐮𝐩𝐩𝐨𝐫𝐭𝐚 𝐚𝐧𝐜𝐡𝐞:*
-*${usedPrefix}kickuser 393xxx | link*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+*${usedPrefix}kickuser 393xxx | link*`,
       m
     )
   }
@@ -29,9 +27,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *✦ 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎 ✦*
 *╰━━━━━━━⛔━━━━━━━╯*
 
-*❌ 𝐒𝐨𝐥𝐨 𝐨𝐰𝐧𝐞𝐫.*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+*❌ 𝐒𝐨𝐥𝐨 𝐨𝐰𝐧𝐞𝐫.*`,
       m
     )
   }
@@ -39,7 +35,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   const isAdd = ['adduser', 'addnum', 'addutente'].includes(command)
   const action = isAdd ? 'add' : 'remove'
   const actionLabel = isAdd ? '𝐀𝐆𝐆𝐈𝐔𝐍𝐓𝐎' : '𝐑𝐈𝐌𝐎𝐒𝐒𝐎'
-  const actionVerb = isAdd ? 'aggiunto' : 'rimosso'
+  const actionText = isAdd ? 'aggiunto' : 'rimosso'
 
   const log = (...a) => console.log('[ADD-KICK]', ...a)
 
@@ -94,15 +90,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   log('NUMBER:', number)
   log('CHAT:', m.chat)
   log('REMOTEJID:', m?.key?.remoteJid)
-  log('MESSAGE CONTEXT:', {
-    chat: m.chat,
-    remoteJid: m.key?.remoteJid,
-    sender: m.sender,
-    participant: m.key?.participant,
-    fromMe: m.fromMe,
-    isGroup: m.isGroup,
-    pushName: m.pushName
-  })
 
   if (!number) {
     return conn.reply(
@@ -139,9 +126,9 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     let lastError = null
     for (let i = 0; i < 3; i++) {
       try {
-        log(`METADATA TRY ${i + 1}:`, jid)
+        log('METADATA TRY:', i + 1, jid)
         const meta = await withTimeout(conn.groupMetadata(jid), 20000)
-        log(`METADATA OK ${i + 1}:`, {
+        log('METADATA OK:', {
           id: meta?.id,
           subject: meta?.subject,
           participants: Array.isArray(meta?.participants) ? meta.participants.length : 0
@@ -149,7 +136,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
         return meta
       } catch (e) {
         lastError = e
-        log(`METADATA FAIL ${i + 1}:`, e)
+        log('METADATA ERROR:', i + 1, e)
         await sleep(1500)
       }
     }
@@ -157,16 +144,13 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   let target = null
-  let explicitTarget = false
 
   if (groupId) {
     target = groupId
-    explicitTarget = true
   } else {
     try {
       const info = await withTimeout(conn.groupGetInviteInfo(inviteCode), 20000)
       target = info?.id
-      explicitTarget = true
       log('INVITE INFO:', {
         id: info?.id,
         subject: info?.subject,
@@ -187,26 +171,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     )
   }
 
-  log('TARGET:', target)
-  log('BLOCK CHECK:', {
-    target,
-    chat: m.chat,
-    same: target === m.chat,
-    explicitTarget
-  })
-
-  if (!explicitTarget && target === m.chat) {
-    return conn.reply(
-      m.chat,
-      `*╭━━━━━━━⚠️━━━━━━━╮*
-*✦ 𝐁𝐋𝐎𝐂𝐂𝐀𝐓𝐎 ✦*
-*╰━━━━━━━⚠️━━━━━━━╯*
-
-*𝐍𝐨𝐧 𝐭𝐨𝐜𝐜𝐨 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞.*`,
-      m
-    )
-  }
-
   try {
     const meta = await getGroupMetadataSafe(target)
     const participants = Array.isArray(meta?.participants) ? meta.participants : []
@@ -222,7 +186,8 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
     const isBotAdmin = !!botParticipant && ['admin', 'superadmin'].includes(botParticipant.admin)
 
-    log('BOT:', botJid)
+    log('TARGET:', target)
+    log('TARGET SUBJECT:', meta?.subject)
     log('BOT PHONE:', botPhone)
     log('BOT ADMIN:', isBotAdmin)
     log('PARTICIPANTS COUNT:', participants.length)
@@ -244,34 +209,18 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
       const normalizedIds = ids.map(id => normalizeJid(id)).filter(Boolean)
       const phones = ids.map(id => jidPhone(id)).filter(Boolean)
 
-      const jidMatch = normalizedIds.includes(normalizeJid(userJid))
-      const phoneMatch = phones.includes(cleanUser)
-
-      if (jidMatch || phoneMatch) {
+      if (normalizedIds.includes(normalizeJid(userJid)) || phones.includes(cleanUser)) {
         match = p
         log('MATCH FOUND:', {
           ids,
           normalizedIds,
-          phones,
-          mode: jidMatch ? 'jid' : 'phone'
+          phones
         })
         break
       }
     }
 
     const exists = !!match
-
-    if (!exists) {
-      const sample = participants.slice(0, 10).map(p => {
-        const ids = participantIds(p)
-        return {
-          ids,
-          phones: ids.map(id => jidPhone(id)).filter(Boolean),
-          admin: p?.admin || null
-        }
-      })
-      log('NO MATCH. SAMPLE:', JSON.stringify(sample, null, 2))
-    }
 
     log('USER JID:', userJid)
     log('USER PHONE:', cleanUser)
@@ -283,6 +232,20 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
       participant: match?.participant || null,
       admin: match?.admin || null
     } : null)
+
+    await conn.reply(
+      m.chat,
+      `*╭━━━━━━━📍━━━━━━━╮*
+*✦ 𝐓𝐀𝐑𝐆𝐄𝐓 ✦*
+*╰━━━━━━━📍━━━━━━━╯*
+
+*𝐆𝐫𝐮𝐩𝐩𝐨:* *${meta?.subject || '-'}*
+*𝐈𝐃:* *${target}*
+*𝐔𝐭𝐞𝐧𝐭𝐞:* *@${number}*
+*𝐀𝐳𝐢𝐨𝐧𝐞:* *${action}*`,
+      m,
+      { mentions: [userJid] }
+    )
 
     if (action === 'remove' && !exists) {
       return conn.reply(
@@ -309,13 +272,13 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
     for (let i = 0; i < 3; i++) {
       try {
-        log('TRY UPDATE', i + 1, { target, userJid, action })
+        log('TRY UPDATE:', i + 1, { target, userJid, action })
         lastResult = await withTimeout(conn.groupParticipantsUpdate(target, [userJid], action), 30000)
         log('UPDATE RESULT:', JSON.stringify(lastResult, null, 2))
         ok = true
         break
       } catch (e) {
-        log('RETRY ERROR:', e)
+        log('UPDATE ERROR:', i + 1, e)
         await sleep(2000)
       }
     }
@@ -338,7 +301,8 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *✦ 𝐔𝐓𝐄𝐍𝐓𝐄 ${actionLabel} ✦*
 *╰━━━━━━━✅━━━━━━━╯*
 
-*@${number} 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 ${actionVerb}.*`,
+*@${number} 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 ${actionText}.*
+*𝐆𝐫𝐮𝐩𝐩𝐨:* *${meta?.subject || '-'}*`,
       m,
       { mentions: [userJid] }
     )
@@ -359,5 +323,6 @@ handler.help = ['adduser', 'kickuser']
 handler.tags = ['group']
 handler.command = ['adduser', 'addnum', 'addutente', 'kickuser', 'deluser', 'removeuser']
 handler.group = false
+handler.rowner = true
 
 export default handler
