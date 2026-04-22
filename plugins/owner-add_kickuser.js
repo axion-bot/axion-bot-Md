@@ -94,6 +94,15 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   log('NUMBER:', number)
   log('CHAT:', m.chat)
   log('REMOTEJID:', m?.key?.remoteJid)
+  log('MESSAGE CONTEXT:', {
+    chat: m.chat,
+    remoteJid: m.key?.remoteJid,
+    sender: m.sender,
+    participant: m.key?.participant,
+    fromMe: m.fromMe,
+    isGroup: m.isGroup,
+    pushName: m.pushName
+  })
 
   if (!number) {
     return conn.reply(
@@ -148,13 +157,16 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   let target = null
+  let explicitTarget = false
 
   if (groupId) {
     target = groupId
+    explicitTarget = true
   } else {
     try {
       const info = await withTimeout(conn.groupGetInviteInfo(inviteCode), 20000)
       target = info?.id
+      explicitTarget = true
       log('INVITE INFO:', {
         id: info?.id,
         subject: info?.subject,
@@ -176,9 +188,14 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   log('TARGET:', target)
-  log('BLOCK CHECK:', { target, chat: m.chat, same: target === m.chat })
+  log('BLOCK CHECK:', {
+    target,
+    chat: m.chat,
+    same: target === m.chat,
+    explicitTarget
+  })
 
-  if (target === m.chat) {
+  if (!explicitTarget && target === m.chat) {
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
