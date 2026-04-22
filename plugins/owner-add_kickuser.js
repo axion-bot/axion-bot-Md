@@ -48,10 +48,42 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
   const actionVerb = isAdd ? 'aggiunto' : 'rimosso'
 
   const parts = input.split('|').map(v => v.trim()).filter(Boolean)
-  const rawNumber = parts[0] || ''
-  const rawTarget = parts[1] || ''
+  const firstPart = parts[0] || ''
+  const secondPart = parts[1] || ''
 
-  const cleanNumber = rawNumber.replace(/\D/g, '')
+  const getInviteCode = link => {
+    const clean = String(link || '').replace(/\s+/g, '')
+    const match = clean.match(/chat\.whatsapp\.com\/([A-Za-z0-9]+)/i)
+    return match ? match[1] : null
+  }
+
+  const getGroupId = str => {
+    const match = String(str || '').match(/\b(\d{10,}@g\.us)\b/i)
+    return match ? match[1] : null
+  }
+
+  let rawNumber = ''
+  let rawTarget = ''
+
+  if (parts.length >= 2) {
+    rawNumber = firstPart
+    rawTarget = secondPart
+  } else {
+    const inviteCode = getInviteCode(input)
+    const groupId = getGroupId(input)
+
+    if (inviteCode || groupId) {
+      const cleanedInput = input.replace(/\s+/g, ' ')
+      const numberMatch = cleanedInput.match(/\b\d{6,15}\b/)
+      rawNumber = numberMatch ? numberMatch[0] : ''
+      rawTarget = groupId || input
+    } else {
+      rawNumber = input
+      rawTarget = ''
+    }
+  }
+
+  const cleanNumber = String(rawNumber || '').replace(/\D/g, '')
   if (!cleanNumber) {
     return conn.reply(
       m.chat,
@@ -68,21 +100,18 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 
   const userJid = `${cleanNumber}@s.whatsapp.net`
 
-  const getInviteCode = link => {
-    const match = String(link || '').match(/chat\.whatsapp\.com\/([A-Za-z0-9]+)/i)
-    return match ? match[1] : null
-  }
-
   const resolveTargetGroup = async () => {
     if (!rawTarget) return m.chat
 
-    if (/@g\.us$/i.test(rawTarget)) return rawTarget
+    const cleanTarget = String(rawTarget || '').trim()
 
-    const code = getInviteCode(rawTarget)
-    if (!code) return null
+    if (/@g\.us$/i.test(cleanTarget)) return cleanTarget
+
+    const inviteCode = getInviteCode(cleanTarget)
+    if (!inviteCode) return null
 
     try {
-      const info = await conn.groupGetInviteInfo(code)
+      const info = await conn.groupGetInviteInfo(inviteCode)
       return info?.id || null
     } catch {
       return null
@@ -114,25 +143,35 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
     const senderJid = conn.decodeJid(m.sender)
     const botJid = conn.decodeJid(conn.user?.jid || '')
 
-const senderIsAdmin = participants.some(p => {
-  const ids = [
-    conn.decodeJid(p.id),
-    p.jid ? conn.decodeJid(p.jid) : null,
-    p.lid ? conn.decodeJid(p.lid) : null
-  ].filter(Boolean)
+    const senderIsAdmin = participants.some(p => {
+      const ids = [
+        conn.decodeJid(p.id),
+        p.jid ? conn.decodeJid(p.jid) : null,
+        p.lid ? conn.decodeJid(p.lid) : null
+      ].filter(Boolean)
 
-  return ids.includes(senderJid) && (p.admin === 'admin' || p.admin === 'superadmin' || p.admin === true || p.isAdmin === true)
-})
+      return ids.includes(senderJid) && (
+        p.admin === 'admin' ||
+        p.admin === 'superadmin' ||
+        p.admin === true ||
+        p.isAdmin === true
+      )
+    })
 
     const botIsAdmin = participants.some(p => {
-  const ids = [
-    conn.decodeJid(p.id),
-    p.jid ? conn.decodeJid(p.jid) : null,
-    p.lid ? conn.decodeJid(p.lid) : null
-  ].filter(Boolean)
+      const ids = [
+        conn.decodeJid(p.id),
+        p.jid ? conn.decodeJid(p.jid) : null,
+        p.lid ? conn.decodeJid(p.lid) : null
+      ].filter(Boolean)
 
-  return ids.includes(botJid) && (p.admin === 'admin' || p.admin === 'superadmin' || p.admin === true || p.isAdmin === true)
-})
+      return ids.includes(botJid) && (
+        p.admin === 'admin' ||
+        p.admin === 'superadmin' ||
+        p.admin === true ||
+        p.isAdmin === true
+      )
+    })
 
     if (!botIsAdmin) {
       return conn.reply(
@@ -176,7 +215,15 @@ const senderIsAdmin = participants.some(p => {
       )
     }
 
-    const alreadyInGroup = participants.some(p => conn.decodeJid(p.id) === userJid)
+    const alreadyInGroup = participants.some(p => {
+      const ids = [
+        conn.decodeJid(p.id),
+        p.jid ? conn.decodeJid(p.jid) : null,
+        p.lid ? conn.decodeJid(p.lid) : null
+      ].filter(Boolean)
+
+      return ids.includes(userJid)
+    })
 
     if (action === 'add' && alreadyInGroup) {
       return conn.reply(
@@ -223,7 +270,7 @@ const senderIsAdmin = participants.some(p => {
       m,
       { mentions: [userJid] }
     )
-  } catch (e) {
+  } catch {
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
@@ -243,6 +290,5 @@ handler.help = ['adduser', 'kickuser']
 handler.tags = ['group']
 handler.command = ['adduser', 'addnum', 'addutente', 'kickuser', 'deluser', 'removeuser']
 handler.group = false
-handler.botAdmin = false
 
 export default handler
