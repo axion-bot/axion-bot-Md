@@ -1,3 +1,5 @@
+
+
 let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isROwner }) => {
   const input = String(text || '').trim()
 
@@ -48,49 +50,52 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
   const actionVerb = isAdd ? 'aggiunto' : 'rimosso'
 
   const normalizedInput = String(input || '')
-    .replace(/\n/g, ' ')
+    .replace(/\r/g, '\n')
+    .replace(/\n+/g, ' ')
     .replace(/\s+/g, ' ')
-    .replace(/https:\/\/chat\.whatsapp\.com\s+\/?/gi, 'https://chat.whatsapp.com/')
+    .replace(/https:\/\/chat\.whatsapp\.com\s*\/\s*/gi, 'https://chat.whatsapp.com/')
+    .replace(/\s*@\s*g\.us/gi, '@g.us')
+    .trim()
 
-  const parts = normalizedInput.split('|').map(v => v.trim()).filter(Boolean)
-  const firstPart = parts[0] || ''
-  const secondPart = parts[1] || ''
-
-  const getInviteCode = link => {
-    const clean = String(link || '')
-      .replace(/\n/g, '')
+  const getInviteCode = str => {
+    const clean = String(str || '')
       .replace(/\s+/g, '')
       .replace(/https:\/\/chat\.whatsapp\.com\/+/gi, 'https://chat.whatsapp.com/')
-
     const match = clean.match(/chat\.whatsapp\.com\/([A-Za-z0-9]+)/i)
     return match ? match[1] : null
   }
 
   const getGroupId = str => {
-    const match = String(str || '').match(/\b(\d{10,}@g\.us)\b/i)
+    const clean = String(str || '')
+      .replace(/\s+/g, '')
+      .replace(/\s*@\s*g\.us/gi, '@g.us')
+    const match = clean.match(/(\d{10,}@g\.us)/i)
     return match ? match[1] : null
   }
 
+  const parts = normalizedInput.split('|').map(v => v.trim()).filter(Boolean)
+
   let rawNumber = ''
-  let rawTarget = ''
+  let explicitTargetText = ''
 
   if (parts.length >= 2) {
-    rawNumber = firstPart
-    rawTarget = secondPart
+    rawNumber = parts[0]
+    explicitTargetText = parts.slice(1).join(' | ')
   } else {
-    const inviteCode = getInviteCode(normalizedInput)
-    const groupId = getGroupId(normalizedInput)
+    const groupIdFound = getGroupId(normalizedInput)
+    const inviteCodeFound = getInviteCode(normalizedInput)
 
-    if (inviteCode || groupId) {
+    if (groupIdFound || inviteCodeFound) {
+      explicitTargetText = normalizedInput
+
       rawNumber = normalizedInput
-        .replace(/https:\/\/chat\.whatsapp\.com\/([A-Za-z0-9]+)/gi, '')
-        .replace(/(\d{10,}@g\.us)/gi, '')
-        .replace(/[^\d]/g, '')
-
-      rawTarget = groupId || normalizedInput
+        .replace(/https:\/\/chat\.whatsapp\.com\/([A-Za-z0-9]+)/gi, ' ')
+        .replace(/(\d{10,}@g\.us)/gi, ' ')
+        .replace(/[^\d]/g, ' ')
+        .trim()
+        .split(/\s+/)[0] || ''
     } else {
       rawNumber = normalizedInput
-      rawTarget = ''
     }
   }
 
@@ -111,25 +116,26 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 
   const userJid = `${cleanNumber}@s.whatsapp.net`
 
-  const resolveTargetGroup = async () => {
-    if (!rawTarget) return m.chat
+  const hasExplicitTarget = Boolean(explicitTargetText)
+  let targetGroup = m.chat
 
-    const cleanTarget = String(rawTarget || '').trim()
+  if (hasExplicitTarget) {
+    const groupIdFound = getGroupId(explicitTargetText)
+    const inviteCodeFound = getInviteCode(explicitTargetText)
 
-    if (/@g\.us$/i.test(cleanTarget)) return cleanTarget
-
-    const inviteCode = getInviteCode(cleanTarget)
-    if (!inviteCode) return null
-
-    try {
-      const info = await conn.groupGetInviteInfo(inviteCode)
-      return info?.id || null
-    } catch {
-      return null
+    if (groupIdFound) {
+      targetGroup = groupIdFound
+    } else if (inviteCodeFound) {
+      try {
+        const info = await conn.groupGetInviteInfo(inviteCodeFound)
+        targetGroup = info?.id || null
+      } catch {
+        targetGroup = null
+      }
+    } else {
+      targetGroup = null
     }
   }
-
-  const targetGroup = await resolveTargetGroup()
 
   if (!targetGroup) {
     return conn.reply(
@@ -139,6 +145,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 *╰━━━━━━━⚠️━━━━━━━╯*
 
 *𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐫𝐢𝐜𝐚𝐯𝐚𝐫𝐞 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐝𝐚𝐥 𝐥𝐢𝐧𝐤/𝐈𝐃 𝐢𝐧𝐯𝐢𝐚𝐭𝐨.*
+*𝐏𝐞𝐫 𝐬𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚 𝐧𝐨𝐧 𝐡𝐨 𝐞𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐧𝐞𝐬𝐬𝐮𝐧𝐚 𝐚𝐳𝐢𝐨𝐧𝐞.*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
       m
@@ -146,6 +153,21 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
   }
 
   const isSameGroup = targetGroup === m.chat
+
+  if (hasExplicitTarget && isSameGroup) {
+    return conn.reply(
+      m.chat,
+      `*╭━━━━━━━⚠️━━━━━━━╮*
+*✦ 𝐆𝐑𝐔𝐏𝐏𝐎 𝐃𝐈 𝐃𝐄𝐒𝐓𝐈𝐍𝐀𝐙𝐈𝐎𝐍𝐄 𝐄𝐑𝐑𝐀𝐓𝐎 ✦*
+*╰━━━━━━━⚠️━━━━━━━╯*
+
+*𝐇𝐚𝐢 𝐢𝐧𝐝𝐢𝐜𝐚𝐭𝐨 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨, 𝐦𝐚 𝐢𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐫𝐢𝐬𝐨𝐥𝐯𝐞𝐫𝐥𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐚𝐦𝐞𝐧𝐭𝐞.*
+*𝐏𝐞𝐫 𝐬𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚 𝐧𝐨𝐧 𝐡𝐨 𝐭𝐨𝐜𝐜𝐚𝐭𝐨 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞.*
+
+> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+      m
+    )
+  }
 
   try {
     const metadata = await conn.groupMetadata(targetGroup)
