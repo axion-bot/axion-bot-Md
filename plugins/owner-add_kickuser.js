@@ -88,8 +88,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   log('GROUP ID:', groupId)
   log('INVITE:', inviteCode)
   log('NUMBER:', number)
-  log('CHAT:', m.chat)
-  log('REMOTEJID:', m?.key?.remoteJid)
 
   if (!number) {
     return conn.reply(
@@ -111,7 +109,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     )
   }
 
-  const userJid = number + '@s.whatsapp.net'
+  const userJid = `${number}@s.whatsapp.net`
   const cleanUser = jidPhone(userJid)
 
   const withTimeout = (p, ms = 30000) =>
@@ -121,27 +119,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     ])
 
   const sleep = ms => new Promise(r => setTimeout(r, ms))
-
-  const getGroupMetadataSafe = async jid => {
-    let lastError = null
-    for (let i = 0; i < 3; i++) {
-      try {
-        log('METADATA TRY:', i + 1, jid)
-        const meta = await withTimeout(conn.groupMetadata(jid), 20000)
-        log('METADATA OK:', {
-          id: meta?.id,
-          subject: meta?.subject,
-          participants: Array.isArray(meta?.participants) ? meta.participants.length : 0
-        })
-        return meta
-      } catch (e) {
-        lastError = e
-        log('METADATA ERROR:', i + 1, e)
-        await sleep(1500)
-      }
-    }
-    throw lastError || new Error('metadata_failed')
-  }
 
   let target = null
 
@@ -171,8 +148,64 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     )
   }
 
+  const getMetaSafe = async jid => {
+    let meta = null
+    let lastError = null
+
+    for (let i = 0; i < 2; i++) {
+      try {
+        log('METADATA TRY:', i + 1, jid)
+        meta = await withTimeout(conn.groupMetadata(jid), 20000)
+        log('METADATA RAW:', {
+          id: meta?.id,
+          subject: meta?.subject,
+          participants: Array.isArray(meta?.participants) ? meta.participants.length : 0
+        })
+        if (meta?.id && Array.isArray(meta?.participants) && meta.participants.length > 0) {
+          return meta
+        }
+      } catch (e) {
+        lastError = e
+        log('METADATA ERROR:', i + 1, e)
+        await sleep(1200)
+      }
+    }
+
+    try {
+      log('FALLBACK: groupFetchAllParticipating')
+      const all = await withTimeout(conn.groupFetchAllParticipating(), 25000)
+      const direct = all?.[jid]
+
+      if (direct) {
+        const participants = Array.isArray(direct.participants)
+          ? direct.participants
+          : Object.values(direct.participants || {})
+
+        const fallbackMeta = {
+          id: direct.id || jid,
+          subject: direct.subject || '',
+          participants
+        }
+
+        log('FALLBACK OK:', {
+          id: fallbackMeta.id,
+          subject: fallbackMeta.subject,
+          participants: fallbackMeta.participants.length
+        })
+
+        return fallbackMeta
+      }
+
+      log('FALLBACK MISS:', jid)
+    } catch (e) {
+      log('FALLBACK ERROR:', e)
+    }
+
+    throw lastError || new Error('metadata_unavailable')
+  }
+
   try {
-    const meta = await getGroupMetadataSafe(target)
+    const meta = await getMetaSafe(target)
     const participants = Array.isArray(meta?.participants) ? meta.participants : []
 
     const botJid = normalizeJid(conn.user?.jid || conn.user?.id || '')
@@ -188,9 +221,34 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
     log('TARGET:', target)
     log('TARGET SUBJECT:', meta?.subject)
+    log('BOT JID:', botJid)
     log('BOT PHONE:', botPhone)
     log('BOT ADMIN:', isBotAdmin)
     log('PARTICIPANTS COUNT:', participants.length)
+
+    if (!participants.length) {
+      return conn.reply(
+        m.chat,
+        `*╭━━━━━━━⚠️━━━━━━━╮*
+*✦ 𝐌𝐄𝐓𝐀𝐃𝐀𝐓𝐀 𝐕𝐔𝐎𝐓𝐀 ✦*
+*╰━━━━━━━⚠️━━━━━━━╯*
+
+*𝐍𝐨𝐧 𝐫𝐢𝐞𝐬𝐜𝐨 𝐚 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢 𝐦𝐞𝐦𝐛𝐫𝐢 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`,
+        m
+      )
+    }
+
+    if (!botParticipant) {
+      return conn.reply(
+        m.chat,
+        `*╭━━━━━━━⚠️━━━━━━━╮*
+*✦ 𝐁𝐎𝐓 𝐍𝐎𝐍 𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐄 ✦*
+*╰━━━━━━━⚠️━━━━━━━╯*
+
+*𝐈𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 𝐫𝐢𝐬𝐮𝐥𝐭𝐚 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐚𝐫𝐠𝐞𝐭.*`,
+        m
+      )
+    }
 
     if (!isBotAdmin) {
       return conn.reply(
@@ -313,7 +371,9 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
-*╰━━━━━━━⚠️━━━━━━━╯*`,
+*╰━━━━━━━⚠️━━━━━━━╯*
+
+*𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐚𝐫𝐠𝐞𝐭.*`,
       m
     )
   }
