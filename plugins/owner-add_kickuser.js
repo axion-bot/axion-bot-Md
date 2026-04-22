@@ -177,7 +177,6 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
     const botJid = conn.decodeJid(conn.user?.jid || '')
 
     const normalize = jid => String(conn.decodeJid(jid || '') || '').split(':')[0]
-const botJid = normalize(conn.user?.jid || '')
 
 const senderParticipant = participants.find(p => {
   const pid = normalize(p.id)
