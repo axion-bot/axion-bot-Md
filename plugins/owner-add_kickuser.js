@@ -9,16 +9,19 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *╰━━━━━━━👥━━━━━━━╯*
 
 *📌 𝐀𝐠𝐠𝐢𝐮𝐧𝐠𝐢 𝐢𝐧 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐫𝐚𝐦𝐢𝐭𝐞 𝐈𝐃:*
-*${usedPrefix}adduser 393xxxxxxxxx | 1203630xxxxxxxxx@g.us*
+*${usedPrefix}adduser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*
 
 *📌 𝐀𝐠𝐠𝐢𝐮𝐧𝐠𝐢 𝐢𝐧 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐫𝐚𝐦𝐢𝐭𝐞 𝐥𝐢𝐧𝐤:*
-*${usedPrefix}adduser 393xxxxxxxxx | https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXXXXXX*
+*${usedPrefix}adduser 393xxxxxxxxx https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXXXXXX*
 
 *📌 𝐑𝐢𝐦𝐮𝐨𝐯𝐢 𝐝𝐚 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨:*
-*${usedPrefix}kickuser 393xxxxxxxxx | 1203630xxxxxxxxx@g.us*
+*${usedPrefix}kickuser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*
 
 *📌 𝐑𝐢𝐦𝐮𝐨𝐯𝐢 𝐝𝐚 𝐮𝐧 𝐚𝐥𝐭𝐫𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐫𝐚𝐦𝐢𝐭𝐞 𝐥𝐢𝐧𝐤:*
-*${usedPrefix}kickuser 393xxxxxxxxx | https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXXXXXX*
+*${usedPrefix}kickuser 393xxxxxxxxx https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXXXXXX*
+
+*📌 𝐒𝐨𝐧𝐨 𝐚𝐜𝐜𝐞𝐭𝐚𝐭𝐢 𝐚𝐧𝐜𝐡𝐞:*
+*${usedPrefix}kickuser 393xxxxxxxxx | 1203630xxxxxxxxx@g.us*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
       m
@@ -46,7 +49,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
   const log = (...args) => console.log('[OWNER-ADD-KICKUSER]', ...args)
 
-  const normalizedInput = String(input || '')
+  const normalizeInput = str => String(str || '')
     .replace(/\r/g, '\n')
     .replace(/\n+/g, ' ')
     .replace(/\s+/g, ' ')
@@ -54,7 +57,15 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     .replace(/\s*@\s*g\.us/gi, '@g.us')
     .trim()
 
-  const getInviteCode = str => {
+  const normalizedInput = normalizeInput(input)
+
+  const extractGroupId = str => {
+    const clean = String(str || '').replace(/\s+/g, '').replace(/\s*@\s*g\.us/gi, '@g.us')
+    const match = clean.match(/\b\d{10,}@g\.us\b/i)
+    return match ? match[0] : null
+  }
+
+  const extractInviteCode = str => {
     const clean = String(str || '')
       .replace(/\s+/g, '')
       .replace(/https:\/\/chat\.whatsapp\.com\/+/gi, 'https://chat.whatsapp.com/')
@@ -62,40 +73,36 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     return match ? match[1] : null
   }
 
-  const getGroupId = str => {
-    const clean = String(str || '')
-      .replace(/\s+/g, '')
-      .replace(/\s*@\s*g\.us/gi, '@g.us')
-    const match = clean.match(/(\d{10,}@g\.us)/i)
-    return match ? match[1] : null
-  }
+  const extractNumber = (str, groupId = null, inviteCode = null) => {
+    let clean = String(str || '')
 
-  const parts = normalizedInput.split('|').map(v => v.trim()).filter(Boolean)
-
-  let rawNumber = ''
-  let explicitTargetText = ''
-
-  if (parts.length >= 2) {
-    rawNumber = parts[0]
-    explicitTargetText = parts.slice(1).join(' | ')
-  } else {
-    const groupIdFound = getGroupId(normalizedInput)
-    const inviteCodeFound = getInviteCode(normalizedInput)
-
-    if (groupIdFound || inviteCodeFound) {
-      explicitTargetText = normalizedInput
-      rawNumber = normalizedInput
-        .replace(/https:\/\/chat\.whatsapp\.com\/([A-Za-z0-9]+)/gi, ' ')
-        .replace(/(\d{10,}@g\.us)/gi, ' ')
-        .replace(/[^\d]/g, ' ')
-        .trim()
-        .split(/\s+/)[0] || ''
-    } else {
-      rawNumber = normalizedInput
+    if (groupId) {
+      const escaped = groupId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      clean = clean.replace(new RegExp(escaped, 'ig'), ' ')
     }
+
+    if (inviteCode) {
+      const escapedCode = inviteCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      clean = clean
+        .replace(new RegExp(`https:\\/\\/chat\\.whatsapp\\.com\\/${escapedCode}`, 'ig'), ' ')
+        .replace(new RegExp(escapedCode, 'ig'), ' ')
+    }
+
+    clean = clean.replace(/\|/g, ' ')
+    const matches = clean.match(/\b\d{6,15}\b/g) || []
+    return matches.length ? matches[0] : ''
   }
 
-  const cleanNumber = String(rawNumber || '').replace(/\D/g, '')
+  const groupIdFound = extractGroupId(normalizedInput)
+  const inviteCodeFound = extractInviteCode(normalizedInput)
+  const cleanNumber = extractNumber(normalizedInput, groupIdFound, inviteCodeFound)
+
+  log('INPUT:', input)
+  log('NORMALIZED INPUT:', normalizedInput)
+  log('GROUP ID FOUND:', groupIdFound)
+  log('INVITE CODE FOUND:', inviteCodeFound)
+  log('CLEAN NUMBER:', cleanNumber)
+
   if (!cleanNumber) {
     return conn.reply(
       m.chat,
@@ -110,7 +117,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     )
   }
 
-  if (!explicitTargetText) {
+  if (!groupIdFound && !inviteCodeFound) {
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
@@ -126,7 +133,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
   const userJid = `${cleanNumber}@s.whatsapp.net`
 
-  const withTimeout = (promise, ms = 15000) =>
+  const withTimeout = (promise, ms = 20000) =>
     Promise.race([
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error(`timeout:${ms}`)), ms))
@@ -134,25 +141,14 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-  const groupIdFound = getGroupId(explicitTargetText)
-  const inviteCodeFound = getInviteCode(explicitTargetText)
-
   let targetGroup = null
-
-  log('INPUT:', input)
-  log('NORMALIZED INPUT:', normalizedInput)
-  log('RAW NUMBER:', rawNumber)
-  log('CLEAN NUMBER:', cleanNumber)
-  log('EXPLICIT TARGET TEXT:', explicitTargetText)
-  log('GROUP ID FOUND:', groupIdFound)
-  log('INVITE CODE FOUND:', inviteCodeFound)
 
   if (groupIdFound) {
     targetGroup = groupIdFound
   } else if (inviteCodeFound) {
     try {
       log('TRY groupGetInviteInfo START')
-      const info = await withTimeout(conn.groupGetInviteInfo(inviteCodeFound), 15000)
+      const info = await withTimeout(conn.groupGetInviteInfo(inviteCodeFound), 20000)
       log('TRY groupGetInviteInfo OK:', info)
       targetGroup = info?.id || null
     } catch (e) {
@@ -160,6 +156,10 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
       targetGroup = null
     }
   }
+
+  log('TARGET GROUP:', targetGroup)
+  log('USER JID:', userJid)
+  log('ACTION:', action)
 
   if (!targetGroup) {
     return conn.reply(
@@ -191,13 +191,9 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     )
   }
 
-  log('TARGET GROUP:', targetGroup)
-  log('USER JID:', userJid)
-  log('ACTION:', action)
-
   try {
     log('TRY groupMetadata START')
-    const metadata = await withTimeout(conn.groupMetadata(targetGroup), 15000)
+    const metadata = await withTimeout(conn.groupMetadata(targetGroup), 20000)
     log('TRY groupMetadata OK:', {
       id: metadata?.id,
       subject: metadata?.subject,
@@ -286,7 +282,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
         log(`TRY groupParticipantsUpdate START attempt ${attempt}`)
         updateResult = await withTimeout(
           conn.groupParticipantsUpdate(targetGroup, [userJid], action),
-          20000
+          30000
         )
         log(`TRY groupParticipantsUpdate OK attempt ${attempt}:`, updateResult)
         updateError = null
@@ -294,14 +290,14 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
       } catch (e) {
         updateError = e
         log(`TRY groupParticipantsUpdate ERROR attempt ${attempt}:`, e)
-        if (attempt < 3) await sleep(2500)
+        if (attempt < 3) await sleep(3000)
       }
     }
 
     log('VERIFY metadata AFTER update START')
     let verifyMetadata = null
     try {
-      verifyMetadata = await withTimeout(conn.groupMetadata(targetGroup), 15000)
+      verifyMetadata = await withTimeout(conn.groupMetadata(targetGroup), 20000)
       log('VERIFY metadata AFTER update OK')
     } catch (e) {
       log('VERIFY metadata AFTER update ERROR:', e)
