@@ -114,15 +114,25 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
     const senderJid = conn.decodeJid(m.sender)
     const botJid = conn.decodeJid(conn.user?.jid || '')
 
-    const senderIsAdmin = participants.some(p => {
-      const id = conn.decodeJid(p.id)
-      return id === senderJid && (p.admin === 'admin' || p.admin === 'superadmin')
-    })
+const senderIsAdmin = participants.some(p => {
+  const ids = [
+    conn.decodeJid(p.id),
+    p.jid ? conn.decodeJid(p.jid) : null,
+    p.lid ? conn.decodeJid(p.lid) : null
+  ].filter(Boolean)
+
+  return ids.includes(senderJid) && (p.admin === 'admin' || p.admin === 'superadmin' || p.admin === true || p.isAdmin === true)
+})
 
     const botIsAdmin = participants.some(p => {
-      const id = conn.decodeJid(p.id)
-      return id === botJid && (p.admin === 'admin' || p.admin === 'superadmin')
-    })
+  const ids = [
+    conn.decodeJid(p.id),
+    p.jid ? conn.decodeJid(p.jid) : null,
+    p.lid ? conn.decodeJid(p.lid) : null
+  ].filter(Boolean)
+
+  return ids.includes(botJid) && (p.admin === 'admin' || p.admin === 'superadmin' || p.admin === true || p.isAdmin === true)
+})
 
     if (!botIsAdmin) {
       return conn.reply(
