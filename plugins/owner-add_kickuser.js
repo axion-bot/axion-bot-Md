@@ -213,7 +213,15 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
       )
     }
 
-    const alreadyInGroup = participants.some(p => normalize(p.id) === userJid)
+    const alreadyInGroup = participants.some(p => {
+  const ids = [
+    conn.decodeJid(p.id),
+    p.jid ? conn.decodeJid(p.jid) : null,
+    p.lid ? conn.decodeJid(p.lid) : null
+  ].filter(Boolean)
+
+  return ids.includes(userJid)
+})
 
     if (action === 'add' && alreadyInGroup) {
       return conn.reply(
