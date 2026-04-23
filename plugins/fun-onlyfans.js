@@ -2,11 +2,24 @@ import { createCanvas, loadImage } from 'canvas'
 
 const handler = async (m, { conn, args, usedPrefix }) => {
 
-  // TARGET: reply > tag > autore
+  const cleanNumber = (txt = '') => {
+    const match = txt.replace(/\D/g, '')
+    return match.length >= 6 ? match : null
+  }
+
+  // PRIORITÀ TARGET
   let target =
     m.quoted?.sender ||
-    m.mentionedJid?.[0] ||
-    m.sender
+    m.mentionedJid?.[0]
+
+  // se non c'è reply/tag → controlla numero scritto
+  if (!target) {
+    const num = cleanNumber(args.join(' '))
+    if (num) target = num + '@s.whatsapp.net'
+  }
+
+  // fallback
+  if (!target) target = m.sender
 
   const nome = args.join(" ") || `@${target.split('@')[0]}`
 
@@ -159,7 +172,7 @@ const handler = async (m, { conn, args, usedPrefix }) => {
   })
 }
 
-handler.help = ['onlyfans <nome>']
+handler.help = ['onlyfans <nome/numero>']
 handler.tags = ['fun']
 handler.command = /^onlyfans$/i
 
