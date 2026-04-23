@@ -6,18 +6,43 @@ const PREMI_TOP10 = [500, 300, 200, 150, 100, 80, 60, 50, 40, 30]
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 function ensureChat(chat, oggi) {
+  const giornalieraVecchia = chat.classificaGiornaliera
+    ? JSON.parse(JSON.stringify(chat.classificaGiornaliera))
+    : null
+
+  const hasLegacyUsers = chat.users && Object.keys(chat.users).length > 0
+  const totalMissingOrTooLow =
+    !chat.classificaTotale ||
+    !chat.classificaTotale.utenti ||
+    (chat.classificaTotale.totali || 0) < (chat.classificaGiornaliera?.totali || 0)
+
+  if (totalMissingOrTooLow) {
+    let totale = {
+      totali: 0,
+      utenti: {}
+    }
+
+    if (hasLegacyUsers) {
+      for (const [jid, data] of Object.entries(chat.users)) {
+        const messaggi = data?.messages || 0
+        if (messaggi > 0) {
+          totale.utenti[jid] = { conteggio: messaggi }
+          totale.totali += messaggi
+        }
+      }
+    } else if (giornalieraVecchia?.utenti) {
+      totale.utenti = JSON.parse(JSON.stringify(giornalieraVecchia.utenti || {}))
+      totale.totali = giornalieraVecchia.totali || 0
+    }
+
+    chat.classificaTotale = totale
+  }
+
   if (!chat.classificaGiornaliera || chat.classificaGiornaliera.ultimoReset !== oggi) {
     chat.classificaGiornaliera = {
       totali: 0,
       utenti: {},
       ultimoReset: oggi
-    }
-  }
-
-  if (!chat.classificaTotale) {
-    chat.classificaTotale = {
-      totali: 0,
-      utenti: {}
     }
   }
 
