@@ -1,3 +1,5 @@
+// kick-add user by bonzino
+
 let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) => {
   const input = String(text || '').trim()
 
