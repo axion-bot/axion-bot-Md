@@ -1,3 +1,5 @@
+//MenuOwner by Bonzino
+
 import { performance } from 'perf_hooks'
 
 const handler = async (message, { conn, usedPrefix = '.' }) => {
@@ -15,32 +17,67 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
   ◈ *ᴀᴄᴄᴇssᴏ:* ᴏᴡɴᴇʀ
 ╼━━━━━━━━━━━━━━╾
 
-╭━━━〔 👥 ɢᴇsᴛɪᴏɴᴇ ᴜᴛᴇɴᴛɪ 〕━⬣
+╭━━━〔 👤 ɢᴇsᴛɪᴏɴᴇ ᴜᴛᴇɴᴛɪ 〕━⬣
 ┃ 🛡️ ${usedPrefix}addmod
 ┃ ❌ ${usedPrefix}delmod
 ┃ 🗑️ ${usedPrefix}resetmod
 ┃ 🚫 ${usedPrefix}blocca/sblocca <utente>
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 🤖 ɢᴇsᴛɪᴏɴᴇ ʙᴏᴛ 〕━⬣
-┃ 📥 ${usedPrefix}join <link>
-┃ 💾 ${usedPrefix}reimpostagp
-┃ 📢 ${usedPrefix}tuttigp
-┃ 🆔 ${usedPrefix}getid <link>
-┃ 👋 ${usedPrefix}out
-┃ 🌐 ${usedPrefix}aggiorna
-┃ 🔄 ${usedPrefix}restart
+╭━━━〔 📊 sᴛᴀᴛɪsᴛɪᴄʜᴇ ᴜᴛᴇɴᴛɪ 〕━⬣
+┃ 💰 ${usedPrefix}add <quantità>
 ╰━━━━━━━━━━━━━━━━⬣
 
-╭━━━〔 ✨ ғᴜɴᴢɪᴏɴɪ sᴘᴇᴄɪᴀʟɪ 〕━⬣
-┃ 🏹 ${usedPrefix}bigtag
+╭━━━〔 👥 ɢᴇsᴛɪᴏɴᴇ ɢʀᴜᴘᴘɪ 〕━⬣
+┃ ➕ ${usedPrefix}adduser <utente> <link/id>
+┃ ➖ ${usedPrefix}kickuser <utente> <link/id>
+┃ 📥 ${usedPrefix}join <link>
+┃ 🆔 ${usedPrefix}getid <link>
+┃ 🔗 ${usedPrefix}linktoid <link>
+┃ 🧩 ${usedPrefix}idtolink <id>
 ┃ 📂 ${usedPrefix}gruppi
 ┃ 🚪 ${usedPrefix}esci <numero>
-┃ 🌙 ${usedPrefix}banchat
-┃ ☀️ ${usedPrefix}unbanchat
-┃ 🧑‍💻 ${usedPrefix}dispositivo <reply/tag>
+┃ 👋 ${usedPrefix}out
+┃ 🌙 ${usedPrefix}bangp <link/id>
+┃ ☀️ ${usedPrefix}unbangp <link/id>
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🛡️ ɢᴇsᴛɪᴏɴᴇ ᴀᴅᴍɪɴ 〕━⬣
+┃ 👑 ${usedPrefix}godmode
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🤖 ɢᴇsᴛɪᴏɴᴇ ʙᴏᴛ 〕━⬣
+┃ 📢 ${usedPrefix}tuttigp
+┃ 🌐 ${usedPrefix}aggiorna
+┃ 🔄 ${usedPrefix}restart
+┃ 💾 ${usedPrefix}backupdb
+┃ ♻️ ${usedPrefix}autodb
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 📦 ɢᴇsᴛɪᴏɴᴇ ᴘᴀᴄᴄʜᴇᴛᴛɪ 〕━⬣
+┃ 📂 ${usedPrefix}pacchetti
+┃ 📥 ${usedPrefix}installa <nome>
+┃ 🚀 ${usedPrefix}installapush <nome>
+┃ 📦 ${usedPrefix}installaall
+┃ 🗑️ ${usedPrefix}rimuovi <nome>
+┃ ❌ ${usedPrefix}rimuovipush <nome>
+┃ 🔍 ${usedPrefix}npmver <nome>
+┃ ⚙️ ${usedPrefix}npmi <nome>
+┃ 📤 ${usedPrefix}npmipush <nome>
+┃ 🧹 ${usedPrefix}npmrm <nome>
+┃ 📉 ${usedPrefix}npmrmpush <nome>
+┃ 📜 ${usedPrefix}npmdl
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🧩 ɢᴇsᴛɪᴏɴᴇ ᴘʟᴜɢɪɴ 〕━⬣
 ┃ 🗂️ ${usedPrefix}getpl
-┃ 📥 ${usedPrefix}picchetti <installa moduli mancanti>
+┃ 🐞 ${usedPrefix}debugplugin <id>
+┃ 🧪 ${usedPrefix}db <id>
+╰━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🛠️ sᴛʀᴜᴍᴇɴᴛɪ ᴏᴡɴᴇʀ 〕━⬣
+┃ 🏹 ${usedPrefix}bigtag
+┃ ✋ ${usedPrefix}stop
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
@@ -52,7 +89,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
   await conn.sendMessage(message.chat, {
     text: menuBody,
     mentions: [userId],
-    footer: '> *𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓*',
+    footer: '> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
     buttons: [
       {
         buttonId: `${usedPrefix}menu`,
