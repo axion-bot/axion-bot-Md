@@ -14,6 +14,13 @@ function ensureChat(chat, oggi) {
     }
   }
 
+  if (!chat.classificaTotale) {
+    chat.classificaTotale = {
+      totali: 0,
+      utenti: {}
+    }
+  }
+
   if (!chat.topNotturna) {
     chat.topNotturna = {
       ultimoInvio: null,
@@ -87,7 +94,7 @@ async function processaTopNotturnaSeNecessaria(conn, currentChatId) {
   const minuto = now.getMinutes()
 
   if (ora !== 0 || minuto > 10) return
- 
+
   const dataOggi = now.toDateString()
   const ieri = new Date(now)
   ieri.setDate(ieri.getDate() - 1)
@@ -132,6 +139,7 @@ async function processaTopNotturnaSeNecessaria(conn, currentChatId) {
 
       await inviaTopNotturna(conn, chatId, chat, dataIeri)
 
+      // reset SOLO la giornaliera
       chat.classificaGiornaliera = {
         totali: 0,
         utenti: {},
@@ -164,6 +172,7 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
 *❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐫𝐞𝐬𝐞𝐭𝐭𝐚𝐫𝐞 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚*`)
     }
 
+    // resetta SOLO la giornaliera
     chat.classificaGiornaliera = {
       totali: 0,
       utenti: {},
@@ -178,49 +187,30 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
   }
 
   const isAll = /^topall/i.test(command)
+  const isBase = /^(top|topall)$/i.test(command)
 
-  let limite = 3
-  if (command.includes('5')) limite = 5
-  if (command.includes('10')) limite = 10
+  let limiti = [3]
 
-  let classifica = []
-  let totaleMessaggi = 0
+  if (isBase) {
+    limiti = [3, 5, 10]
+  } else if (command.includes('5')) {
+    limiti = [5]
+  } else if (command.includes('10')) {
+    limiti = [10]
+  }
 
-  if (isAll) {
-    let utenti = chat.users || {}
+  const dati = isAll
+    ? (chat.classificaTotale || { totali: 0, utenti: {} })
+    : (chat.classificaGiornaliera || { totali: 0, utenti: {} })
 
-    classifica = Object.entries(utenti)
-      .map(([id, data]) => [id, { conteggio: data.messages || 0 }])
-      .filter(u => u[1].conteggio > 0)
-      .sort((a, b) => b[1].conteggio - a[1].conteggio)
-      .slice(0, limite)
+  const totaleMessaggi = dati.totali || 0
 
-    totaleMessaggi = Object.values(utenti)
-      .reduce((acc, u) => acc + (u.messages || 0), 0)
-
-    if (!classifica.length) {
-      return m.reply(`╭━━━━━━━📊━━━━━━━╮
+  if (!totaleMessaggi) {
+    return m.reply(`╭━━━━━━━📊━━━━━━━╮
 *✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦*
 ╰━━━━━━━📊━━━━━━━╯
 
 *❌ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨*`)
-    }
-  } else {
-    if (!chat.classificaGiornaliera || chat.classificaGiornaliera.totali === 0) {
-      return m.reply(`╭━━━━━━━📊━━━━━━━╮
-*✦ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 ✦*
-╰━━━━━━━📊━━━━━━━╯
-
-*⏳ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐨𝐠𝐠𝐢*`)
-    }
-
-    let dati = chat.classificaGiornaliera
-    totaleMessaggi = dati.totali
-
-    classifica = Object.entries(dati.utenti || {})
-      .filter(u => (u[1].conteggio || 0) > 0)
-      .sort((a, b) => b[1].conteggio - a[1].conteggio)
-      .slice(0, limite)
   }
 
   const medaglie = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
@@ -234,20 +224,34 @@ let handler = async (m, { conn, command, usedPrefix, isAdmin, isOwner }) => {
 
 ${titolo}
 
-*𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* *${formatNumber(totaleMessaggi)}* • *𝐓𝐨𝐩 ${classifica.length}*
+*𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* *${formatNumber(totaleMessaggi)}*
 
 *──────────────*`
 
-  let menzioni = classifica.map(([jid]) => jid).filter(Boolean)
+  let menzioni = []
 
-  classifica.forEach(([jid, data], i) => {
-    let posizione = i + 1
-    let medaglia = medaglie[i] || '🏅'
+  for (const limite of limiti) {
+    const classifica = Object.entries(dati.utenti || {})
+      .filter(([_, data]) => (data?.conteggio || 0) > 0)
+      .sort((a, b) => (b[1]?.conteggio || 0) - (a[1]?.conteggio || 0))
+      .slice(0, limite)
+
+    if (!classifica.length) continue
 
     testo += `
 
-*${medaglia} ${posizione}°* *@${jid.split('@')[0]}* • *${formatNumber(data.conteggio || 0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*`
-  })
+*🏆 𝐓𝐎𝐏 ${limite}*`
+
+    classifica.forEach(([jid, data], i) => {
+      const medaglia = medaglie[i] || '🏅'
+
+      testo += `
+
+*${medaglia} ${i + 1}°* *@${jid.split('@')[0]}* • *${formatNumber(data?.conteggio || 0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*`
+    })
+
+    menzioni.push(...classifica.map(([jid]) => jid))
+  }
 
   testo += `
 
@@ -256,40 +260,42 @@ ${isAll
     ? `*⏳ 𝐏𝐞𝐫 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐝𝐢 𝐨𝐠𝐠𝐢: ${usedPrefix}top*`
     : `*🌐 𝐏𝐞𝐫 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐬𝐭𝐨𝐫𝐢𝐜𝐚: ${usedPrefix}topall*`}`
 
+  menzioni = [...new Set(menzioni)]
+
   let buttons = []
 
   if (isAll) {
-    if (limite === 3) {
+    if (isBase) {
       buttons.push(
-        { buttonId: `${usedPrefix}topall5`, buttonText: { displayText: 'TopAll 5' }, type: 1 },
-        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top Oggi' }, type: 1 }
+        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top Oggi' }, type: 1 },
+        { buttonId: `${usedPrefix}topall10`, buttonText: { displayText: 'TopAll 10' }, type: 1 }
       )
-    } else if (limite === 5) {
+    } else if (limiti[0] === 5) {
       buttons.push(
         { buttonId: `${usedPrefix}topall10`, buttonText: { displayText: 'TopAll 10' }, type: 1 },
-        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3' }, type: 1 }
+        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3/5/10' }, type: 1 }
       )
     } else {
       buttons.push(
-        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3' }, type: 1 },
+        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3/5/10' }, type: 1 },
         { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top Oggi' }, type: 1 }
       )
     }
   } else {
-    if (limite === 3) {
+    if (isBase) {
       buttons.push(
-        { buttonId: `${usedPrefix}top5`, buttonText: { displayText: 'Top 5' }, type: 1 },
-        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll' }, type: 1 }
+        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3/5/10' }, type: 1 },
+        { buttonId: `${usedPrefix}top10`, buttonText: { displayText: 'Top 10' }, type: 1 }
       )
-    } else if (limite === 5) {
+    } else if (limiti[0] === 5) {
       buttons.push(
         { buttonId: `${usedPrefix}top10`, buttonText: { displayText: 'Top 10' }, type: 1 },
-        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top 3' }, type: 1 }
+        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top 3/5/10' }, type: 1 }
       )
     } else {
       buttons.push(
-        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top 3' }, type: 1 },
-        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll' }, type: 1 }
+        { buttonId: `${usedPrefix}top`, buttonText: { displayText: 'Top 3/5/10' }, type: 1 },
+        { buttonId: `${usedPrefix}topall`, buttonText: { displayText: 'TopAll 3/5/10' }, type: 1 }
       )
     }
   }
@@ -313,7 +319,7 @@ handler.before = async function (m, { conn }) {
   let chat = global.db.data.chats[m.chat]
   let oggi = new Date().toDateString()
 
-  if (!chat.classificaGiornaliera || !chat.topNotturna) {
+  if (!chat.classificaGiornaliera || !chat.topNotturna || !chat.classificaTotale) {
     ensureChat(chat, oggi)
   }
 
@@ -335,6 +341,15 @@ handler.before = async function (m, { conn }) {
   }
 
   giornaliera.utenti[m.sender].conteggio++
+
+  let totale = chat.classificaTotale
+  totale.totali++
+
+  if (!totale.utenti[m.sender]) {
+    totale.utenti[m.sender] = { conteggio: 0 }
+  }
+
+  totale.utenti[m.sender].conteggio++
 }
 
 handler.command = /^(top|top5|top10|topall|topall5|topall10|resettp)$/i

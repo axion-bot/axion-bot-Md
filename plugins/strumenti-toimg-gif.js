@@ -5,9 +5,14 @@ import { join } from 'path'
 import { promises as fs } from 'fs'
 import { spawn } from 'child_process'
 
+const BIN_CACHE = new Map()
+
 function run(cmd, args = []) {
   return new Promise((resolve, reject) => {
-    const p = spawn(cmd, args)
+    const p = spawn(cmd, args, {
+      windowsHide: true,
+      shell: false
+    })
 
     let stdout = ''
     let stderr = ''
@@ -24,41 +29,61 @@ function run(cmd, args = []) {
   })
 }
 
-async function runFirstAvailable(commands, args = []) {
+async function resolveBinary(name, candidates, probeArgs = ['-version']) {
+  if (BIN_CACHE.has(name)) return BIN_CACHE.get(name)
+
   let lastError
 
-  for (const cmd of commands) {
+  for (const cmd of candidates) {
     try {
-      return await run(cmd, args)
+      await run(cmd, probeArgs)
+      BIN_CACHE.set(name, cmd)
+      return cmd
     } catch (e) {
       lastError = e
     }
   }
 
-  throw lastError || new Error('Nessun comando disponibile')
+  throw lastError || new Error(`Binario non trovato: ${name}`)
+}
+
+async function getDwebp() {
+  return resolveBinary('dwebp', ['dwebp'])
+}
+
+async function getFfmpeg() {
+  return resolveBinary('ffmpeg', ['ffmpeg'])
+}
+
+async function getMagickOrConvert() {
+  try {
+    return await resolveBinary('magick', ['magick'])
+  } catch {}
+
+  if (process.platform !== 'win32') {
+    return resolveBinary('convert', ['convert'])
+  }
+
+  throw new Error('ImageMagick non trovato')
 }
 
 // statico -> png
 async function webpToPng(input, output) {
-  await runFirstAvailable([
-    'dwebp',
-    '/data/data/com.termux/files/usr/bin/dwebp'
-  ], [input, '-o', output])
+  const dwebp = await getDwebp()
+  await run(dwebp, [input, '-o', output])
 }
 
 // animato -> gif con ImageMagick
 async function webpToGif(input, output) {
-  await runFirstAvailable([
-    'magick',
-    'convert',
-    '/data/data/com.termux/files/usr/bin/magick',
-    '/data/data/com.termux/files/usr/bin/convert'
-  ], [input, output])
+  const bin = await getMagickOrConvert()
+  await run(bin, [input, output])
 }
 
 // gif -> mp4 per preview in chat
 async function gifToMp4(input, output) {
-  await run('ffmpeg', [
+  const ffmpeg = await getFfmpeg()
+
+  await run(ffmpeg, [
     '-y',
     '-i', input,
     '-movflags', 'faststart',
@@ -78,6 +103,14 @@ function getQuotedStickerInfo(q) {
     !!q?.message?.stickerMessage?.isAnimated
 
   return { mime, isAnimated }
+}
+
+function getInstallHint() {
+  if (process.platform === 'win32') {
+    return 'Installa dwebp/libwebp, ffmpeg e ImageMagick e aggiungili al PATH.'
+  }
+
+  return 'Installa dwebp (libwebp), ffmpeg e ImageMagick e aggiungili al PATH.'
 }
 
 let handler = async (m, { conn, command }) => {
@@ -121,7 +154,7 @@ let handler = async (m, { conn, command }) => {
 
       await conn.sendMessage(m.chat, {
         image: pngBuffer,
-         caption: '*𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐚 ✅*',
+        caption: '*𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐚 ✅*',
         contextInfo: {
           ...(global.rcanal?.contextInfo || {})
         }
@@ -146,13 +179,13 @@ let handler = async (m, { conn, command }) => {
       const mp4Buffer = await fs.readFile(outputPath)
 
       await conn.sendMessage(m.chat, {
-  video: mp4Buffer,
-  gifPlayback: true,
-  caption: '*𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐚 ✅*',
-  contextInfo: {
-    ...(global.rcanal?.contextInfo || {})
-  }
-}, { quoted: m })
+        video: mp4Buffer,
+        gifPlayback: true,
+        caption: '*𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚𝐭𝐚 ✅*',
+        contextInfo: {
+          ...(global.rcanal?.contextInfo || {})
+        }
+      }, { quoted: m })
 
       return
     }
@@ -161,10 +194,15 @@ let handler = async (m, { conn, command }) => {
     console.error('Errore conversione sticker:', e)
 
     const rawErr = String(e?.message || e || '')
-    const err = rawErr.split('\n').slice(-10).join('\n').slice(0, 1200)
+    const extraHint =
+      /not found|enoent|imagemagick|ffmpeg|dwebp/i.test(rawErr)
+        ? `\n\n*💡 ${getInstallHint()}*`
+        : ''
+
+    const err = rawErr.split('\n').slice(-10).join('\n').slice(0, 1000)
 
     await conn.sendMessage(m.chat, {
-      text: `*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞.*\n\n\`\`\`${err || 'Errore sconosciuto'}\`\`\``
+      text: `*⚠️ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐜𝐨𝐧𝐯𝐞𝐫𝐬𝐢𝐨𝐧𝐞.*\n\n\`\`\`${err || 'Errore sconosciuto'}\`\`\`${extraHint}`
     }, { quoted: m })
   } finally {
     try {
