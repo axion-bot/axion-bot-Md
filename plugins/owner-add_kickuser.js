@@ -3,25 +3,58 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
   const publicAddCommands = ['adduser']
   const publicRemoveCommands = ['kickuser']
-  const internalConfirmCommands = ['_adduser_confirm', '_kickuser_confirm']
-  const internalEditCommands = ['_adduser_edit', '_kickuser_edit']
 
-  const isAdd = publicAddCommands.includes(command) || internalConfirmCommands.includes(command) || internalEditCommands.includes(command)
+  const internalAddConfirmCommands = ['_adduser_confirm']
+  const internalKickConfirmCommands = ['_kickuser_confirm']
+  const internalAddEditCommands = ['_adduser_edit']
+  const internalKickEditCommands = ['_kickuser_edit']
+
+  const isAdd =
+    publicAddCommands.includes(command) ||
+    internalAddConfirmCommands.includes(command) ||
+    internalAddEditCommands.includes(command)
+
+  const isKick =
+    publicRemoveCommands.includes(command) ||
+    internalKickConfirmCommands.includes(command) ||
+    internalKickEditCommands.includes(command)
+
+  const isConfirm =
+    internalAddConfirmCommands.includes(command) ||
+    internalKickConfirmCommands.includes(command)
+
+  const isEdit =
+    internalAddEditCommands.includes(command) ||
+    internalKickEditCommands.includes(command)
+
+  if (!isAdd && !isKick) return
+
   const action = isAdd ? 'add' : 'remove'
   const actionLabel = isAdd ? '𝐀𝐆𝐆𝐈𝐔𝐍𝐓𝐎' : '𝐑𝐈𝐌𝐎𝐒𝐒𝐎'
   const actionText = isAdd ? 'aggiunto' : 'rimosso'
   const baseCommand = isAdd ? 'adduser' : 'kickuser'
-  const isConfirm = internalConfirmCommands.includes(command)
-  const isEdit = internalEditCommands.includes(command)
+  const footer = `\n\n*— axion bot*`
+
+  const react = async emoji => {
+    try {
+      await conn.sendMessage(m.chat, {
+        react: {
+          text: emoji,
+          key: m.key
+        }
+      })
+    } catch {}
+  }
 
   if (!(isOwner || isROwner)) {
+    await react('⛔')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⛔━━━━━━━╮*
 *✦ 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎 ✦*
 *╰━━━━━━━⛔━━━━━━━╯*
 
-*❌ 𝐒𝐨𝐥𝐨 𝐨𝐰𝐧𝐞𝐫.*`,
+*❌ 𝐒𝐨𝐥𝐨 𝐨𝐰𝐧𝐞𝐫.*${footer}`,
       m
     )
   }
@@ -67,6 +100,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   ].filter(Boolean)
 
   if (!input) {
+    await react('⚠️')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━👥━━━━━━━╮*
@@ -77,10 +111,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *${usedPrefix}adduser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*
 
 *📌 𝐑𝐢𝐦𝐮𝐨𝐯𝐢:*
-*${usedPrefix}kickuser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*
-
-*📌 𝐒𝐮𝐩𝐩𝐨𝐫𝐭𝐚 𝐚𝐧𝐜𝐡𝐞:*
-*${usedPrefix}kickuser 393xxx | link*`,
+*${usedPrefix}kickuser 393xxxxxxxxx 1203630xxxxxxxxx@g.us*${footer}`,
       m
     )
   }
@@ -90,21 +121,23 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   const number = extractNumber(normalized)
 
   if (!number) {
+    await react('❌')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━❌━━━━━━━╮*
 *✦ 𝐍𝐔𝐌𝐄𝐑𝐎 𝐍𝐎𝐍 𝐕𝐀𝐋𝐈𝐃𝐎 ✦*
-*╰━━━━━━━❌━━━━━━━╯*`,
+*╰━━━━━━━❌━━━━━━━╯*${footer}`,
       m
     )
   }
 
   if (!groupId && !inviteCode) {
+    await react('⚠️')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐆𝐑𝐔𝐏𝐏𝐎 𝐌𝐀𝐍𝐂𝐀𝐍𝐓𝐄 ✦*
-*╰━━━━━━━⚠️━━━━━━━╯*`,
+*╰━━━━━━━⚠️━━━━━━━╯*${footer}`,
       m
     )
   }
@@ -132,26 +165,26 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   if (!target) {
+    await react('❌')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐆𝐑𝐔𝐏𝐏𝐎 𝐍𝐎𝐍 𝐕𝐀𝐋𝐈𝐃𝐎 ✦*
-*╰━━━━━━━⚠️━━━━━━━╯*`,
+*╰━━━━━━━⚠️━━━━━━━╯*${footer}`,
       m
     )
   }
 
   if (isEdit) {
+    await react('✏️')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━✏️━━━━━━━╮*
 *✦ 𝐌𝐎𝐃𝐈𝐅𝐈𝐂𝐀 𝐃𝐀𝐓𝐈 ✦*
 *╰━━━━━━━✏️━━━━━━━╯*
 
-*𝐂𝐨𝐦𝐚𝐧𝐝𝐨 𝐝𝐚 𝐦𝐨𝐝𝐢𝐟𝐢𝐜𝐚𝐫𝐞:*
-*${usedPrefix}${baseCommand} ${number} ${target}*`,
-      m,
-      { mentions: [userJid] }
+*${usedPrefix}${baseCommand} ${number} ${target}*${footer}`,
+      m
     )
   }
 
@@ -191,70 +224,61 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
   }
 
   try {
+    await react('⏳')
+
     const meta = await getMetaSafe(target)
     const participants = Array.isArray(meta?.participants) ? meta.participants : []
 
     const botJid = normalizeJid(conn.user?.jid || conn.user?.id || '')
     const botPhone = jidPhone(botJid)
 
-    const botParticipant = participants.find(p => {
-      const ids = participantIds(p)
-      const phones = ids.map(id => jidPhone(id)).filter(Boolean)
-      return phones.includes(botPhone)
-    })
-
-    const isBotAdmin = !!botParticipant && ['admin', 'superadmin'].includes(botParticipant.admin)
+    const botParticipant = participants.find(p =>
+      participantIds(p).some(id => jidPhone(id) === botPhone)
+    )
 
     if (!participants.length) {
+      await react('⚠️')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐌𝐄𝐓𝐀𝐃𝐀𝐓𝐀 𝐕𝐔𝐎𝐓𝐀 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐍𝐨𝐧 𝐫𝐢𝐞𝐬𝐜𝐨 𝐚 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢 𝐦𝐞𝐦𝐛𝐫𝐢 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`,
+*𝐍𝐨𝐧 𝐫𝐢𝐞𝐬𝐜𝐨 𝐚 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢 𝐦𝐞𝐦𝐛𝐫𝐢 𝐝𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*${footer}`,
         m
       )
     }
 
     if (!botParticipant) {
+      await react('⚠️')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐁𝐎𝐓 𝐍𝐎𝐍 𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐈𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 𝐫𝐢𝐬𝐮𝐥𝐭𝐚 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐚𝐫𝐠𝐞𝐭.*`,
+*𝐈𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 𝐫𝐢𝐬𝐮𝐥𝐭𝐚 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐚𝐫𝐠𝐞𝐭.*${footer}`,
         m
       )
     }
 
-    if (!isBotAdmin) {
+    if (!['admin', 'superadmin'].includes(botParticipant.admin)) {
+      await react('⛔')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━⛔━━━━━━━╮*
 *✦ 𝐁𝐎𝐓 𝐍𝐎𝐍 𝐀𝐃𝐌𝐈𝐍 ✦*
-*╰━━━━━━━⛔━━━━━━━╯*`,
+*╰━━━━━━━⛔━━━━━━━╯*${footer}`,
         m
       )
     }
 
-    let match = null
-
-    for (const p of participants) {
-      const ids = participantIds(p)
-      const normalizedIds = ids.map(id => normalizeJid(id)).filter(Boolean)
-      const phones = ids.map(id => jidPhone(id)).filter(Boolean)
-
-      if (normalizedIds.includes(normalizeJid(userJid)) || phones.includes(cleanUser)) {
-        match = p
-        break
-      }
-    }
-
-    const exists = !!match
+    let exists = participants.some(p =>
+      participantIds(p).some(id => jidPhone(id) === cleanUser)
+    )
 
     if (!isConfirm) {
+      await react('📍')
       return conn.sendMessage(
         m.chat,
         {
@@ -265,7 +289,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *𝐀𝐳𝐢𝐨𝐧𝐞:* *${action}*
 *𝐔𝐭𝐞𝐧𝐭𝐞:* *@${number}*
 *𝐆𝐫𝐮𝐩𝐩𝐨:* *${meta?.subject || '-'}*
-*𝐈𝐃:* *${target}*`,
+*𝐈𝐃:* *${target}*${footer}`,
           mentions: [userJid],
           buttons: [
             {
@@ -286,21 +310,23 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     }
 
     if (action === 'remove' && !exists) {
+      await react('ℹ️')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━ℹ️━━━━━━━╮*
 *✦ 𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎 ✦*
-*╰━━━━━━━ℹ️━━━━━━━╯*`,
+*╰━━━━━━━ℹ️━━━━━━━╯*${footer}`,
         m
       )
     }
 
     if (action === 'add' && exists) {
+      await react('ℹ️')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━ℹ️━━━━━━━╮*
 *✦ 𝐔𝐓𝐄𝐍𝐓𝐄 𝐆𝐈𝐀̀ 𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐄 ✦*
-*╰━━━━━━━ℹ️━━━━━━━╯*`,
+*╰━━━━━━━ℹ️━━━━━━━╯*${footer}`,
         m
       )
     }
@@ -318,17 +344,19 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
     }
 
     if (!ok) {
+      await react('⚠️')
       return conn.reply(
         m.chat,
         `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐓𝐈𝐌𝐄𝐎𝐔𝐓 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐧𝐨𝐧 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞.*`,
+*𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐧𝐨𝐧 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞.*${footer}`,
         m
       )
     }
 
+    await react('✅')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━✅━━━━━━━╮*
@@ -336,18 +364,19 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 *╰━━━━━━━✅━━━━━━━╯*
 
 *@${number} 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 ${actionText}.*
-*𝐆𝐫𝐮𝐩𝐩𝐨:* *${meta?.subject || '-'}*`,
+*𝐆𝐫𝐮𝐩𝐩𝐨:* *${meta?.subject || '-'}*${footer}`,
       m,
       { mentions: [userJid] }
     )
   } catch {
+    await react('❌')
     return conn.reply(
       m.chat,
       `*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐚𝐫𝐠𝐞𝐭.*`,
+*𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐥𝐞𝐠𝐠𝐞𝐫𝐞 𝐢𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*${footer}`,
       m
     )
   }
