@@ -19,24 +19,50 @@ const handler = async (m, { conn, args }) => {
 
   const targetNumber = target.split('@')[0]
 
+  const isUsefulName = value => {
+    if (!value) return false
+    const name = String(value).trim()
+    if (!name) return false
+    if (name === target) return false
+    if (name === targetNumber) return false
+    if (name === `+${targetNumber}`) return false
+    if (/^\+?\d[\d\s\-()]+$/.test(name)) return false
+    return true
+  }
+
   const getDisplayName = async () => {
+    const candidates = []
+
     try {
-      const name = await conn.getName(target)
-      if (name && name !== target) return name
+      const waName = await conn.getName(target)
+      candidates.push(waName)
     } catch {}
 
     if (m.quoted?.sender === target) {
-      return m.quoted.pushName || m.quoted.name || `@${targetNumber}`
+      candidates.push(m.quoted?.pushName)
+      candidates.push(m.quoted?.name)
     }
+
+    const contact =
+      conn.contacts?.[target] ||
+      conn.contacts?.[targetNumber + '@s.whatsapp.net']
+
+    candidates.push(contact?.name)
+    candidates.push(contact?.notify)
+    candidates.push(contact?.vname)
 
     if (target === m.sender) {
-      return m.pushName || `@${targetNumber}`
+      candidates.push(m.pushName)
     }
 
-    return `@${targetNumber}`
+    for (const candidate of candidates) {
+      if (isUsefulName(candidate)) return String(candidate).trim()
+    }
+
+    return 'Utente Premium'
   }
 
-  const nome = (await getDisplayName())?.slice(0, 22)
+  const nome = (await getDisplayName()).slice(0, 22)
 
   const random = (min, max) =>
     Math.floor(Math.random() * (max - min + 1)) + min
@@ -93,7 +119,7 @@ const handler = async (m, { conn, args }) => {
     ctx.closePath()
   }
 
-  const removeWhiteBg = (x, y, w, h) => {
+  const removeBg = (x, y, w, h) => {
     const imgData = ctx.getImageData(x, y, w, h)
     const data = imgData.data
 
@@ -105,7 +131,14 @@ const handler = async (m, { conn, args }) => {
 
       if (a === 0) continue
 
+      // rimuove bianco
       if (r > 240 && g > 240 && b > 240) {
+        data[i + 3] = 0
+        continue
+      }
+
+      // rimuove nero
+      if (r < 40 && g < 40 && b < 40) {
         data[i + 3] = 0
       }
     }
@@ -131,13 +164,13 @@ const handler = async (m, { conn, args }) => {
   ctx.fillRect(0, 0, canvas.width, 150)
 
   if (ofLogo) {
-    const logoW = 520
-    const logoH = 120
+    const logoW = 420
+    const logoH = 110
     const logoX = (canvas.width - logoW) / 2
-    const logoY = 18
+    const logoY = 20
 
     ctx.drawImage(ofLogo, logoX, logoY, logoW, logoH)
-    removeWhiteBg(logoX, logoY, logoW, logoH)
+    removeBg(logoX, logoY, logoW, logoH)
   } else {
     ctx.textAlign = 'center'
     ctx.fillStyle = '#ffffff'
