@@ -39,6 +39,20 @@ let handler = async (m, { conn, text }) => {
 
     const chatId = m.chat
     const name = conn.getName(m.sender) || 'User'
+    const isImageRequest = /image|foto|genera|disegna/i.test(text)
+
+    if (isImageRequest) {
+        try {
+            await m.react('🎨')
+            const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1080&height=1080&seed=${Math.floor(Math.random() * 9999)}`
+            await conn.sendMessage(m.chat, { image: { url: imgUrl }, caption: `🌌 *Risultato per:* ${text}` }, { quoted: m })
+            await m.react('✨')
+            return
+        } catch (e) {
+            await m.react('❌')
+            return m.reply(`[ERROR_IMG]: ${e.message}`)
+        }
+    }
 
     if (!chatHistory.has(chatId)) chatHistory.set(chatId, [])
     let hist = chatHistory.get(chatId)
@@ -56,7 +70,10 @@ let handler = async (m, { conn, text }) => {
 
         hist.push({ role: 'user', content: text })
         hist.push({ role: 'assistant', content: out })
-        if (hist.length > config.historyLimit) hist.shift()
+        if (hist.length > config.historyLimit) {
+            hist.shift()
+            hist.shift()
+        }
 
         await conn.sendMessage(m.chat, { text: out.trim() }, { quoted: m })
         await m.react('🌌')
