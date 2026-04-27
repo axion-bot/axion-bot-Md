@@ -46,8 +46,17 @@ let handler = async (m, { conn, text }) => {
             await m.react('🎨')
             const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1080&height=1080&seed=${Math.floor(Math.random() * 99999)}`
             
-            const response = await fetch(imgUrl)
-            const buffer = await response.buffer()
+            // Scarica l'immagine con Headers browser-like
+            const response = await fetch(imgUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            })
+            
+            if (!response.ok) throw new Error('Impossibile scaricare l\'immagine')
+            
+            const arrayBuffer = await response.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
 
             await conn.sendMessage(m.chat, { 
                 image: buffer, 
