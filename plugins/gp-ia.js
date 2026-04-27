@@ -44,8 +44,16 @@ let handler = async (m, { conn, text }) => {
     if (isImageRequest) {
         try {
             await m.react('🎨')
-            const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1080&height=1080&seed=${Math.floor(Math.random() * 9999)}`
-            await conn.sendMessage(m.chat, { image: { url: imgUrl }, caption: `🌌 *Risultato per:* ${text}` }, { quoted: m })
+            const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1080&height=1080&seed=${Math.floor(Math.random() * 99999)}`
+            
+            const response = await fetch(imgUrl)
+            const buffer = await response.buffer()
+
+            await conn.sendMessage(m.chat, { 
+                image: buffer, 
+                caption: `🌌 *Risultato per:* ${text}` 
+            }, { quoted: m })
+            
             await m.react('✨')
             return
         } catch (e) {
