@@ -417,7 +417,8 @@ function modeButtons() {
 
 function replayButtons() {
   return [
-    { buttonId: '.ic', buttonText: { displayText: '🔁 Rigioca' }, type: 1 }
+    { buttonId: '.ic', buttonText: { displayText: '🔁 Rigioca' }, type: 1 },
+    { buttonId: '.topic', buttonText: { displayText: '🏆 Classifica gioco' }, type: 1 }
   ]
 }
 
@@ -449,7 +450,7 @@ function buildPromptMessage(type) {
 
 *𝐒𝐜𝐫𝐢𝐯𝐢 𝐨𝐫𝐚 𝐢𝐥 ${type === 'genre' ? '𝐠𝐞𝐧𝐞𝐫𝐞' : '𝐧𝐨𝐦𝐞 𝐝𝐞𝐥𝐥’𝐚𝐫𝐭𝐢𝐬𝐭𝐚'}.*
 
-*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* *${example}*`
+*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* *${example}*\n`
 }
 
 function buildStartMessage(track, timeLeft, modeLabel) {
@@ -471,7 +472,7 @@ function finalContext(track) {
       title: track.title,
       body: `${track.artist} • ${track.genre || 'N/D'} • ${track.source || 'Music'}`,
       thumbnailUrl: track.artwork,
-      sourceUrl: 'https://localhost.invalid/',
+      sourceUrl: track.url || `${track.artwork}?t=${Date.now()}`,
       mediaType: 1,
       renderLargerThumbnail: true
     }

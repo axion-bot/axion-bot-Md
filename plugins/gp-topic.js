@@ -121,8 +121,7 @@ ${sottotitolo}
 *🎮 Giocate:* *${formatNumber(user.giocate)}*
 *🏆 Vittorie:* *${formatNumber(user.vittorie)}*
 *${winrateEmoji} Winrate:* *${percent}%*
-*🔥 Streak:* *${formatNumber(user.streak)}* • *👑 Record:* *${formatNumber(user.record)}*
-*💶 Euro vinti:* *${formatNumber(user.euro)}*`
+*🔥 Streak:* *${formatNumber(user.streak)}* • *👑 Record:* *${formatNumber(user.record)}*`
     } else {
       testo += `
 
@@ -130,8 +129,7 @@ ${sottotitolo}
 *🏆 Vittorie:* *${formatNumber(user.vittorie)}*
 *🎮 Giocate:* *${formatNumber(user.giocate)}*
 *${winrateEmoji} Winrate:* *${percent}%*
-*🔥 Streak:* *${formatNumber(user.streak)}* • *👑 Record:* *${formatNumber(user.record)}*
-*💶 Euro vinti:* *${formatNumber(user.euro)}*`
+*🔥 Streak:* *${formatNumber(user.streak)}* • *👑 Record:* *${formatNumber(user.record)}*`
     }
   })
 
