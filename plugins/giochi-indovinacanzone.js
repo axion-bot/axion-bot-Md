@@ -759,7 +759,14 @@ handler.before = async (m, { conn }) => {
   if (!activeGames.has(chat)) return
 
   const game = activeGames.get(chat)
-  const userAnswer = normalize(getBody(m))
+  const userAnswer = normalize(
+  m.text ||
+  m.message?.conversation ||
+  m.message?.extendedTextMessage?.text ||
+  m.message?.imageMessage?.caption ||
+  m.message?.videoMessage?.caption ||
+  ''
+)
   const correctAnswer = normalize(game.track.title)
 
   if (!userAnswer || userAnswer.length < 2) return
