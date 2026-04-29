@@ -172,17 +172,28 @@ async function handleAnswer(m, conn, usedPrefix = '.') {
       clearSession(id)
       await react(m, '🛑')
 
-      await conn.sendMessage(m.chat, {
-        text:
+      await conn.sendMessage(
+  m.chat,
+  {
+    text:
 `*╭━━━━━━━🛑━━━━━━━╮*
 *✦ 𝐀𝐊𝐈𝐍𝐀𝐓𝐎𝐑 ✦*
 *╰━━━━━━━🛑━━━━━━━╯*
 
-*𝐏𝐚𝐫𝐭𝐢𝐭𝐚 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐭𝐚.*
+*𝐏𝐚𝐫𝐭𝐢𝐭𝐚 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐭𝐚.*`,
 
-> ${FOOTER}`
-      }, { quoted: m })
-
+    footer: FOOTER,
+    buttons: [
+      {
+        buttonId: `${usedPrefix}aki giocaancora`,
+        buttonText: { displayText: '🔁 Gioca ancora' },
+        type: 1
+      }
+    ],
+    headerType: 1
+  },
+  { quoted: m }
+)
       return true
     }
 
