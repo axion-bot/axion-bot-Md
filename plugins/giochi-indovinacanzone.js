@@ -320,7 +320,7 @@ async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
   let queries = []
 
   if (mode === 'random') {
-    queries = ['top hits italy', 'rap italiano', 'trap italiana', 'pop italiano', 'techno', 'house music', 'raggaeton, "dance',']
+    queries = ['top hits italy', 'rap italiano', 'trap italiana', 'pop italiano', 'techno', 'house music', 'reggaeton', 'dance']
   } else if (mode === 'genre') {
     queries = [`${genre} music`, `${genre} hits`, `${genre} italy`]
   } else if (mode === 'artist') {
