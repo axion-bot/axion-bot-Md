@@ -414,8 +414,8 @@ async function startGame(m, conn, options = {}) {
 
     fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
 
-    execSync(
-      `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`
+    /*execSync(
+      `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`*/
     )
 
     const gameMsg = await conn.sendMessage(m.chat, {
@@ -432,11 +432,11 @@ async function startGame(m, conn, options = {}) {
 
     activeGames.set(chat, game)
 
-    await conn.sendMessage(m.chat, {
-      audio: fs.readFileSync(voicePath),
-      mimetype: 'audio/ogg; codecs=opus',
-      ptt: true
-    }, { quoted: m })
+await conn.sendMessage(m.chat, {
+  audio: fs.readFileSync(audioPath),
+  mimetype: 'audio/mpeg',
+  ptt: false
+}, { quoted: m })
 
     game.interval = setInterval(async () => {
       try {
