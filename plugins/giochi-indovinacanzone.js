@@ -415,8 +415,8 @@ async function startGame(m, conn, options = {}) {
     fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
 
     /*execSync(
-      `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`*/
-    )
+      `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`
+    )*/
 
     const gameMsg = await conn.sendMessage(m.chat, {
       text: buildStartMessage(track, GAME_TIME, modeLabel)
