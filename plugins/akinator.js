@@ -26,17 +26,36 @@ function clearSession(id) {
 }
 
 async function askAI(prompt) {
-  const url = `https://api.api-me.pro/api/gpt4?q=${encodeURIComponent(prompt)}`
-  const { data } = await axios.get(url, { timeout: 45000 })
-  return S(data?.content || data?.result || data?.response || '').trim()
+  const apis = [
+    `https://api.api-me.pro/api/gpt4?q=${encodeURIComponent(prompt)}`,
+    `https://api.ryzendesu.vip/api/ai/gpt4?text=${encodeURIComponent(prompt)}`
+  ]
+
+  for (const url of apis) {
+    try {
+      const { data } = await axios.get(url, { timeout: 45000 })
+
+      const result =
+        data?.content ||
+        data?.result ||
+        data?.response ||
+        data?.answer ||
+        ''
+
+      if (result) return S(result).trim()
+    } catch {}
+  }
+
+  throw new Error('API AI non disponibile')
 }
 
 async function getCharacterImage(name) {
   try {
     const title = encodeURIComponent(name)
-    const { data } = await axios.get(`https://it.wikipedia.org/api/rest_v1/page/summary/${title}`, {
-      timeout: 15000
-    })
+    const { data } = await axios.get(
+      `https://it.wikipedia.org/api/rest_v1/page/summary/${title}`,
+      { timeout: 15000 }
+    )
 
     return data?.thumbnail?.source || data?.originalimage?.source || null
   } catch {
@@ -60,7 +79,6 @@ function resetTimeout(id, m, conn) {
 *╰━━━━━━━⏱️━━━━━━━╯*
 
 *⏱️ 𝐒𝐞𝐬𝐬𝐢𝐨𝐧𝐞 𝐬𝐜𝐚𝐝𝐮𝐭𝐚.*
-*𝐇𝐚𝐢 𝐢𝐦𝐩𝐢𝐞𝐠𝐚𝐭𝐨 𝐭𝐫𝐨𝐩𝐩𝐨 𝐭𝐞𝐦𝐩𝐨 𝐚 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞.*
 
 > ${FOOTER}`
     }, { quoted: m })
@@ -82,7 +100,7 @@ function buttonsMessage(text, usedPrefix) {
   }
 }
 
-let handler = async (m, { conn, usedPrefix, command }) => {
+let handler = async (m, { conn, usedPrefix }) => {
   const id = getSessionId(m)
 
   const buttonAnswer =
@@ -91,10 +109,12 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     null
 
   const rawText = buttonAnswer || S(m.text).trim()
-  const cleanText = S(rawText).replace(new RegExp(`^\\${usedPrefix}(akinator|aki)\\s*`, 'i'), '').trim()
+  const cleanText = S(rawText)
+    .replace(new RegExp(`^\\${usedPrefix}(akinator|aki)\\s*`, 'i'), '')
+    .trim()
 
   if (sessions.has(id)) {
-    if (/^(stop|annulla|fine|exit|\/stop)$/i.test(cleanText)) {
+    if (/^(stop|annulla|fine|exit)$/i.test(cleanText)) {
       clearSession(id)
       await react(m, '🛑')
 
@@ -116,15 +136,12 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       await react(m, '🧠')
 
       const session = sessions.get(id)
-      session.turns++
 
       const prompt =
 `Stai giocando ad Akinator in italiano.
-Devi indovinare il personaggio, reale o immaginario, a cui l'utente sta pensando.
-Fai UNA SOLA domanda breve alla volta.
-La domanda deve poter ricevere risposta: sì, no, forse, non so.
-Non spiegare il ragionamento.
-Se sei abbastanza sicuro, rispondi ESATTAMENTE nel formato:
+Fai UNA SOLA domanda breve.
+Risposte possibili: sì, no, forse, non so.
+Quando sei sicuro scrivi:
 INDOVINATO: Nome personaggio
 
 Storico:
@@ -153,7 +170,6 @@ Risposta utente: ${cleanText}`
 
 *✨ 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐚!*
 
-*𝐒𝐭𝐚𝐯𝐢 𝐩𝐞𝐧𝐬𝐚𝐧𝐝𝐨 𝐚:*
 *${nome}*
 
 > ${FOOTER}`
@@ -168,20 +184,22 @@ Risposta utente: ${cleanText}`
         return conn.sendMessage(m.chat, { text: caption }, { quoted: m })
       }
 
-      return conn.sendMessage(m.chat, buttonsMessage(
+      return conn.sendMessage(
+        m.chat,
+        buttonsMessage(
 `*╭━━━━━━━🧞━━━━━━━╮*
 *✦ 𝐀𝐊𝐈𝐍𝐀𝐓𝐎𝐑 ✦*
 *╰━━━━━━━🧞━━━━━━━╯*
 
 *${replyText}*
 
-*↳ 𝐒𝐜𝐞𝐠𝐥𝐢 𝐮𝐧𝐚 𝐫𝐢𝐬𝐩𝐨𝐬𝐭𝐚 𝐝𝐚𝐢 𝐛𝐨𝐭𝐭𝐨𝐧𝐢.*
-*↳ 𝐒𝐜𝐫𝐢𝐯𝐢:* *stop* *𝐩𝐞𝐫 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐫𝐞.*`,
-        usedPrefix
-      ), { quoted: m })
+> ${FOOTER}`,
+          usedPrefix
+        ),
+        { quoted: m }
+      )
 
     } catch (e) {
-      console.error('Errore akinator:', e?.message || e)
       clearSession(id)
       await react(m, '❌')
 
@@ -191,7 +209,7 @@ Risposta utente: ${cleanText}`
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*❌ 𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐜𝐚𝐫𝐢𝐜𝐚𝐫𝐞 𝐥𝐚 𝐫𝐢𝐬𝐩𝐨𝐬𝐭𝐚.*
+*❌ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚 𝐧𝐨𝐧 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞.*
 
 > ${FOOTER}`
       }, { quoted: m })
@@ -203,38 +221,33 @@ Risposta utente: ${cleanText}`
 
     const prompt =
 `Inizia una partita ad Akinator in italiano.
-Saluta in modo breve e fai la prima domanda.
-Regole:
-- una sola domanda
-- domanda chiara
-- risposta possibile: sì, no, forse, non so
-- non dire di essere GPT`
+Saluta brevemente e fai la prima domanda.`
 
     const startTxt = await askAI(prompt)
 
     sessions.set(id, {
-      active: true,
-      turns: 1,
       history: [`Akinator: ${startTxt}`],
       timeout: null
     })
 
     resetTimeout(id, m, conn)
 
-    return conn.sendMessage(m.chat, buttonsMessage(
+    return conn.sendMessage(
+      m.chat,
+      buttonsMessage(
 `*╭━━━━━━━🧞━━━━━━━╮*
 *✦ 𝐀𝐊𝐈𝐍𝐀𝐓𝐎𝐑 𝐀𝐈 ✦*
 *╰━━━━━━━🧞━━━━━━━╯*
 
 *${startTxt}*
 
-*↳ 𝐒𝐜𝐞𝐠𝐥𝐢 𝐮𝐧𝐚 𝐫𝐢𝐬𝐩𝐨𝐬𝐭𝐚 𝐝𝐚𝐢 𝐛𝐨𝐭𝐭𝐨𝐧𝐢.*
-*↳ 𝐒𝐜𝐫𝐢𝐯𝐢:* *stop* *𝐩𝐞𝐫 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐫𝐞.*`,
-      usedPrefix
-    ), { quoted: m })
+> ${FOOTER}`,
+        usedPrefix
+      ),
+      { quoted: m }
+    )
 
   } catch (e) {
-    console.error('Errore avvio akinator:', e?.message || e)
     await react(m, '❌')
 
     return conn.sendMessage(m.chat, {
@@ -243,7 +256,7 @@ Regole:
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*❌ 𝐀𝐯𝐯𝐢𝐨 𝐝𝐞𝐥𝐥𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐧𝐨𝐧 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨.*
+*❌ 𝐀𝐏𝐈 𝐧𝐨𝐧 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐠𝐢𝐛𝐢𝐥𝐞.*
 
 > ${FOOTER}`
     }, { quoted: m })
