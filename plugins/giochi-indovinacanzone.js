@@ -86,8 +86,8 @@ const GENRES = [
   'latin trap',
   'bachata',
   'salsa',
-  'dancehall''
-  'dembow'
+  'dancehall',
+  'dembow',
 
   // R&B / SOUL
   'rnb',
@@ -127,7 +127,7 @@ const GENRES = [
   // COUNTRY / FOLK
   'country',
   'folk',
-  'acoustic'
+  'acoustic',
 ]
 
 const S = v => String(v || '')
