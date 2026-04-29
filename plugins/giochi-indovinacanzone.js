@@ -220,18 +220,42 @@ function pickRandom(arr) {
 
 function detectModeFromInput(input) {
   const raw = S(input).trim()
-  const parts = raw.split(/\s+/).filter(Boolean)
-  const first = normalize(parts[0])
+  const normalizedRaw = normalize(raw)
 
   if (!raw) return { mode: 'menu', value: '' }
 
-  if (GENRES.includes(first)) {
-    const rest = parts.slice(1).join(' ').trim()
-    if (rest) return { mode: 'genre_artist', genre: first, artist: rest, value: `${first} ${rest}` }
-    return { mode: 'genre', genre: first, value: first }
+  const sortedGenres = [...GENRES].sort((a, b) => b.length - a.length)
+
+  const matchedGenre = sortedGenres.find(g =>
+    normalizedRaw === normalize(g) ||
+    normalizedRaw.startsWith(`${normalize(g)} `)
+  )
+
+  if (matchedGenre) {
+    const genreNorm = normalize(matchedGenre)
+    const rest = normalizedRaw.replace(genreNorm, '').trim()
+
+    if (rest) {
+      return {
+        mode: 'genre_artist',
+        genre: matchedGenre,
+        artist: rest,
+        value: `${matchedGenre} ${rest}`
+      }
+    }
+
+    return {
+      mode: 'genre',
+      genre: matchedGenre,
+      value: matchedGenre
+    }
   }
 
-  return { mode: 'artist', artist: raw, value: raw }
+  return {
+    mode: 'artist',
+    artist: raw,
+    value: raw
+  }
 }
 
 async function searchApple(query, forcedGenre = '') {
@@ -308,9 +332,19 @@ async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
   let results = []
 
   for (const q of queries) {
-    try { results.push(...await searchDeezer(q, genre || '')) } catch {}
-    try { results.push(...await searchApple(q, genre || '')) } catch {}
+    try for (const q of queries) {
+  try {
+    const deezerResults = await searchDeezer(q, genre || '')
+    results.push(...deezerResults)
+  } catch {}
+
+  if (!results.length) {
+    try {
+      const appleResults = await searchApple(q, genre || '')
+      results.push(...appleResults)
+    } catch {}
   }
+}
 
   const seen = new Set()
 
