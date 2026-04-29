@@ -132,6 +132,18 @@ const GENRES = [
 
 const S = v => String(v || '')
 
+function getBody(m) {
+  return S(
+    m.text ||
+    m.body ||
+    m.message?.conversation ||
+    m.message?.extendedTextMessage?.text ||
+    m.message?.imageMessage?.caption ||
+    m.message?.videoMessage?.caption ||
+    ''
+  ).trim()
+}
+
 function withFooter(text) {
   return `${text}\n\n> ${FOOTER}`
 }
@@ -724,7 +736,7 @@ handler.before = async (m, { conn }) => {
 
   if (pendingMode.has(chat) && !activeGames.has(chat)) {
     const pending = pendingMode.get(chat)
-    const input = S(m.text).trim()
+    const input = getBody(m)
 
     if (Date.now() - pending.createdAt > 60000) {
       pendingMode.delete(chat)
@@ -756,7 +768,7 @@ handler.before = async (m, { conn }) => {
   if (!activeGames.has(chat)) return
 
   const game = activeGames.get(chat)
-  const userAnswer = normalize(m.text || '')
+  const userAnswer = normalize(getBody(m))
   const correctAnswer = normalize(game.track.title)
 
   if (!userAnswer || userAnswer.length < 2) return
