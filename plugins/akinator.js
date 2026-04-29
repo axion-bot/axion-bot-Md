@@ -289,9 +289,21 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 handler.before = async (m, { conn, usedPrefix }) => {
   const prefix = usedPrefix || '.'
-  const text = S(m.text).trim()
+  const text = S(m.text).trim().toLowerCase()
 
+  // Ignora comando iniziale
   if (new RegExp(`^\\${prefix}(akinator|aki)(\\s|$)`, 'i').test(text)) return
+
+  // Ignora risposte da pulsanti
+  const blocked = [
+    'akinator_si',
+    'akinator_no',
+    'akinator_forse',
+    'akinator_nonso',
+    'akinator_stop'
+  ]
+
+  if (blocked.includes(text)) return
 
   const id = getSessionId(m)
   if (!sessions.has(id)) return
