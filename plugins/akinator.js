@@ -1,11 +1,11 @@
-//Plugin Akinator by Bonzino
-
 import axios from 'axios'
+import 'dotenv/config'
 
 const sessions = new Map()
 
 const FOOTER = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
 const TIMEOUT = 5 * 60 * 1000
+const GROQ_API_KEY = process.env.GROQ_API_KEY
 
 function S(v) {
   return String(v || '')
@@ -26,32 +26,42 @@ function clearSession(id) {
 }
 
 async function askAI(prompt) {
-  const apis = [
-    `https://api.api-me.pro/api/gpt4?q=${encodeURIComponent(prompt)}`,
-    `https://api.ryzendesu.vip/api/ai/gpt4?text=${encodeURIComponent(prompt)}`
-  ]
+  if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY mancante')
 
-  for (const url of apis) {
-    try {
-      const { data } = await axios.get(url, { timeout: 45000 })
+  const { data } = await axios.post(
+    'https://api.groq.com/openai/v1/chat/completions',
+    {
+      model: 'llama3-70b-8192',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Sei Akinator in italiano. Fai una sola domanda breve per volta. Risposte possibili: sì, no, forse, non so. Quando sei sicuro rispondi ESATTAMENTE con: INDOVINATO: Nome Personaggio'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 300
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 45000
+    }
+  )
 
-      const result =
-        data?.content ||
-        data?.result ||
-        data?.response ||
-        data?.answer ||
-        ''
-
-      if (result) return S(result).trim()
-    } catch {}
-  }
-
-  throw new Error('API AI non disponibile')
+  return S(data?.choices?.[0]?.message?.content || '').trim()
 }
 
 async function getCharacterImage(name) {
   try {
     const title = encodeURIComponent(name)
+
     const { data } = await axios.get(
       `https://it.wikipedia.org/api/rest_v1/page/summary/${title}`,
       { timeout: 15000 }
@@ -109,6 +119,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     null
 
   const rawText = buttonAnswer || S(m.text).trim()
+
   const cleanText = S(rawText)
     .replace(new RegExp(`^\\${usedPrefix}(akinator|aki)\\s*`, 'i'), '')
     .trim()
@@ -138,13 +149,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       const session = sessions.get(id)
 
       const prompt =
-`Stai giocando ad Akinator in italiano.
-Fai UNA SOLA domanda breve.
-Risposte possibili: sì, no, forse, non so.
-Quando sei sicuro scrivi:
-INDOVINATO: Nome personaggio
-
-Storico:
+`Storico:
 ${session.history.join('\n')}
 
 Risposta utente: ${cleanText}`
@@ -181,7 +186,9 @@ Risposta utente: ${cleanText}`
           }, { quoted: m })
         }
 
-        return conn.sendMessage(m.chat, { text: caption }, { quoted: m })
+        return conn.sendMessage(m.chat, {
+          text: caption
+        }, { quoted: m })
       }
 
       return conn.sendMessage(
@@ -200,6 +207,7 @@ Risposta utente: ${cleanText}`
       )
 
     } catch (e) {
+      console.error('Errore akinator:', e?.message || e)
       clearSession(id)
       await react(m, '❌')
 
@@ -219,11 +227,9 @@ Risposta utente: ${cleanText}`
   try {
     await react(m, '🧞')
 
-    const prompt =
-`Inizia una partita ad Akinator in italiano.
-Saluta brevemente e fai la prima domanda.`
-
-    const startTxt = await askAI(prompt)
+    const startTxt = await askAI(
+      'Inizia una partita ad Akinator in italiano. Saluta brevemente e fai la prima domanda.'
+    )
 
     sessions.set(id, {
       history: [`Akinator: ${startTxt}`],
@@ -248,6 +254,7 @@ Saluta brevemente e fai la prima domanda.`
     )
 
   } catch (e) {
+    console.error('Errore avvio akinator:', e?.message || e)
     await react(m, '❌')
 
     return conn.sendMessage(m.chat, {
@@ -263,7 +270,7 @@ Saluta brevemente e fai la prima domanda.`
   }
 }
 
-handler.help = ['akinator']
+handler.help = ['akinator', 'aki']
 handler.tags = ['fun']
 handler.command = /^(akinator|aki)$/i
 
