@@ -62,8 +62,14 @@ async function getWikiImage(lang, name) {
     const title = encodeURIComponent(name)
     const { data } = await axios.get(
       `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${title}`,
-      { timeout: 15000 }
+      {
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'AxionBot/1.0 (contact: axionbot@example.com)'
+        }
+      }
     )
+
     return data?.originalimage?.source || data?.thumbnail?.source || null
   } catch {
     return null
