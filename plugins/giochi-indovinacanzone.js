@@ -320,7 +320,7 @@ async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
   let queries = []
 
   if (mode === 'random') {
-    queries = ['top hits italy', 'rap italiano', 'trap italiana', 'pop italiano', 'techno', 'house music', 'jazz']
+    queries = ['top hits italy', 'rap italiano', 'trap italiana', 'pop italiano', 'techno', 'house music', 'raggaeton, "dance',']
   } else if (mode === 'genre') {
     queries = [`${genre} music`, `${genre} hits`, `${genre} italy`]
   } else if (mode === 'artist') {
@@ -476,7 +476,7 @@ function buildEndMessage(track) {
 *🎵 𝐓𝐢𝐭𝐨𝐥𝐨:* *${track.title}*
 *👤 𝐀𝐫𝐭𝐢𝐬𝐭𝐚:* *${track.artist}*
 *🎼 𝐆𝐞𝐧𝐞𝐫𝐞:* *${track.genre || 'N/D'}*
-*📡 𝐅𝐨𝐧𝐭𝐞:* *${track.source || 'N/D'}*`
+*📡 𝐅𝐨𝐧𝐭𝐞:* *${track.source || 'N/D'}*\n`
 }
 
 function buildWinMessage(track, reward, exp, user) {
@@ -493,7 +493,7 @@ function buildWinMessage(track, reward, exp, user) {
 
 *🎁 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚:*
 *💶 +${reward} euro*
-*✨ +${exp} exp*`
+*✨ +${exp} exp*\n`
 }
  
 async function editGameMessage(conn, chat, key, text) {
@@ -549,13 +549,15 @@ async function startGame(m, conn, options = {}) {
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 
     const stamp = Date.now()
-    audioPath = path.join(tmpDir, `song_${stamp}.mp3`)
-    voicePath = path.join(tmpDir, `song_${stamp}.ogg`)
+    const inputExt = track.source === 'Apple Music' ? 'm4a' : 'mp3'
+
+audioPath = path.join(tmpDir, `song_${stamp}.${inputExt}`)
+voicePath = path.join(tmpDir, `song_${stamp}.ogg`)
 
     fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
     
 execSync(
-  `ffmpeg -y -i "${audioPath}" -vn -ar 48000 -ac 1 -c:a libopus -b:a 32k -application voip -f ogg "${voicePath}"`
+  `ffmpeg -hide_banner -loglevel error -y -i "${audioPath}" -map_metadata -1 -vn -ar 48000 -ac 1 -c:a libopus -b:a 32k -application voip -f ogg "${voicePath}"`
 )
 
     const gameMsg = await conn.sendMessage(m.chat, {
