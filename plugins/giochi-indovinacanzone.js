@@ -152,22 +152,37 @@ async function searchApple(query, forcedGenre = '') {
 }
 
 async function searchDeezer(query, forcedGenre = '') {
-  const { data } = await axios.get('https://api.deezer.com/search', {
-    params: { q: query, limit: 35 },
-    timeout: 20000
-  })
+  try {
+    const { data } = await axios.get('https://api.deezer.com/search', {
+      params: {
+        q: query,
+        limit: 35
+      },
+      timeout: 20000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      }
+    })
 
-  return (data?.data || [])
-    .filter(t => t.preview && t.title && t.artist?.name && t.album?.cover_big)
-    .map(t => ({
-      title: t.title,
-      artist: t.artist.name,
-      genre: forcedGenre || 'N/D',
-      preview: t.preview,
-      artwork: t.album.cover_big,
-      source: 'Deezer',
-      url: t.link || 'https://www.deezer.com'
-    }))
+    return (data?.data || [])
+      .filter(t =>
+        t.preview &&
+        t.title &&
+        t.artist?.name &&
+        t.album?.cover_big
+      )
+      .map(t => ({
+        title: t.title,
+        artist: t.artist.name,
+        genre: forcedGenre || 'N/D',
+        preview: t.preview,
+        artwork: t.album.cover_big,
+        source: 'Deezer',
+        url: t.link || 'https://www.deezer.com'
+      }))
+  } catch {
+    return []
+  }
 }
 
 async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
