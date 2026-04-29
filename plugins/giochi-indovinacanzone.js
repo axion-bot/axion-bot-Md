@@ -460,9 +460,9 @@ function buildWinMessage(track, reward, exp, user) {
 
 *🎁 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚:*
 *💶 +${reward} euro*
-*✨ +${exp}`
+*✨ +${exp} exp*`
 }
-
+ 
 async function editGameMessage(conn, chat, key, text) {
   try {
     await conn.sendMessage(chat, {
