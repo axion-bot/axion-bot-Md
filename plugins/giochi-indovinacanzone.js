@@ -18,25 +18,14 @@ const CACHE_PATH = path.join(process.cwd(), 'media/database/indovinacanzone_cach
 const CACHE_MAX_AGE = 24 * 60 * 60 * 1000
 
 const GENRES = [
-  'rap',
-  'trap',
-  'pop',
-  'house',
-  'techno',
-  'rave',
-  'jazz',
-  'rock',
-  'indie',
-  'dance',
-  'reggaeton',
-  'classica',
-  'metal',
-  'latin',
-  'rnb'
+  'rap', 'trap', 'pop', 'house', 'techno', 'rave', 'jazz', 'rock',
+  'indie', 'dance', 'reggaeton', 'classica', 'metal', 'latin', 'rnb'
 ]
 
-function S(v) {
-  return String(v || '')
+const S = v => String(v || '')
+
+function withFooter(text) {
+  return `${text}\n\n> ${FOOTER}`
 }
 
 function normalize(str) {
@@ -111,7 +100,10 @@ function cacheKey(mode, value = '') {
 }
 
 function isCacheFresh(item) {
-  return item?.updatedAt && Date.now() - item.updatedAt < CACHE_MAX_AGE && Array.isArray(item.tracks) && item.tracks.length
+  return item?.updatedAt &&
+    Date.now() - item.updatedAt < CACHE_MAX_AGE &&
+    Array.isArray(item.tracks) &&
+    item.tracks.length
 }
 
 function pickRandom(arr) {
@@ -181,36 +173,24 @@ async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
   let queries = []
 
   if (mode === 'random') {
-    queries = [
-      'top hits italy',
-      'rap italiano',
-      'trap italiana',
-      'pop italiano',
-      'techno',
-      'house music',
-      'jazz'
-    ]
+    queries = ['top hits italy', 'rap italiano', 'trap italiana', 'pop italiano', 'techno', 'house music', 'jazz']
   } else if (mode === 'genre') {
     queries = [`${genre} music`, `${genre} hits`, `${genre} italy`]
   } else if (mode === 'artist') {
     queries = [artist]
   } else if (mode === 'genre_artist') {
-    queries = [`${artist} ${genre}`, `${artist}`]
+    queries = [`${artist} ${genre}`, artist]
   }
 
   let results = []
 
   for (const q of queries) {
-    try {
-      results.push(...await searchDeezer(q, genre || ''))
-    } catch {}
-
-    try {
-      results.push(...await searchApple(q, genre || ''))
-    } catch {}
+    try { results.push(...await searchDeezer(q, genre || '')) } catch {}
+    try { results.push(...await searchApple(q, genre || '')) } catch {}
   }
 
   const seen = new Set()
+
   results = results.filter(t => {
     const key = normalize(`${t.artist} ${t.title}`)
     if (!key || seen.has(key)) return false
@@ -218,18 +198,14 @@ async function searchTracksOnline(mode, value = '', genre = '', artist = '') {
     return true
   })
 
-  if (mode === 'artist' && artist) {
+  if ((mode === 'artist' || mode === 'genre_artist') && artist) {
     const a = normalize(artist)
-    results = results.filter(t => normalize(t.artist).includes(a) || a.includes(normalize(t.artist)))
-  }
-
-  if (mode === 'genre_artist' && artist) {
-    const a = normalize(artist)
-    results = results.filter(t => normalize(t.artist).includes(a) || a.includes(normalize(t.artist)))
+    results = results.filter(t =>
+      normalize(t.artist).includes(a) || a.includes(normalize(t.artist))
+    )
   }
 
   if (!results.length) throw new Error('track_not_found')
-
   return results
 }
 
@@ -247,6 +223,7 @@ async function getTrack(mode = 'random', value = '', genre = '', artist = '') {
     updatedAt: Date.now(),
     tracks
   }
+
   db.updatedAt = Date.now()
   writeCache(db)
 
@@ -255,41 +232,21 @@ async function getTrack(mode = 'random', value = '', genre = '', artist = '') {
 
 function modeButtons() {
   return [
-    {
-      buttonId: '.ic_random',
-      buttonText: { displayText: '🎲 Casuale' },
-      type: 1
-    },
-    {
-      buttonId: '.ic_genre',
-      buttonText: { displayText: '🎼 Genere' },
-      type: 1
-    },
-    {
-      buttonId: '.ic_artist',
-      buttonText: { displayText: '👤 Artista' },
-      type: 1
-    }
+    { buttonId: '.ic_random', buttonText: { displayText: '🎲 Casuale' }, type: 1 },
+    { buttonId: '.ic_genre', buttonText: { displayText: '🎼 Genere' }, type: 1 },
+    { buttonId: '.ic_artist', buttonText: { displayText: '👤 Artista' }, type: 1 }
   ]
 }
 
 function replayButtons() {
   return [
-    {
-      buttonId: '.ic',
-      buttonText: { displayText: '🔁 Rigioca' },
-      type: 1
-    }
+    { buttonId: '.ic', buttonText: { displayText: '🔁 Rigioca' }, type: 1 }
   ]
 }
 
 function cancelButtons() {
   return [
-    {
-      buttonId: '.ic',
-      buttonText: { displayText: '↩️ Indietro' },
-      type: 1
-    }
+    { buttonId: '.ic', buttonText: { displayText: '↩️ Indietro' }, type: 1 }
   ]
 }
 
@@ -302,9 +259,7 @@ function buildModeMessage() {
 
 *🎲 𝐂𝐚𝐬𝐮𝐚𝐥𝐞:* *𝐜𝐞𝐫𝐜𝐚 𝐝𝐚 𝐩𝐢𝐮̀ 𝐠𝐞𝐧𝐞𝐫𝐢.*
 *🎼 𝐆𝐞𝐧𝐞𝐫𝐞:* *𝐬𝐜𝐞𝐠𝐥𝐢 𝐫𝐚𝐩, 𝐭𝐫𝐚𝐩, 𝐩𝐨𝐩, 𝐭𝐞𝐜𝐡𝐧𝐨...*
-*👤 𝐀𝐫𝐭𝐢𝐬𝐭𝐚:* *𝐬𝐜𝐞𝐠𝐥𝐢 𝐮𝐧 𝐚𝐫𝐭𝐢𝐬𝐭𝐚.*
-
-> ${FOOTER}`
+*👤 𝐀𝐫𝐭𝐢𝐬𝐭𝐚:* *𝐬𝐜𝐞𝐠𝐥𝐢 𝐮𝐧 𝐚𝐫𝐭𝐢𝐬𝐭𝐚.*`
 }
 
 function buildPromptMessage(type) {
@@ -317,13 +272,11 @@ function buildPromptMessage(type) {
 
 *𝐒𝐜𝐫𝐢𝐯𝐢 𝐨𝐫𝐚 𝐢𝐥 ${type === 'genre' ? '𝐠𝐞𝐧𝐞𝐫𝐞' : '𝐧𝐨𝐦𝐞 𝐝𝐞𝐥𝐥’𝐚𝐫𝐭𝐢𝐬𝐭𝐚'}.*
 
-*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* *${example}*
-
-> ${FOOTER}`
+*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* *${example}*`
 }
 
 function buildStartMessage(track, timeLeft, modeLabel) {
-  return `*╭━━━━━━━🎵━━━━━━━╮*
+  return withFooter(`*╭━━━━━━━🎵━━━━━━━╮*
 *✦ 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐂𝐀𝐍𝐙𝐎𝐍𝐄 ✦*
 *╰━━━━━━━🎵━━━━━━━╯*
 
@@ -332,9 +285,7 @@ function buildStartMessage(track, timeLeft, modeLabel) {
 *🎼 𝐆𝐞𝐧𝐞𝐫𝐞:* *${track.genre || 'N/D'}*
 *👤 𝐀𝐫𝐭𝐢𝐬𝐭𝐚:* *${track.artist}*
 
-*🎧 𝐀𝐬𝐜𝐨𝐥𝐭𝐚 𝐥’𝐚𝐧𝐭𝐞𝐩𝐫𝐢𝐦𝐚 𝐞 𝐬𝐜𝐫𝐢𝐯𝐢 𝐢𝐥 𝐭𝐢𝐭𝐨𝐥𝐨.*
-
-> ${FOOTER}`
+*🎧 𝐀𝐬𝐜𝐨𝐥𝐭𝐚 𝐥’𝐚𝐧𝐭𝐞𝐩𝐫𝐢𝐦𝐚 𝐞 𝐬𝐜𝐫𝐢𝐯𝐢 𝐢𝐥 𝐭𝐢𝐭𝐨𝐥𝐨.*`)
 }
 
 function finalContext(track) {
@@ -360,9 +311,7 @@ function buildEndMessage(track) {
 *🎵 𝐓𝐢𝐭𝐨𝐥𝐨:* *${track.title}*
 *👤 𝐀𝐫𝐭𝐢𝐬𝐭𝐚:* *${track.artist}*
 *🎼 𝐆𝐞𝐧𝐞𝐫𝐞:* *${track.genre || 'N/D'}*
-*📡 𝐅𝐨𝐧𝐭𝐞:* *${track.source || 'N/D'}*
-
-> ${FOOTER}`
+*📡 𝐅𝐨𝐧𝐭𝐞:* *${track.source || 'N/D'}*`
 }
 
 function buildWinMessage(track, reward, exp, user) {
@@ -379,9 +328,7 @@ function buildWinMessage(track, reward, exp, user) {
 
 *🎁 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚:*
 *➤ ${reward} 𝐞𝐮𝐫𝐨*
-*➤ ${exp} 𝐞𝐱𝐩*
-
-> ${FOOTER}`
+*➤ ${exp} 𝐞𝐱𝐩*`
 }
 
 async function editGameMessage(conn, chat, key, text) {
@@ -400,13 +347,11 @@ async function startGame(m, conn, options = {}) {
     await react(conn, m, '⚠️')
     return conn.reply(
       m.chat,
-      `*╭━━━━━━━⚠️━━━━━━━╮*
+      withFooter(`*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐏𝐀𝐑𝐓𝐈𝐓𝐀 𝐈𝐍 𝐂𝐎𝐑𝐒𝐎 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
-*𝐂’𝐞̀ 𝐠𝐢𝐚̀ 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*
-
-> ${FOOTER}`,
+*𝐂’𝐞̀ 𝐠𝐢𝐚̀ 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*`),
       m
     )
   }
@@ -444,7 +389,7 @@ async function startGame(m, conn, options = {}) {
 
     await conn.sendMessage(m.chat, {
       audio: fs.readFileSync(audioPath),
-      mimetype: 'audio/mp4',
+      mimetype: 'audio/mpeg',
       ptt: true
     }, { quoted: m })
 
@@ -503,14 +448,12 @@ async function startGame(m, conn, options = {}) {
 
     return conn.reply(
       m.chat,
-      `*╭━━━━━━━⚠️━━━━━━━╮*
+      withFooter(`*╭━━━━━━━⚠️━━━━━━━╮*
 *✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
 *╰━━━━━━━⚠️━━━━━━━╯*
 
 *❌ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐜𝐚𝐧𝐳𝐨𝐧𝐞 𝐭𝐫𝐨𝐯𝐚𝐭𝐚.*
-*🔎 𝐑𝐢𝐜𝐞𝐫𝐜𝐚:* *${options.value || 'casuale'}*
-
-> ${FOOTER}`,
+*🔎 𝐑𝐢𝐜𝐞𝐫𝐜𝐚:* *${options.value || 'casuale'}*`),
       m
     )
   }
@@ -672,7 +615,11 @@ handler.before = async (m, { conn }) => {
 
   } else if (similarityScore >= 0.3) {
     await react(conn, m, '❌')
-    await conn.reply(m.chat, `*👀 𝐂𝐢 𝐬𝐞𝐢 𝐪𝐮𝐚𝐬𝐢! 𝐑𝐢𝐩𝐫𝐨𝐯𝐚...*`, m)
+    await conn.reply(
+      m.chat,
+      withFooter(`*👀 𝐂𝐢 𝐬𝐞𝐢 𝐪𝐮𝐚𝐬𝐢! 𝐑𝐢𝐩𝐫𝐨𝐯𝐚...*`),
+      m
+    )
   }
 }
 
@@ -685,6 +632,7 @@ handler.help = [
 
 handler.tags = ['giochi']
 handler.command = ['indovinacanzone', 'ic', 'ic_random', 'ic_genre', 'ic_artist']
+handler.register = true
 handler.group = true
 
 export default handler
