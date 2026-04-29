@@ -4,4 +4,3 @@ private.js
 database.json
 plugins/infonum.js
 plugins/owner-purge.js
-plugins/testvocale.js
