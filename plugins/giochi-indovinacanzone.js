@@ -366,6 +366,9 @@ async function startGame(m, conn, options = {}) {
     )
   }
 
+  let audioPath = null
+  let voicePath = null
+
   try {
     await react(conn, m, '🎵')
 
@@ -390,23 +393,95 @@ async function startGame(m, conn, options = {}) {
     const tmpDir = path.join(process.cwd(), 'temp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 
-    const audioPath = path.join(tmpDir, `song_${Date.now()}.mp3`)
-    const voicePath = path.join(tmpDir, `song_${Date.now()}.ogg`)
+    const stamp = Date.now()
+    audioPath = path.join(tmpDir, `song_${stamp}.mp3`)
+    voicePath = path.join(tmpDir, `song_${stamp}.ogg`)
 
-fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
+    fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
 
-execSync(
-  `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`
-)
+    execSync(
+      `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`
+    )
 
-await conn.sendMessage(m.chat, {
-  audio: fs.readFileSync(voicePath),
-  mimetype: 'audio/ogg; codecs=opus',
-  ptt: true
-}, { quoted: m })
+    const gameMsg = await conn.sendMessage(m.chat, {
+      text: buildStartMessage(track, GAME_TIME, modeLabel)
+    }, { quoted: m })
 
-try { fs.unlinkSync(audioPath) } catch {}
-try { fs.unlinkSync(voicePath) } catch {}
+    const game = {
+      track,
+      timeLeft: GAME_TIME,
+      messageKey: gameMsg?.key,
+      interval: null,
+      modeLabel
+    }
+
+    activeGames.set(chat, game)
+
+    await conn.sendMessage(m.chat, {
+      audio: fs.readFileSync(voicePath),
+      mimetype: 'audio/ogg; codecs=opus',
+      ptt: true
+    }, { quoted: m })
+
+    game.interval = setInterval(async () => {
+      try {
+        game.timeLeft -= TICK_TIME
+
+        if (game.timeLeft > 0) {
+          await editGameMessage(
+            conn,
+            chat,
+            game.messageKey,
+            buildStartMessage(track, game.timeLeft, modeLabel)
+          )
+          return
+        }
+
+        clearInterval(game.interval)
+        activeGames.delete(chat)
+
+        await editGameMessage(
+          conn,
+          chat,
+          game.messageKey,
+          buildStartMessage(track, 0, modeLabel)
+        )
+
+        await conn.sendMessage(m.chat, {
+          text: buildEndMessage(track),
+          footer: FOOTER,
+          buttons: replayButtons(),
+          headerType: 1,
+          contextInfo: finalContext(track)
+        }).catch(() => {})
+      } catch (e) {
+        console.error('Errore countdown:', e?.message || e)
+      }
+    }, TICK_TIME * 1000)
+
+  } catch (e) {
+    console.error('Errore indovina canzone:', e?.message || e)
+    activeGames.delete(chat)
+    await react(conn, m, '❌')
+
+    return conn.reply(
+      m.chat,
+      withFooter(`*╭━━━━━━━⚠️━━━━━━━╮*
+*✦ 𝐄𝐑𝐑𝐎𝐑𝐄 ✦*
+*╰━━━━━━━⚠️━━━━━━━╯*
+
+*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥’𝐚𝐯𝐯𝐢𝐨 𝐝𝐞𝐥 𝐠𝐢𝐨𝐜𝐨.*
+
+\`\`\`
+${S(e?.message || e).slice(0, 1000)}
+\`\`\``),
+      m
+    )
+  } finally {
+    try { if (audioPath) fs.unlinkSync(audioPath) } catch {}
+    try { if (voicePath) fs.unlinkSync(voicePath) } catch {}
+  }
+}/
 
     const game = {
       track,
