@@ -593,41 +593,41 @@ await conn.sendMessage(m.chat, {
 }, { quoted: m })
 
     game.interval = setInterval(async () => {
-      try {
-        game.timeLeft -= TICK_TIME
+  try {
+    game.timeLeft -= TICK_TIME
 
-        if (game.timeLeft > 0) {
-          await editGameMessage(
-            conn,
-            chat,
-            game.messageKey,
-            buildStartMessage(track, game.timeLeft, modeLabel)
-          )
-          return
-        }
+    if (game.timeLeft > 0) {
+      await editGameMessage(
+        conn,
+        chat,
+        game.messageKey,
+        buildStartMessage(track, game.timeLeft, modeLabel)
+      )
+      return
+    }
 
-        clearInterval(game.interval)
-        activeGames.delete(chat)
+    clearInterval(game.interval)
+    activeGames.delete(chat)
 
-        await editGameMessage(
-          conn,
-          chat,
-          game.messageKey,
-          buildStartMessage(track, 0, modeLabel)
-        )
+    await editGameMessage(
+      conn,
+      chat,
+      game.messageKey,
+      buildStartMessage(track, 0, modeLabel)
+    )
 
-        await conn.sendMessage(m.chat, {
-  image: { url: track.artwork },
-  caption: buildEndMessage(track),
-  footer: FOOTER,
-  buttons: replayButtons(),
-  headerType: 4
-}, { quoted: m }).catch(() => {})
-        }).catch(() => {})
-      } catch (e) {
-        console.error('Errore countdown:', e?.message || e)
-      }
-    }, TICK_TIME * 1000)
+    await conn.sendMessage(m.chat, {
+      image: { url: track.artwork },
+      caption: buildEndMessage(track),
+      footer: FOOTER,
+      buttons: replayButtons(),
+      headerType: 4
+    }, { quoted: m }).catch(() => {})
+
+  } catch (e) {
+    console.error('Errore countdown:', e?.message || e)
+  }
+}, TICK_TIME * 1000)
 
   } catch (e) {
     console.error('Errore indovina canzone:', e?.message || e)
@@ -808,12 +808,13 @@ if ((user.icStreak || 0) > (user.icRecord || 0)) {
     await react(conn, m, '✅')
 
 await conn.sendMessage(m.chat, {
-          image: { url: track.artwork },
-          caption: buildEndMessage(track),
-          footer: FOOTER,
-          buttons: replayButtons(),
-          headerType: 4
-        }, { quoted: m }).catch(() => {})
+  image: { url: game.track.artwork },
+  caption: buildWinMessage(game.track, reward, exp, m.sender),
+  mentions: [m.sender],
+  footer: FOOTER,
+  buttons: replayButtons(),
+  headerType: 4
+}, { quoted: m }).catch(() => {})
 
   } else if (similarityScore >= 0.3) {
     await react(conn, m, '❌')
