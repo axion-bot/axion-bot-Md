@@ -4,6 +4,7 @@ edit by Bonzino */
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
+import { execSync } from 'child_process'
 
 const activeGames = new Map()
 const pendingMode = new Map()
@@ -381,19 +382,22 @@ async function startGame(m, conn, options = {}) {
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 
     const audioPath = path.join(tmpDir, `song_${Date.now()}.mp3`)
-    fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
+    const voicePath = path.join(tmpDir, `song_${Date.now()}.ogg`)
 
-    const gameMsg = await conn.sendMessage(m.chat, {
-      text: buildStartMessage(track, GAME_TIME, modeLabel)
-    }, { quoted: m })
+fs.writeFileSync(audioPath, Buffer.from(audioResponse.data))
 
-    await conn.sendMessage(m.chat, {
-      audio: fs.readFileSync(audioPath),
-      mimetype: 'audio/mpeg',
-      ptt: true
-    }, { quoted: m })
+execSync(
+  `ffmpeg -y -i "${audioPath}" -vn -c:a libopus -b:a 64k "${voicePath}"`
+)
 
-    try { fs.unlinkSync(audioPath) } catch {}
+await conn.sendMessage(m.chat, {
+  audio: fs.readFileSync(voicePath),
+  mimetype: 'audio/ogg; codecs=opus',
+  ptt: true
+}, { quoted: m })
+
+try { fs.unlinkSync(audioPath) } catch {}
+try { fs.unlinkSync(voicePath) } catch {}
 
     const game = {
       track,
