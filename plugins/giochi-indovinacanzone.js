@@ -850,7 +850,7 @@ handler.help = [
 ]
 
 handler.tags = ['giochi']
-handler.command = ['indovinacanzone', 'ic', 'ic_random', 'ic_genre', 'ic_artist']
+handler.command = ['indovinacanzone', 'marikadown', 'ic', 'ic_random', 'ic_genre', 'ic_artist']
 handler.group = true
 
 export default handler
