@@ -519,15 +519,14 @@ async function editGameMessage(conn, chat, key, text) {
 }
 
 function isReplyToGame(m, game) {
-  const quotedId =
-    m.quoted?.id ||
-    m.message?.extendedTextMessage?.contextInfo?.stanzaId ||
-    ''
+  const quotedId = m.message?.extendedTextMessage?.contextInfo?.stanzaId || ''
 
   const gameMsgId = game.messageKey?.id || ''
   const audioMsgId = game.audioKey?.id || ''
 
-  return quotedId && (quotedId === gameMsgId || quotedId === audioMsgId)
+  if (!quotedId) return false
+
+  return quotedId === gameMsgId || quotedId === audioMsgId
 }
 
 async function startGame(m, conn, options = {}) {
