@@ -518,6 +518,18 @@ async function editGameMessage(conn, chat, key, text) {
   } catch {}
 }
 
+function isReplyToGame(m, game) {
+  const quotedId =
+    m.quoted?.id ||
+    m.message?.extendedTextMessage?.contextInfo?.stanzaId ||
+    ''
+
+  const gameMsgId = game.messageKey?.id || ''
+  const audioMsgId = game.audioKey?.id || ''
+
+  return quotedId && (quotedId === gameMsgId || quotedId === audioMsgId)
+}
+
 async function startGame(m, conn, options = {}) {
   const chat = m.chat
 
@@ -587,11 +599,13 @@ execSync(
 
     activeGames.set(chat, game)
 
-await conn.sendMessage(m.chat, {
+const audioMsg = await conn.sendMessage(m.chat, {
   audio: fs.readFileSync(voicePath),
   mimetype: 'audio/ogg; codecs=opus',
   ptt: true
 }, { quoted: m })
+
+game.audioKey = audioMsg?.key
 
     game.interval = setInterval(async () => {
   try {
@@ -764,6 +778,7 @@ handler.before = async (m, { conn }) => {
   if (!activeGames.has(chat)) return
 
   const game = activeGames.get(chat)
+  if (!isReplyToGame(m, game)) return
   const userAnswer = normalize(
   m.text ||
   m.message?.conversation ||
