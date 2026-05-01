@@ -1,6 +1,13 @@
 // listawarn by Bonzino
 
 let handler = async (m, { conn, isAdmin, isOwner, isROwner }) => {
+
+const cleanJid = jid => String(jid || '').replace(/[^0-9]/g, '')
+
+const findUserKeyByJid = (users, jid) => {
+  const num = cleanJid(jid)
+  return Object.keys(users).find(key => cleanJid(key) === num) || jid
+}
   const chatId = m.chat
 
   const box = (emoji, title, body) => `*╭━━━━━━━${emoji}━━━━━━━╮*
@@ -32,7 +39,7 @@ ${body}
 
   const warnedUsers = participants
   .map(p => {
-    const jid = p.id
+    const jid = p.id || p.jid || p.lid
     const realKey = findUserKeyByJid(users, jid)
     const user = users[realKey] || {}
 

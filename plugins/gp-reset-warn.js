@@ -1,6 +1,13 @@
 // unwarnall by Bonzino
 
 let handler = async (m, { conn, text, isAdmin, isOwner, isROwner, usedPrefix, command }) => {
+
+const cleanJid = jid => String(jid || '').replace(/[^0-9]/g, '')
+
+const findUserKeyByJid = (users, jid) => {
+  const num = cleanJid(jid)
+  return Object.keys(users).find(key => cleanJid(key) === num) || jid
+}
   const chatId = m.chat
 
   const box = (emoji, title, body) => `*╭━━━━━━━${emoji}━━━━━━━╮*
