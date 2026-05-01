@@ -94,6 +94,8 @@ if (text) {
   const targetParticipant = participants.find(p =>
     cleanJid(p.id || p.jid || p.lid) === targetNumber
   )
+  
+  const displayJid = targetParticipant?.jid || targetParticipant?.id || mentionedJid
 
   const targetIsAdmin = !!targetParticipant?.admin
 
@@ -124,7 +126,7 @@ if (text) {
   const user = users[realKey]
   if (typeof user.warn !== 'number') user.warn = 0
 
-  const tag = '@' + cleanJid(mentionedJid)
+  const tag = '@' + cleanJid(displayJid)
   const reasonText = reason?.trim() ? reason.trim() : '𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
 
   if (command === 'warn') {
@@ -136,7 +138,7 @@ if (text) {
     if (user.warn >= 3) {
       user.warn = 0
 
-      await conn.groupParticipantsUpdate(chatId, [realKey], 'remove')
+      await conn.groupParticipantsUpdate(chatId, [displayJid], 'remove')
 
       return conn.sendMessage(chatId, {
         text: box(
@@ -149,7 +151,7 @@ if (text) {
 
 *🚫 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`
         ),
-        mentions: [mentionedJid],
+        mentions: [displayJid],
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: [
           { buttonId: `${usedPrefix}listawarn`, buttonText: { displayText: '📋 Lista Warn' }, type: 1 }
@@ -169,7 +171,7 @@ if (text) {
 
 *⚠️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐯𝐞𝐫𝐫𝐚̀ 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`
       ),
-      mentions: [mentionedJid],
+      mentions: [displayJid],
       footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
       buttons: warnButtons(realKey),
       headerType: 1
@@ -195,7 +197,7 @@ if (text) {
 
 *📊 𝐒𝐭𝐚𝐭𝐨:* *${user.warn}/𝟑 𝐰𝐚𝐫𝐧*`
       ),
-      mentions: [mentionedJid],
+     mentions: [displayJid],
       footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
       buttons: unwarnButtons(realKey),
       headerType: 1

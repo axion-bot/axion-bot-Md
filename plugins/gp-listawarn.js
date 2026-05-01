@@ -67,7 +67,7 @@ ${body}`
   const mentions = warnedUsers.map(u => u.jid)
 
   let list = warnedUsers.map((u, i) => {
-    const tag = '@' + cleanJid(mentionedJid)
+    const tag = '@' + cleanJid(u.jid)
     const reason = u.reason
       ? `\n*❓ 𝐔𝐥𝐭𝐢𝐦𝐨 𝐦𝐨𝐭𝐢𝐯𝐨:* *${u.reason}*`
       : ''
