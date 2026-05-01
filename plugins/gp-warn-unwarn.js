@@ -2,13 +2,24 @@ let handler = async (m, { conn, command, text, isAdmin, isOwner, isROwner, usedP
   const chatId = m.chat
   const botNumber = conn.user.jid
 
-  const box = (emoji, title, body) => `╭━━━━━━━${emoji}━━━━━━━╮
+  const box = (emoji, title, body) => `*╭━━━━━━━${emoji}━━━━━━━╮*
 *✦ ${title} ✦*
-╰━━━━━━━${emoji}━━━━━━━╯
+*╰━━━━━━━${emoji}━━━━━━━╯*
 
 ${body}
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+
+  const warnButtons = jid => [
+    { buttonId: `${usedPrefix}listawarn`, buttonText: { displayText: '📋 Lista Warn' }, type: 1 },
+    { buttonId: `${usedPrefix}unwarn ${jid}`, buttonText: { displayText: '✅ Rimuovi 1 Warn' }, type: 1 },
+    { buttonId: `${usedPrefix}unwarnall ${jid}`, buttonText: { displayText: '🧹 Azzera Warn' }, type: 1 }
+  ]
+
+  const unwarnButtons = jid => [
+    { buttonId: `${usedPrefix}listawarn`, buttonText: { displayText: '📋 Lista Warn' }, type: 1 },
+    { buttonId: `${usedPrefix}warn ${jid}`, buttonText: { displayText: '⚠️ Aggiungi Warn' }, type: 1 }
+  ]
 
   const getProtectedOwners = () => {
     return (global.owner || []).map(v => {
@@ -37,12 +48,10 @@ ${body}
       }
     }
   } else if (mentionedJid && text) {
-    const cleanText = text
+    reason = text
       .replace(/@\d+/g, '')
       .replace(/[^a-zA-Z0-9À-ÿ\s]/g, ' ')
       .trim()
-
-    reason = cleanText
   }
 
   const groupMetadata = await conn.groupMetadata(chatId)
@@ -51,57 +60,35 @@ ${body}
   const targetIsAdmin = !!targetParticipant?.admin
 
   if (!(isAdmin || isOwner || isROwner)) {
-    throw box(
-      '❌',
-      '𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎',
-      `*𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*`
-    )
+    throw box('❌', '𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎', `*𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*`)
   }
 
   if (!mentionedJid) {
-    return conn.reply(
-      chatId,
-      box(
-        '⚠️',
-        '𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎',
-        `*𝐓𝐚𝐠𝐠𝐚, 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐨 𝐬𝐜𝐫𝐢𝐯𝐢 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞.*
+    return conn.reply(chatId, box('⚠️', '𝐔𝐓𝐄𝐍𝐓𝐄 𝐍𝐎𝐍 𝐓𝐑𝐎𝐕𝐀𝐓𝐎', `*𝐓𝐚𝐠𝐠𝐚, 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐨 𝐬𝐜𝐫𝐢𝐯𝐢 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞.*
 
 *📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
 *${usedPrefix}${command} @utente spam*
-*${usedPrefix}${command} 393123456789 spam*`
-      ),
-      m
-    )
+*${usedPrefix}${command} 393123456789 spam*`), m)
   }
 
   const protectedReason =
-    mentionedJid === botNumber
-      ? '🤖 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭'
-      : protectedOwners.includes(mentionedJid)
-        ? '👑 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐃𝐢𝐨'
-        : targetIsAdmin
-          ? '🛡 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐮𝐧 𝐚𝐝𝐦𝐢𝐧'
-          : null
+    mentionedJid === botNumber ? '🤖 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭.' :
+    protectedOwners.includes(mentionedJid) ? '👑 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐃𝐢𝐨.' :
+    targetIsAdmin ? '🛡 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐰𝐚𝐫𝐧𝐚𝐫𝐞 𝐮𝐧 𝐚𝐝𝐦𝐢𝐧.' :
+    null
 
   if (protectedReason) {
-    throw box(
-      '👑',
-      '𝐀𝐙𝐈𝐎𝐍𝐄 𝐍𝐄𝐆𝐀𝐓𝐀',
-      `*${protectedReason}*`
-    )
+    throw box('👑', '𝐀𝐙𝐈𝐎𝐍𝐄 𝐍𝐄𝐆𝐀𝐓𝐀', `*${protectedReason}*`)
   }
 
   global.db.data.users ??= {}
   global.db.data.users[mentionedJid] ??= {}
 
   const user = global.db.data.users[mentionedJid]
-
   if (typeof user.warn !== 'number') user.warn = 0
 
   const tag = '@' + mentionedJid.split('@')[0]
-  const reasonText = reason?.trim()
-    ? reason.trim()
-    : '𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
+  const reasonText = reason?.trim() ? reason.trim() : '𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
 
   if (command === 'warn') {
     user.warn += 1
@@ -111,56 +98,51 @@ ${body}
 
     if (user.warn >= 3) {
       user.warn = 0
-
       await conn.groupParticipantsUpdate(chatId, [mentionedJid], 'remove')
 
       return conn.sendMessage(chatId, {
-        text: box(
-          '🚨',
-          '𝐔𝐓𝐄𝐍𝐓𝐄 𝐄𝐒𝐏𝐔𝐋𝐒𝐎',
-          `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-*❓️ 𝐌𝐨𝐭𝐢𝐯𝐨:* ${reasonText}
-*📊 𝐖𝐚𝐫𝐧:* 𝟑/𝟑
+        text: box('🚨', '𝐔𝐓𝐄𝐍𝐓𝐄 𝐄𝐒𝐏𝐔𝐋𝐒𝐎', `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
 
-*🚫 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
-        ),
-        mentions: [mentionedJid]
+*❓ 𝐌𝐨𝐭𝐢𝐯𝐨:* *${reasonText}*
+*📊 𝐖𝐚𝐫𝐧:* *𝟑/𝟑*
+
+*🚫 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`),
+        mentions: [mentionedJid],
+        footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        buttons: [{ buttonId: `${usedPrefix}listawarn`, buttonText: { displayText: '📋 Lista Warn' }, type: 1 }],
+        headerType: 1
       }, { quoted: m })
     }
 
     return conn.sendMessage(chatId, {
-      text: box(
-        '⚠️',
-        '𝐖𝐀𝐑𝐍',
-        `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-*❓️ 𝐌𝐨𝐭𝐢𝐯𝐨:* ${reasonText}
-*📊 𝐒𝐭𝐚𝐭𝐨:* ${user.warn}/𝟑 𝐰𝐚𝐫𝐧
+      text: box('⚠️', '𝐖𝐀𝐑𝐍', `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
 
-*⚠️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐯𝐞𝐫𝐫à 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
-      ),
-      mentions: [mentionedJid]
+*❓ 𝐌𝐨𝐭𝐢𝐯𝐨:* *${reasonText}*
+*📊 𝐒𝐭𝐚𝐭𝐨:* *${user.warn}/𝟑 𝐰𝐚𝐫𝐧*
+
+*⚠️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐯𝐞𝐫𝐫𝐚̀ 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*`),
+      mentions: [mentionedJid],
+      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      buttons: warnButtons(mentionedJid),
+      headerType: 1
     }, { quoted: m })
   }
 
   if (command === 'unwarn') {
     if (user.warn <= 0) {
-      throw box(
-        '⚠️',
-        '𝐔𝐍𝐖𝐀𝐑𝐍',
-        `*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐰𝐚𝐫𝐧 𝐝𝐚 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞.*`
-      )
+      throw box('⚠️', '𝐔𝐍𝐖𝐀𝐑𝐍', `*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐰𝐚𝐫𝐧 𝐝𝐚 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞.*`)
     }
 
     user.warn -= 1
 
     return conn.sendMessage(chatId, {
-      text: box(
-        '✅',
-        '𝐖𝐀𝐑𝐍 𝐑𝐈𝐌𝐎𝐒𝐒𝐎',
-        `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-*📊 𝐒𝐭𝐚𝐭𝐨:* ${user.warn}/𝟑 𝐰𝐚𝐫𝐧`
-      ),
-      mentions: [mentionedJid]
+      text: box('✅', '𝐖𝐀𝐑𝐍 𝐑𝐈𝐌𝐎𝐒𝐒𝐎', `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
+
+*📊 𝐒𝐭𝐚𝐭𝐨:* *${user.warn}/𝟑 𝐰𝐚𝐫𝐧*`),
+      mentions: [mentionedJid],
+      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      buttons: unwarnButtons(mentionedJid),
+      headerType: 1
     }, { quoted: m })
   }
 }
