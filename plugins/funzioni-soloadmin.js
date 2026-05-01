@@ -1,4 +1,7 @@
+//olugin soloadmin by Bonzino
+
 const adminWarnCooldown = new Map()
+const adminWarnMessageMap = new Map()
 
 const S = v => String(v || '')
 
@@ -35,6 +38,14 @@ function canWarn(chat, sender, ms = 10000) {
   return true
 }
 
+function getStoredWarnMessage(chat, sender) {
+  return adminWarnMessageMap.get(`${chat}:${sender}`)
+}
+
+function setStoredWarnMessage(chat, sender, key) {
+  adminWarnMessageMap.set(`${chat}:${sender}`, key)
+}
+
 let handler = m => m
 
 handler.before = async function (m, { isAdmin, isBotAdmin, isOwner, isROwner }) {
@@ -67,18 +78,56 @@ handler.before = async function (m, { isAdmin, isBotAdmin, isOwner, isROwner }) 
     }
   } catch {}
 
-  if (canWarn(m.chat, m.sender)) {
-    await this.sendMessage(m.chat, {
-      text: box(
-        '𝐌𝐎𝐃𝐎 𝐀𝐃𝐌𝐈𝐍',
-        `❌ @${m.sender.split('@')[0]} *𝐧𝐨𝐧 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨*
+  if (!canWarn(m.chat, m.sender)) return true
+
+  const previousWarn = getStoredWarnMessage(m.chat, m.sender)
+
+  const warnText = box(
+    '𝐌𝐎𝐃𝐎 𝐀𝐃𝐌𝐈𝐍',
+    `❌ @${m.sender.split('@')[0]} *𝐧𝐨𝐧 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨*
 
 *✅ 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢*
 
 *⏳ 𝐑𝐢𝐩𝐫𝐨𝐯𝐚 𝐩𝐢𝐮̀ 𝐭𝐚𝐫𝐝𝐢.*`
-      ),
-      mentions: [m.sender]
-    }, { quoted: m })
+  )
+
+  try {
+    if (previousWarn) {
+      await this.sendMessage(m.chat, {
+        react: {
+          text: '❌',
+          key: m.key
+        }
+      })
+    } else {
+      const sent = await this.sendMessage(
+        m.chat,
+        {
+          text: warnText,
+          mentions: [m.sender]
+        },
+        { quoted: m }
+      )
+
+      if (sent?.key) {
+        setStoredWarnMessage(m.chat, m.sender, sent.key)
+      }
+    }
+  } catch {
+    try {
+      const sent = await this.sendMessage(
+        m.chat,
+        {
+          text: warnText,
+          mentions: [m.sender]
+        },
+        { quoted: m }
+      )
+
+      if (sent?.key) {
+        setStoredWarnMessage(m.chat, m.sender, sent.key)
+      }
+    } catch {}
   }
 
   return true
