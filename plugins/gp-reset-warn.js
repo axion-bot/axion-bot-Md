@@ -54,11 +54,15 @@ ${body}
   }
 
   global.db.data.users ??= {}
-  global.db.data.users[mentionedJid] ??= {}
 
-  const user = global.db.data.users[mentionedJid]
-  const currentWarn = typeof user.warn === 'number' ? user.warn : 0
-  const tag = '@' + mentionedJid.split('@')[0]
+const users = global.db.data.users
+const realKey = findUserKeyByJid(users, mentionedJid)
+
+users[realKey] ??= {}
+
+const user = users[realKey]
+const currentWarn = typeof user.warn === 'number' ? user.warn : 0
+const tag = '@' + cleanJid(realKey)
 
   if (currentWarn <= 0) {
     throw box(
@@ -86,7 +90,7 @@ ${body}
     ),
     mentions: [mentionedJid],
     footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-    buttons: actionButtons(mentionedJid),
+    buttons: actionButtons(cleanJid(realKey)),
     headerType: 1
   }, { quoted: m })
 }

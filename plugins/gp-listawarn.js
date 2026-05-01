@@ -31,16 +31,18 @@ ${body}
   const users = global.db.data.users || {}
 
   const warnedUsers = participants
-    .map(p => {
-      const jid = p.id
-      const user = users[jid] || {}
+  .map(p => {
+    const jid = p.id
+    const realKey = findUserKeyByJid(users, jid)
+    const user = users[realKey] || {}
 
-      return {
-        jid,
-        warn: typeof user.warn === 'number' ? user.warn : 0,
-        reason: user.lastWarnReason || ''
-      }
-    })
+    return {
+      jid: realKey,
+      warn: typeof user.warn === 'number' ? user.warn : 0,
+      reason: user.lastWarnReason || ''
+    }
+  })
+  
     .filter(u => u.warn > 0)
     .sort((a, b) => b.warn - a.warn)
 
@@ -60,7 +62,7 @@ ${body}
   const mentions = warnedUsers.map(u => u.jid)
 
   let list = warnedUsers.map((u, i) => {
-    const tag = '@' + u.jid.split('@')[0]
+    const tag = '@' + cleanJid(u.jid)
     const reason = u.reason
       ? `\n*❓ 𝐔𝐥𝐭𝐢𝐦𝐨 𝐦𝐨𝐭𝐢𝐯𝐨:* *${u.reason}*`
       : ''
