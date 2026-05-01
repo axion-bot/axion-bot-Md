@@ -15,9 +15,7 @@ let handler = async (m, { conn, command, text, isAdmin, isOwner, isROwner, usedP
 *✦ ${title} ✦*
 *╰━━━━━━━${emoji}━━━━━━━╯*
 
-${body}
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+${body}`
 
   const warnButtons = jid => [
     { buttonId: `${usedPrefix}listawarn`, buttonText: { displayText: '📋 Lista Warn' }, type: 1 },
@@ -39,27 +37,31 @@ ${body}
 
   const protectedOwners = getProtectedOwners()
 
-  let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender
-  let reason = ''
+let mentionedJid = m.mentionedJid?.[0]
+let reason = ''
 
-  if (!mentionedJid && text) {
-    const parts = text.trim().split(/\s+/)
-    const firstArg = parts[0]
-    const number = firstArg?.replace(/[^0-9]/g, '')
+if (!mentionedJid && m.quoted?.sender && cleanJid(m.quoted.sender) !== cleanJid(botNumber)) {
+  mentionedJid = m.quoted.sender
+}
 
-    if (firstArg?.endsWith('@s.whatsapp.net') || firstArg?.endsWith('@c.us')) {
-      mentionedJid = firstArg
-      reason = parts.slice(1).join(' ')
-    } else if (number && number.length >= 8 && number.length <= 15) {
-      mentionedJid = number + '@s.whatsapp.net'
-      reason = parts.slice(1).join(' ')
-    }
-  } else if (mentionedJid && text) {
+if (text) {
+  const parts = text.trim().split(/\s+/)
+  const firstArg = parts[0]
+  const number = firstArg?.replace(/[^0-9]/g, '')
+
+  if (firstArg?.endsWith('@s.whatsapp.net') || firstArg?.endsWith('@c.us')) {
+    mentionedJid = firstArg
+    reason = parts.slice(1).join(' ')
+  } else if (number && number.length >= 8 && number.length <= 15) {
+    mentionedJid = number + '@s.whatsapp.net'
+    reason = parts.slice(1).join(' ')
+  } else if (mentionedJid) {
     reason = text
       .replace(/@\d+/g, '')
       .replace(/[^a-zA-Z0-9À-ÿ\s]/g, ' ')
       .trim()
   }
+}
 
   if (!(isAdmin || isOwner || isROwner)) {
     throw box(
@@ -134,7 +136,7 @@ ${body}
     if (user.warn >= 3) {
       user.warn = 0
 
-      await conn.groupParticipantsUpdate(chatId, [mentionedJid], 'remove')
+      await conn.groupParticipantsUpdate(chatId, [realKey], 'remove')
 
       return conn.sendMessage(chatId, {
         text: box(

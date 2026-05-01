@@ -14,9 +14,7 @@ const findUserKeyByJid = (users, jid) => {
 *✦ ${title} ✦*
 *╰━━━━━━━${emoji}━━━━━━━╯*
 
-${body}
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+${body}`
 
   const actionButtons = jid => [
     { buttonId: `${usedPrefix}warn ${jid}`, buttonText: { displayText: '⚠️ Warn' }, type: 1 },
@@ -31,18 +29,22 @@ ${body}
     )
   }
 
-  let mentionedJid = m.mentionedJid?.[0] || m.quoted?.sender
+let mentionedJid = m.mentionedJid?.[0]
 
-  if (!mentionedJid && text) {
-    const firstArg = text.trim().split(/\s+/)[0]
-    const number = firstArg?.replace(/[^0-9]/g, '')
+if (!mentionedJid && text) {
+  const firstArg = text.trim().split(/\s+/)[0]
+  const number = firstArg?.replace(/[^0-9]/g, '')
 
-    if (firstArg?.endsWith('@s.whatsapp.net') || firstArg?.endsWith('@c.us')) {
-      mentionedJid = firstArg
-    } else if (number && number.length >= 8 && number.length <= 15) {
-      mentionedJid = number + '@s.whatsapp.net'
-    }
+  if (firstArg?.endsWith('@s.whatsapp.net') || firstArg?.endsWith('@c.us')) {
+    mentionedJid = firstArg
+  } else if (number && number.length >= 8 && number.length <= 15) {
+    mentionedJid = number + '@s.whatsapp.net'
   }
+}
+
+if (!mentionedJid && m.quoted?.sender && cleanJid(m.quoted.sender) !== cleanJid(conn.user.jid)) {
+  mentionedJid = m.quoted.sender
+}
 
   if (!mentionedJid) {
     return conn.reply(

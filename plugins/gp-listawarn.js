@@ -14,9 +14,7 @@ const findUserKeyByJid = (users, jid) => {
 *✦ ${title} ✦*
 *╰━━━━━━━${emoji}━━━━━━━╯*
 
-${body}
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+${body}`
 
   function warnListButtons() {
     return [
