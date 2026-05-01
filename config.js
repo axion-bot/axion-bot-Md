@@ -16,7 +16,6 @@ global.owner = [
   ['212781816909', 'Luxifer', true],
   ['639350468907', 'bonzino', true],
   ['447542466990', 'bonzino²', true],
-  ['393701330693', 'Blood', true],
 ]
 global.mods = ['xxxxxxxxxx', 'xxxxxxxxxx']
 global.prems = ['xxxxxxxxxx', 'xxxxxxxxxx']
