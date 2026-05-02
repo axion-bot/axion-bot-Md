@@ -34,12 +34,12 @@ Copia e incolla i seguenti comandi nel tuo terminale per installare il bot.
 
 #### 📱 COLLEGAMENTO CON TERMUX
 ```bash
-termux-setup-storage && \
-pkg update -y && pkg upgrade -y && \
-pkg install -y git nodejs ffmpeg imagemagick yarn && \
-git clone [https://github.com/axion-bot/axion-bot-Md.git](https://github.com/axion-bot/axion-bot-Md.git) ~/axion-bot && \
-cd ~/axion-bot && \
-yarn install || npm install && \
+termux-setup-storage &&
+pkg update -y && pkg upgrade -y &&
+pkg install -y git nodejs ffmpeg imagemagick &&
+git clone https://github.com/axion-bot/axion-bot-Md.git &&
+cd ~/axion-bot-Md &&
+yarn install && npm install && 
 npm start
 
 ```
