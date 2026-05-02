@@ -9,7 +9,7 @@ let handler = async (m, { conn }) => {
 *╭─── 👑 𝐂𝐑𝐄𝐀𝐓𝐎𝐑𝐄 ───╮*
 *│ ✦ 𝐍𝐨𝐦𝐞:* Deadly
 *│ ✦ 𝐑𝐮𝐨𝐥𝐨:* Creatore / Developer
-*│ ✦ 𝐂𝐨𝐧𝐭𝐚𝐭𝐭𝐨:* @212778494602
+*│ ✦ 𝐂𝐨𝐧𝐭𝐚𝐭𝐭𝐨:* @393780306700
 *╰────────────────────╯*
 
 *╭─── 🔱 𝐂𝐎-𝐎𝐖𝐍𝐄𝐑 ───╮*
@@ -38,7 +38,7 @@ let handler = async (m, { conn }) => {
         {
             contextInfo: {
                 mentionedJid: [
-                    '212778494602@s.whatsapp.net',
+                    '393780306700@s.whatsapp.net',
                     '212781816909@s.whatsapp.net',
                     '639350468907@s.whatsapp.net',
                     '393509594333@s.whatsapp.net'
@@ -55,7 +55,7 @@ let handler = async (m, { conn }) => {
 VERSION:3.0
 FN:Deadly
 ORG:𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - Creatore / Dev
-TEL;type=CELL;type=VOICE;waid=212778494602:212778494602
+TEL;type=CELL;type=VOICE;waid=393780306700:393780306700
 END:VCARD`
                 },
                 {
