@@ -58,9 +58,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 *──────────────*
 
 *🟢 𝐀𝐭𝐭𝐢𝐯𝐚:* *${usedPrefix}1 <funzione>*
-*⚪ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚:* *${usedPrefix}0 <funzione>*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+*⚪ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚:* *${usedPrefix}0 <funzione>*`
 
 await conn.sendMessage(m.chat, {
   text,
