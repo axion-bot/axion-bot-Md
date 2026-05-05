@@ -20,6 +20,28 @@ async function react(conn, m, emoji) {
   } catch {}
 }
 
+const getFlag = (lang = '') => {
+  const map = {
+    it: '🇮🇹',
+    en: '🇬🇧',
+    us: '🇺🇸',
+    es: '🇪🇸',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    pt: '🇵🇹',
+    br: '🇧🇷',
+    ru: '🇷🇺',
+    ja: '🇯🇵',
+    ko: '🇰🇷',
+    zh: '🇨🇳',
+    ar: '🇸🇦',
+    hi: '🇮🇳'
+  }
+
+  const key = lang.toLowerCase().slice(0, 2)
+  return map[key] || '🌐'
+}
+
 async function trascriviGladia(buffer) {
   const key = process.env.GLADIA_API_KEY
   if (!key) throw '❌️ 𝐀𝐏𝐈 𝐊𝐄𝐘 𝐦𝐚𝐧𝐜𝐚𝐧𝐭𝐞'
@@ -143,7 +165,7 @@ let handler = async (m, { conn }) => {
       box(
         '📝',
         '𝐓𝐑𝐀𝐒𝐂𝐑𝐈𝐙𝐈𝐎𝐍𝐄',
-`*🌍 𝐋𝐢𝐧𝐠𝐮𝐚:* *${lang}*
+`*🌍 𝐋𝐢𝐧𝐠𝐮𝐚:* ${getFlag(lang)} ${lang}
 *🎙 𝐋𝐮𝐧𝐠𝐡𝐞𝐳𝐳𝐚 𝐯𝐨𝐜𝐚𝐥𝐞:* *${durataAudio}*
 *⏱️ 𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* *${time}s*
 
