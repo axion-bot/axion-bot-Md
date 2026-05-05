@@ -143,13 +143,16 @@ const durataAudio = durata
     await react(conn, m, '✅')
 
     return conn.reply(
-      m.chat,
-      box(
-        '📝',
-        '𝐓𝐑𝐀𝐒𝐂𝐑𝐈𝐙𝐈𝐎𝐍𝐄',
-        `*🌍 𝐋𝐢𝐧𝐠𝐮𝐚:* *${lang}*
-        *🎙𝐃𝐮𝐫𝐚𝐭𝐚:* *${durataAudio}*
-        *⏱️ 𝐓𝐞𝐦𝐩𝐨:* *${time}s*
+  m.chat,
+  box(
+    '📝',
+    '𝐓𝐑𝐀𝐒𝐂𝐑𝐈𝐙𝐈𝐎𝐍𝐄',
+`*🌍 𝐋𝐢𝐧𝐠𝐮𝐚:* *${lang}*
+*🎙 𝐋𝐮𝐧𝐠𝐡𝐞𝐳𝐳𝐚 𝐯𝐨𝐜𝐚𝐥𝐞:* *${durataAudio}*
+*⏱️ 𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* *${time}s*`
+  ),
+  m
+)
 
 ${text}`
       ),
