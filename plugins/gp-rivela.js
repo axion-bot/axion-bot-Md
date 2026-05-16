@@ -1,58 +1,22 @@
-//by Bonzino
-
-import { downloadContentFromMessage } from '@realvare/baileys'
-
 let handler = async (m, { conn }) => {
   try {
     if (!m.quoted) {
-      return m.reply('*⚠️ 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐛𝐢𝐥𝐞 𝐮𝐧𝐚 𝐬𝐨𝐥𝐚 𝐯𝐨𝐥𝐭𝐚.*')
+      return m.reply('*⚠️ 𝛥𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌: 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐛𝐢𝐥𝐞 𝐮𝐧𝐚 𝐬𝐨𝐥𝐚 𝐯𝐨𝐥𝐭𝐚.*')
     }
 
     if (!m.quoted?.viewOnce) {
-      return m.reply('*⚠️ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐧𝐨𝐧 𝐞̀ 𝐮𝐧 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐛𝐢𝐥𝐞 𝐮𝐧𝐚 𝐬𝐨𝐥𝐚 𝐯𝐨𝐥𝐭𝐚.*')
+      return m.reply('*⚠️ 𝛥𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌: 𝐐𝐮𝐞𝐬𝐭𝐨 𝐧𝐨𝐧 𝐞̀ 𝐮𝐧 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐛𝐢𝐥𝐞 𝐮𝐧𝐚 𝐬𝐨𝐥𝐚 𝐯𝐨𝐥𝐭𝐚.*')
     }
 
     const mtype = m.quoted.mtype
-    let buffer
-
-    const downloadFromStream = async stream => {
-      let buffer = Buffer.from([])
-      for await (const chunk of stream) {
-        buffer = Buffer.concat([buffer, chunk])
-      }
-      return buffer
+    if (!/videoMessage|imageMessage|audioMessage/.test(mtype)) {
+      return m.reply('*❌ 𝛥𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌: 𝐅𝐨𝐫𝐦𝐚𝐭𝐨 𝐧𝐨𝐧 𝐬𝐮𝐩𝐩𝐨𝐫𝐭𝐚𝐭𝐨.*')
     }
 
-    if (/videoMessage/.test(mtype)) {
-      try {
-        const stream = await downloadContentFromMessage(m.quoted.videoMessage, 'video')
-        buffer = await downloadFromStream(stream)
-      } catch (e) {
-        console.warn('Fallback download video:', e.message)
-        buffer = await m.quoted.download()
-      }
-    } else if (/imageMessage/.test(mtype)) {
-      try {
-        const stream = await downloadContentFromMessage(m.quoted.imageMessage, 'image')
-        buffer = await downloadFromStream(stream)
-      } catch (e) {
-        console.warn('Fallback download immagine:', e.message)
-        buffer = await m.quoted.download()
-      }
-    } else if (/audioMessage/.test(mtype)) {
-      try {
-        const stream = await downloadContentFromMessage(m.quoted.audioMessage, 'audio')
-        buffer = await downloadFromStream(stream)
-      } catch (e) {
-        console.warn('Fallback download audio:', e.message)
-        buffer = await m.quoted.download()
-      }
-    } else {
-      return m.reply('*❌ 𝐅𝐨𝐫𝐦𝐚𝐭𝐨 𝐧𝐨𝐧 𝐬𝐮𝐩𝐩𝐨𝐫𝐭𝐚𝐭𝐨.*')
-    }
+    let buffer = await m.quoted.download().catch(() => null)
 
     if (!buffer || !buffer.length) {
-      return m.reply('*❌ 𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐬𝐜𝐚𝐫𝐢𝐜𝐚𝐫𝐞 𝐢𝐥 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨.*')
+      return m.reply('*❌ 𝛥𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌: 𝐈𝐦𝐩𝐨𝐬𝐬𝐢𝐛𝐢𝐥𝐞 𝐬𝐜𝐚𝐫𝐢𝐜𝐚𝐫𝐞 𝐢𝐥 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 (𝐌𝐞𝐝𝐢𝐚 𝐊𝐞𝐲 𝐬𝐜𝐚𝐝𝐮𝐭𝐚).*')
     }
 
     const caption = m.quoted?.caption || ''
@@ -69,13 +33,13 @@ let handler = async (m, { conn }) => {
     }
 
   } catch (e) {
-    console.error('Errore nel rivelare view once:', e)
-    throw new Error(`*❌ 𝐄𝐫𝐫𝐨𝐫𝐞*\n\n${e.message || e}`)
+    console.error(e)
+    return m.reply('*❌ 𝛥𝐗𝐈𝚶𝐍 𝐒𝐘𝐒𝐓𝐄𝐌: Errore durante il recupero dei dati.*')
   }
 }
 
 handler.help = ['rivela']
-handler.tags = ['gruppo']
+handler.tags = ['group']
 handler.command = ['readviewonce', 'rivela', 'viewonce']
 handler.group = true
 handler.admin = true
