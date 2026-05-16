@@ -1,43 +1,33 @@
-// plugin del per admin e onwer by Bonzino
-
-const handler = async (m, { conn, isAdmin, isOwner, isROwner }) => {
-  if (!m.isGroup) return
-
-  if (!(isAdmin || isOwner || isROwner)) {
-    return m.reply('*❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫.*')
-  }
-
-  if (!m.quoted) {
-    return m.reply('*⚠️ 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐝𝐚 𝐞𝐥𝐢𝐦𝐢𝐧𝐚𝐫𝐞.*')
-  }
-
+let handler = async (m, { conn }) => {
+  if (!m.quoted) return conn.reply(m.chat, `*Rispondi ad un messaggio per eliminarlo.*`, m)
   try {
-    const key = m.quoted?.fakeObj?.key || m.quoted?.vM?.key || {
+    const re = m.message.extendedTextMessage?.contextInfo
+    const targetMsg = {
       remoteJid: m.chat,
       fromMe: false,
-      id: m.quoted?.id,
-      participant: m.quoted?.sender
+      id: re?.stanzaId || m.quoted.id,
+      participant: re?.participant || m.quoted.sender
     }
-
-    await conn.sendMessage(m.chat, { delete: key })
+    await conn.sendMessage(m.chat, { delete: targetMsg })
     await conn.sendMessage(m.chat, { delete: m.key })
-  } catch (e) {
-    console.error('[DEL ERROR]', e)
-
+  } catch (err) {
     try {
       if (m.quoted?.vM?.key) {
         await conn.sendMessage(m.chat, { delete: m.quoted.vM.key })
+        await conn.sendMessage(m.chat, { delete: m.key })
       }
-
-      await conn.sendMessage(m.chat, { delete: m.key })
-    } catch {}
+    } catch (e) {
+      console.error('Errore durante eliminazione:', e)
+      conn.reply(m.chat, `${global.errore}`, m)
+    }
   }
 }
 
-handler.help = ['del']
-handler.tags = ['group']
-handler.command = /^del$/i
+handler.help = ['delete']
+handler.tags = ['gruppo']
+handler.command = /^(del)$/i
 handler.group = true
+handler.admin = true
 handler.botAdmin = true
 
 export default handler
