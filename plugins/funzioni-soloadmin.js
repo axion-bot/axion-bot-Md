@@ -1,19 +1,74 @@
+// funzioni-soloadmin by Bonzino
+
+import { createFakeContact } from '../lib/fakecontact.js'
+import { axionSystem, axionFooter } from '../lib/axionsystem.js'
+
 const adminWarnCooldown = new Map()
 const adminWarnMessageMap = new Map()
-
 const S = v => String(v || '')
 
-function getPrefixes() {
-  const p = global.prefix
-  if (Array.isArray(p)) return p.map(v => S(v)).filter(Boolean)
-  if (typeof p === 'string') return [p]
-  return ['.', '!', '#', '/']
+function getActivePrefix(match) {
+  const fromMatch = S(match?.[0]?.[0])
+  if (fromMatch) return fromMatch
+
+  const saved = global.db?.data?.settings?.prefix
+  if (typeof saved === 'string' && saved) return saved
+
+  if (typeof global.prefix === 'string' && global.prefix) return global.prefix
+
+  return '.'
 }
 
-function isCommandMessage(text) {
+function escapeRegex(text = '') {
+  return S(text).replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&')
+}
+
+function isAcceptedCommand(command) {
+  command = S(command).toLowerCase()
+  if (!command) return false
+
+  for (const name in global.plugins) {
+    const plugin = global.plugins[name]
+    if (!plugin?.command) continue
+
+    if (plugin.command instanceof RegExp && plugin.command.test(command)) return true
+
+    if (
+      Array.isArray(plugin.command) &&
+      plugin.command.some(cmd =>
+        cmd instanceof RegExp
+          ? cmd.test(command)
+          : S(cmd).toLowerCase() === command
+      )
+    ) return true
+
+    if (
+      typeof plugin.command === 'string' &&
+      plugin.command.toLowerCase() === command
+    ) return true
+  }
+
+  return false
+}
+
+function isRealCommandMessage(text, prefix) {
   const t = S(text).trim()
-  if (!t) return false
-  return getPrefixes().some(prefix => t.startsWith(prefix))
+
+  if (!t || !prefix) return false
+
+  const re = new RegExp('^' + escapeRegex(prefix))
+
+  if (!re.test(t)) return false
+
+  const noPrefix = t.replace(re, '').trim()
+
+  if (!noPrefix) return false
+
+  const command = noPrefix.split(/\s+/)[0]?.toLowerCase()
+
+  if (!command) return false
+
+  return isAcceptedCommand(command)
 }
 
 function getCooldownKey(chat, sender) {
@@ -28,6 +83,7 @@ function canWarn(chat, sender, ms = 10000) {
   if (now - last < ms) return false
 
   adminWarnCooldown.set(key, now)
+
   return true
 }
 
@@ -41,12 +97,18 @@ function setStoredWarnMessage(chat, sender, key) {
 
 let handler = m => m
 
-handler.before = async function (m, { isAdmin, isOwner, isROwner }) {
+handler.before = async function (
+  m,
+  { conn, match, isAdmin, isModerator, isOwner, isROwner }
+) {
   if (!m.isGroup) return false
   if (m.fromMe) return false
-  if (isAdmin || isOwner || isROwner) return false
+  if (isAdmin || isModerator || isOwner || isROwner) return false
 
-  const chat = global.db.data.chats[m.chat] || (global.db.data.chats[m.chat] = {})
+  const chat =
+    global.db.data.chats[m.chat] ||
+    (global.db.data.chats[m.chat] = {})
+
   if (!chat.modoadmin) return false
 
   const text =
@@ -55,7 +117,9 @@ handler.before = async function (m, { isAdmin, isOwner, isROwner }) {
     m.message?.extendedTextMessage?.text ||
     ''
 
-  if (!isCommandMessage(text)) return false
+  const prefix = getActivePrefix(match)
+
+  if (!isRealCommandMessage(text, prefix)) return false
 
   if (!canWarn(m.chat, m.sender)) return true
 
@@ -74,32 +138,24 @@ handler.before = async function (m, { isAdmin, isOwner, isROwner }) {
     return true
   }
 
-  const warnText = `╭━━━━━━━⚙️━━━━━━━╮
-✦ 𝐌𝐎𝐃𝐎 𝐀𝐃𝐌𝐈𝐍 ✦
-╰━━━━━━━⚙️━━━━━━━╯
+  const mention = `@${m.sender.split('@')[0]}`
 
-❌ @${m.sender.split('@')[0]} *𝐧𝐨𝐧 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨*
+  const fakeContact = await createFakeContact(m, conn || this)
 
-*✅ 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢*
+  const sent = await axionSystem(conn || this, m.chat, {
+    text: axionFooter(`👤 ${mention}
 
-*⏳ 𝐑𝐢𝐩𝐫𝐨𝐯𝐚 𝐩𝐢𝐮̀ 𝐭𝐚𝐫𝐝𝐢.*
+*❌ 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+*✅ 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢.*`),
+    thumb: 'modoadmin',
+    mentions: [m.sender],
+    quoted: fakeContact
+  })
 
-  try {
-    const sent = await this.sendMessage(
-      m.chat,
-      {
-        text: warnText,
-        mentions: [m.sender]
-      },
-      { quoted: m }
-    )
-
-    if (sent?.key) {
-      setStoredWarnMessage(m.chat, m.sender, sent.key)
-    }
-  } catch {}
+  if (sent?.key) {
+    setStoredWarnMessage(m.chat, m.sender, sent.key)
+  }
 
   return true
 }

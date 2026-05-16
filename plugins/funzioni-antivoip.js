@@ -1,77 +1,62 @@
-let handler = m => m
+// Plugin AntiVoip by Bonzino
 
-handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
-  if (!m.isGroup) return false
+import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
-  const chat = global.db.data.chats[m.chat]
-  if (!chat?.antivoip) return false
-  if (!isBotAdmin) return false
-  if (isAdmin || isOwner || m.fromMe) return false
-  if (!m.sender) return false
+let handler=m=>m
 
-  const decodedSender = decodeJid(conn, m.sender)
-  const decodedBotJid = decodeJid(conn, conn.user?.jid || conn.user?.id || '')
+handler.before=async function(m,{conn,isAdmin,isBotAdmin,isOwner}){
+  if(!m.isGroup)return false
 
-  if (decodedSender === decodedBotJid) return false
+  const chat=global.db.data.chats[m.chat]
+  if(!chat?.antivoip)return false
+  if(!isBotAdmin)return false
+  if(isAdmin||isOwner||m.fromMe)return false
+  if(!m.sender)return false
 
-  const senderNumber = getNumber(decodedSender)
-  const domain = getDomain(decodedSender)
+  const decodedSender=decodeJid(conn,m.sender)
+  const decodedBotJid=decodeJid(conn,conn.user?.jid||conn.user?.id||'')
+  if(decodedSender===decodedBotJid)return false
 
-  if (domain === 'lid') return false
-  if (!senderNumber) return false
+  const senderNumber=getNumber(decodedSender)
+  const domain=getDomain(decodedSender)
 
-  if (!senderNumber.startsWith('39')) {
-    const utente = formatPhoneNumber(senderNumber, true)
+  if(domain==='lid')return false
+  if(!senderNumber)return false
 
-    await conn.sendMessage(m.chat, {
-      text:
-`╭━━━━━━━🚫━━━━━━━╮
-*✦ 𝐀𝐍𝐓𝐈 𝐕𝐎𝐈𝐏 ✦*
-╰━━━━━━━🚫━━━━━━━╯
+  if(!senderNumber.startsWith('39')){
+    const utente=formatPhoneNumber(senderNumber,true)
 
-*⚠️ ${utente}, 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐚𝐦𝐦𝐞𝐬𝐬𝐢 𝐬𝐨𝐥𝐨 𝐧𝐮𝐦𝐞𝐫𝐢 𝐢𝐭𝐚𝐥𝐢𝐚𝐧𝐢.*
+    await axionSystem(conn,m.chat,{
+      text:axionFooter(`*⚠️ ${utente}, 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐚𝐦𝐦𝐞𝐬𝐬𝐢 𝐬𝐨𝐥𝐨 𝐧𝐮𝐦𝐞𝐫𝐢 𝐢𝐭𝐚𝐥𝐢𝐚𝐧𝐢.*
 
-*✅️ 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐚𝐮𝐭𝐨𝐦𝐚𝐭𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐞.*
+*✅️ 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐚𝐮𝐭𝐨𝐦𝐚𝐭𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐞.*`),
+      thumb:'antivoip',
+      mentions:[decodedSender],
+      quoted:m
+    })
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-      mentions: [decodedSender],
-      contextInfo: {
-        ...(global.rcanal?.contextInfo || {}),
-        mentionedJid: [decodedSender]
-      }
-    }, { quoted: m })
-
-    await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+    await conn.groupParticipantsUpdate(m.chat,[m.sender],'remove')
   }
 
   return false
 }
 
-function decodeJid(conn, jid = '') {
-  return conn.decodeJid ? conn.decodeJid(jid) : String(jid || '')
+function decodeJid(conn,jid=''){
+  return conn.decodeJid?conn.decodeJid(jid):String(jid||'')
 }
 
-function getNumber(jid = '') {
-  return String(jid || '')
-    .split('@')[0]
-    .split(':')[0]
-    .replace(/[^0-9]/g, '')
+function getNumber(jid=''){
+  return String(jid||'').split('@')[0].split(':')[0].replace(/[^0-9]/g,'')
 }
 
-function getDomain(jid = '') {
-  return String(jid || '').split('@')[1] || ''
+function getDomain(jid=''){
+  return String(jid||'').split('@')[1]||''
 }
 
-function formatPhoneNumber(number, includeAt = false) {
-  if (!number || number === '?' || number === 'sconosciuto') {
-    return includeAt ? '@Sconosciuto' : 'Sconosciuto'
-  }
-
-  if (String(number).startsWith('lid_')) {
-    return includeAt ? '@[ID nascosto]' : '[ID nascosto]'
-  }
-
-  return includeAt ? '@' + number : number
+function formatPhoneNumber(number,includeAt=false){
+  if(!number||number==='?'||number==='sconosciuto')return includeAt?'@Sconosciuto':'Sconosciuto'
+  if(String(number).startsWith('lid_'))return includeAt?'@[ID nascosto]':'[ID nascosto]'
+  return includeAt?'@'+number:number
 }
 
 export default handler

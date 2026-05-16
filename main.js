@@ -14,6 +14,7 @@ import yargs from 'yargs';
 import { spawn } from 'child_process';
 import lodash from 'lodash';
 import chalk from 'chalk';
+import './lib/groupwarn.js'
 import qrcode from 'qrcode-terminal'
 import { format } from 'util';
 import pino from 'pino';

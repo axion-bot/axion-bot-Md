@@ -1,113 +1,84 @@
-// Plugin antimedia by Bonzino
+// antimedia by Bonzino
 
-let handler = m => m
+import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
-handler.before = async (m, { conn, isAdmin, isBotAdmin, isOwner, isROwner }) => {
-  if (!m.isGroup) return false
-  if (m.fromMe) return false
-  if (isAdmin || isOwner || isROwner) return false
+let handler=m=>m
 
-  const chat = global.db.data.chats[m.chat] || (global.db.data.chats[m.chat] = {})
-  if (!chat.antimedia) return false
+handler.before=async(m,{conn,isAdmin,isBotAdmin,isOwner,isROwner})=>{
+  if(!m.isGroup)return false
+  if(m.fromMe)return false
+  if(isAdmin||isOwner||isROwner)return false
 
-  const user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
+  const chat=global.db.data.chats[m.chat]||(global.db.data.chats[m.chat]={})
+  if(!chat.antimedia)return false
 
-  const msg = m.message || {}
+  const msg=m.message||{}
+  const viewOnceContainer=msg.viewOnceMessage||msg.viewOnceMessageV2||msg.viewOnceMessageV2Extension||null
+  const innerMessage=viewOnceContainer?.message||msg
+  const type=Object.keys(innerMessage||{})[0]||''
+  const isViewOnce=!!viewOnceContainer
+  const isBlockedMedia=['imageMessage','videoMessage'].includes(type)&&!isViewOnce
+  if(!isBlockedMedia)return false
 
-  const viewOnceContainer =
-    msg.viewOnceMessage ||
-    msg.viewOnceMessageV2 ||
-    msg.viewOnceMessageV2Extension ||
-    null
+  try{
+    await conn.sendMessage(m.chat,{delete:m.key})
+  }catch{}
 
-  const innerMessage = viewOnceContainer?.message || msg
-  const type = Object.keys(innerMessage || {})[0] || ''
+  const reason='media normale non consentito'
+  const data=global.addGroupWarn(m.sender,m.chat,reason,'system')
+  const warn=data.warn
+  const maxWarn=3
+  const mention=`@${global.cleanWarnNumber?global.cleanWarnNumber(m.sender):m.sender.split('@')[0]}`
 
-  const isViewOnce = !!viewOnceContainer
+  if(warn>=maxWarn){
+    global.resetGroupWarn(m.sender,m.chat)
 
-  const blockedTypes = [
-    'imageMessage',
-    'videoMessage',
-  ]
+    if(isBotAdmin){
+      try{
+        await conn.groupParticipantsUpdate(m.chat,[m.sender],'remove')
+      }catch{}
 
-  const isBlockedMedia = blockedTypes.includes(type) && !isViewOnce
-
-  if (!isBlockedMedia) return false
-
-  try {
-    await conn.sendMessage(m.chat, {
-      delete: m.key
-    })
-  } catch {}
-
-  user.warn = Number(user.warn || 0) + 1
-  const warn = user.warn
-  const maxWarn = 3
-
-  const mention = `@${m.sender.split('@')[0]}`
-
-  const box = (title, body) => `╭━━━━━━━⚠️━━━━━━━╮
-✦ ${title} ✦
-╰━━━━━━━⚠️━━━━━━━╯
-
-${body}
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
-
-  if (warn >= maxWarn) {
-    if (isBotAdmin) {
-      try {
-        await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
-      } catch {}
-
-      await conn.sendMessage(m.chat, {
-        text: box(
-          '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀',
-          `*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
+      await axionSystem(conn,m.chat,{
+        text:axionFooter(`*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
 
 ${mention}
 
-*📸 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢 𝐬𝐨𝐥𝐨 𝐢 𝐦𝐞𝐝𝐢𝐚 𝐯𝐢𝐞𝐰 𝐨𝐧𝐜𝐞 / 𝐮𝐧𝐚 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞*
-
 *⚠️ 𝐇𝐚𝐢 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨 𝟑/𝟑 𝐰𝐚𝐫𝐧*
-*🚫 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
-        ),
-        mentions: [m.sender]
-      }, { quoted: m })
-    } else {
-      await conn.sendMessage(m.chat, {
-        text: box(
-          '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀',
-          `*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
+
+*🚫 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`),
+        thumb:'antimedia',
+        mentions:[m.sender],
+        quoted:m
+      })
+    }else{
+      await axionSystem(conn,m.chat,{
+        text:axionFooter(`*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
 
 ${mention}
 
-*📸 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢 𝐬𝐨𝐥𝐨 𝐢 𝐦𝐞𝐝𝐢𝐚 𝐯𝐢𝐞𝐰 𝐨𝐧𝐜𝐞 / 𝐮𝐧𝐚 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞*
-
 *⚠️ 𝐇𝐚𝐢 𝐫𝐚𝐠𝐠𝐢𝐮𝐧𝐭𝐨 𝟑/𝟑 𝐰𝐚𝐫𝐧*
-*⛔️ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐭𝐢 𝐩𝐞𝐫𝐜𝐡𝐞́ 𝐧𝐨𝐧 𝐬𝐨𝐧𝐨 𝐚𝐝𝐦𝐢𝐧*`
-        ),
-        mentions: [m.sender]
-      }, { quoted: m })
+
+*⛔️ 𝐍𝐨𝐧 𝐩𝐨𝐬𝐬𝐨 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐭𝐢 𝐩𝐞𝐫𝐜𝐡𝐞́ 𝐧𝐨𝐧 𝐬𝐨𝐧𝐨 𝐚𝐝𝐦𝐢𝐧*`),
+        thumb:'antimedia',
+        mentions:[m.sender],
+        quoted:m
+      })
     }
-
     return true
   }
 
-  await conn.sendMessage(m.chat, {
-    text: box(
-      '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀',
-      `*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
+  await axionSystem(conn,m.chat,{
+    text:axionFooter(`*❌ 𝐌𝐞𝐝𝐢𝐚 𝐧𝐨𝐫𝐦𝐚𝐥𝐞 𝐧𝐨𝐧 𝐜𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*
 
 ${mention}
 
-*📸 𝐈𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 𝐬𝐨𝐧𝐨 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢 𝐬𝐨𝐥𝐨 𝐢 𝐦𝐞𝐝𝐢𝐚 𝐯𝐢𝐞𝐰 𝐨𝐧𝐜𝐞 / 𝐮𝐧𝐚 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞*
-
 *⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/${maxWarn}
-*‼️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`
-    ),
-    mentions: [m.sender]
-  }, { quoted: m })
+
+*‼️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`),
+    thumb:'antimedia',
+    mentions:[m.sender],
+    quoted:m
+  })
 
   return true
 }

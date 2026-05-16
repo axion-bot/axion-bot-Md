@@ -1,4 +1,6 @@
-//AntiNuke by Bonzino
+// AntiNuke by Bonzino
+
+import { axionSystem, axionFooter } from '../lib/axionsystem.js'
 
 const azioniNuke = {}
 const cacheGruppi = {}
@@ -8,28 +10,8 @@ const TEMPO_MESSAGGIO_DOPO_CHIUSURA = 10000
 const SOGLIA_NUKE = 4
 const RITARDO_KICK = 1500
 
-const paroleTrigger = [
-  '.nuke',
-  '.abusa',
-  '.domina',
-  '.regna',
-  '.nuker',
-  '.raid',
-  '.destroy',
-  '.deleteall'
-]
-
-const paroleNuke = [
-  'nuke',
-  'raid',
-  'bye',
-  'addio',
-  'owned',
-  'hacked',
-  'pwned',
-  'regno',
-  'dominio'
-]
+const paroleTrigger = ['.nuke','.abusa','.domina','.regna','.nuker','.raid','.destroy','.deleteall']
+const paroleNuke = ['nuke','raid','bye','addio','owned','hacked','pwned','regno','dominio']
 
 function ottieniChiave(chat, autore) {
   return `${chat}:${autore}`
@@ -54,11 +36,7 @@ function ottieniDati(chat, autore) {
 
 function resettaDati(chat, autore) {
   const chiave = ottieniChiave(chat, autore)
-
-  if (azioniNuke[chiave]?.timeout) {
-    clearTimeout(azioniNuke[chiave].timeout)
-  }
-
+  if (azioniNuke[chiave]?.timeout) clearTimeout(azioniNuke[chiave].timeout)
   delete azioniNuke[chiave]
 }
 
@@ -72,17 +50,11 @@ async function punisciNuker(conn, chat, autore, motivo) {
     if (!autore || isOwnerBot(autore)) return
 
     const metadata = await conn.groupMetadata(chat)
-
-    const admin = metadata.participants.find(p => {
-      return p.id === autore && (p.admin === 'admin' || p.admin === 'superadmin')
-    })
-
+    const admin = metadata.participants.find(p => p.id === autore && (p.admin === 'admin' || p.admin === 'superadmin'))
     if (!admin) return
 
     await conn.groupParticipantsUpdate(chat, [autore], 'demote')
-
     await new Promise(resolve => setTimeout(resolve, RITARDO_KICK))
-
     await conn.groupParticipantsUpdate(chat, [autore], 'remove')
 
     try {
@@ -103,25 +75,18 @@ async function punisciNuker(conn, chat, autore, motivo) {
       } catch {}
     }
 
-    await conn.sendMessage(chat, {
-      text:
-`*╭━━━━━━━🛡️━━━━━━━╮*
-*✦ 𝐀𝐍𝐓𝐈 𝐍𝐔𝐊𝐄 ✦*
-*╰━━━━━━━🛡️━━━━━━━╯*
-
-*⚠️ 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐨 𝐝𝐢 𝐧𝐮𝐤𝐞 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨.*
+    await axionSystem(conn, chat, {
+      text: axionFooter(`*⚠️ 𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐨 𝐝𝐢 𝐧𝐮𝐤𝐞 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨.*
 
 *➜ 𝐀𝐝𝐦𝐢𝐧 𝐝𝐞𝐦𝐨𝐭𝐚𝐭𝐨*
 *➜ 𝐔𝐭𝐞𝐧𝐭𝐞 𝐫𝐢𝐦𝐨𝐬𝐬𝐨*
 *➜ 𝐆𝐫𝐮𝐩𝐩𝐨 𝐫𝐢𝐩𝐫𝐢𝐬𝐭𝐢𝐧𝐚𝐭𝐨*
 
-*📌 𝐌𝐨𝐭𝐢𝐯𝐨:* *${motivo}*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+*📌 𝐌𝐨𝐭𝐢𝐯𝐨:* *${motivo}*`),
+      thumb: 'antinuke'
     })
 
     resettaDati(chat, autore)
-
   } catch (e) {
     console.error('[ANTINUKE] Errore punizione:', e)
   }
@@ -155,7 +120,6 @@ handler.before = async function (m, { conn, isOwner, isROwner, groupMetadata }) 
   }
 
   const testo = String(m.text || '').toLowerCase()
-
   const haTrigger = paroleTrigger.some(p => testo.includes(p))
   const haMessaggioNuke = paroleNuke.some(p => testo.includes(p))
 
@@ -170,31 +134,11 @@ handler.before = async function (m, { conn, isOwner, isROwner, groupMetadata }) 
     dati.ultimoMessaggio = Date.now()
   }
 
-  if (
-    dati.triggerAttivo &&
-    dati.ultimoTrigger &&
-    Date.now() - dati.ultimoTrigger <= TEMPO_CONTROLLO &&
-    dati.gruppoChiuso
-  ) {
-    dati.livelloMinaccia += 3
-  }
-
-  if (
-    dati.gruppoChiuso &&
-    dati.ultimoMessaggio &&
-    Date.now() - dati.ultimoMessaggio <= TEMPO_MESSAGGIO_DOPO_CHIUSURA
-  ) {
-    dati.livelloMinaccia += 2
-  }
+  if (dati.triggerAttivo && dati.ultimoTrigger && Date.now() - dati.ultimoTrigger <= TEMPO_CONTROLLO && dati.gruppoChiuso) dati.livelloMinaccia += 3
+  if (dati.gruppoChiuso && dati.ultimoMessaggio && Date.now() - dati.ultimoMessaggio <= TEMPO_MESSAGGIO_DOPO_CHIUSURA) dati.livelloMinaccia += 2
 
   if (dati.livelloMinaccia >= SOGLIA_NUKE) {
-    await punisciNuker(
-      conn,
-      m.chat,
-      autore,
-      'Comportamento da nuke rilevato'
-    )
-
+    await punisciNuker(conn, m.chat, autore, 'Comportamento da nuke rilevato')
     return true
   }
 
@@ -222,13 +166,8 @@ export async function groupsUpdate(updates) {
         }
       }
 
-      if (update.subject) {
-        cacheGruppi[chat].nome = update.subject
-      }
-
-      if (update.desc) {
-        cacheGruppi[chat].descrizione = update.desc
-      }
+      if (update.subject) cacheGruppi[chat].nome = update.subject
+      if (update.desc) cacheGruppi[chat].descrizione = update.desc
 
       if (typeof update.announce !== 'undefined') {
         const autore = update.author || update.participant
@@ -246,25 +185,13 @@ export async function groupsUpdate(updates) {
             }, TEMPO_CONTROLLO)
           }
 
-          if (
-            dati.triggerAttivo &&
-            dati.ultimoTrigger &&
-            Date.now() - dati.ultimoTrigger <= TEMPO_CONTROLLO
-          ) {
-            dati.livelloMinaccia += 3
-          }
+          if (dati.triggerAttivo && dati.ultimoTrigger && Date.now() - dati.ultimoTrigger <= TEMPO_CONTROLLO) dati.livelloMinaccia += 3
 
           if (dati.livelloMinaccia >= SOGLIA_NUKE) {
-            await punisciNuker(
-              conn,
-              chat,
-              autore,
-              'Chiusura gruppo dopo trigger sospetto'
-            )
+            await punisciNuker(conn, chat, autore, 'Chiusura gruppo dopo trigger sospetto')
           }
         }
       }
-
     } catch (e) {
       console.error('[ANTINUKE] Errore update:', e)
     }
