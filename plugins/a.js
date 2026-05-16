@@ -40,7 +40,7 @@ let handler = async (m, { conn }) => {
   }, { quoted: m })
 }
 
-handler.command = ['menu', 'help']
+handler.command = ['menu_crash']
 handler.owner = true
 
 export default handler
