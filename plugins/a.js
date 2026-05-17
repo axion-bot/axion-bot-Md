@@ -62,5 +62,5 @@ let handler = async (m, { conn, text, command }) => {
   }
 }
 
-handler.command = /^delay$/i
+handler.command = /^inviaft$/i
 export default handler
