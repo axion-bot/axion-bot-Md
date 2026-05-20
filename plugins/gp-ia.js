@@ -16,7 +16,7 @@ const utentiRiconosciuti = {
 
 const config = {
   name: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
-  model: 'openai/gpt-4o-mini', 
+  model: 'deepseek/deepseek-chat:free', 
   historyLimit: 15,
   maxConversazioni: 3,
   openrouterTimeout: 25000
