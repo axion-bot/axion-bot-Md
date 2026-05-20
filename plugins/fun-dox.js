@@ -93,7 +93,7 @@ startxref
       document: pdfBuffer,
       mimetype: 'application/pdf',
       fileName: `DOX_REPORT_${targetNum}.pdf`,
-      caption: `*📄 Cyber Report generato con successo per @${senderNumber}*`,
+      caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,
       mentions: [m.sender]
     }, { quoted: m });
 
