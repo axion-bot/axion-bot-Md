@@ -107,7 +107,9 @@ async function callOpenRouter(messages) {
     'meta-llama/llama-3.3-70b-instruct:free',
     'meta-llama/llama-3.1-8b-instruct:free',
     'google/gemini-1.5-flash:free',
-    'meta-llama/llama-3.2-3b-instruct:free'
+    'meta-llama/llama-3.2-3b-instruct:free',
+    'openai/gpt-4o-mini',
+    'google/gemini-2.5-flash'
   ]
 
   let ultimoErrore = null
@@ -259,7 +261,7 @@ function aggiornaHistory(sessione, userText, botText) {
 
 async function rispostaAI(m, conn, text, sessione, extraSystem = '') {
   const name = conn.getName(m.sender) || m.pushName || 'User'
-  const utenteRiconosciuto = riconosciUtente(m.sender)
+  const utenteRiconosciuto =Platform = riconosciUtente(m.sender)
   const nomeMittente = utenteRiconosciuto?.nome || name
   const testoConMittente = `[MITTENTE: ${nomeMittente}]\n${text}`
 
