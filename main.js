@@ -433,7 +433,7 @@ if (!fs.existsSync(`./${authFile}/creds.json`)) {
                 addNumber = normalizePhoneNumberInput(phoneNumber);
                 if (!addNumber) {
                     console.log(chalk.bold.redBright('Il numero configurato non è valido.'));
-                    pairingCodeRequested = false;
+                    PairingCodeRequested = false;
 // return;
 }
 phoneNumber = `+${addNumber}`;
