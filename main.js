@@ -641,3 +641,198 @@ process.on('unhandledRejection', async (err) => {
     await global.sendPluginErrorToChat?.('Unhandled Rejection', err);
 });
 (async () => {
+    try {
+        conn.ev.on('connection.update', connectionUpdate);
+        conn.ev.on('creds.update', saveCreds);
+        console.log(chalk.hex('#2ECC71').bold(`𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 connesso correttamente`));
+    } catch (error) {
+        console.error(chalk.bold.bgHex('#E74C3C')(`🥀 Errore nell'avvio del bot: ${error?.stack || error}`));
+    }
+})();
+let isInit = true;
+let handler = await import('./handler.js');
+global.reloadHandler = async function (restatConn) {
+    try {
+        const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
+        if (Object.keys(Handler || {}).length) handler = Handler;
+    } catch (e) {
+        console.error(e);
+    }
+    if (restatConn) {
+        try {
+            global.conn.ws.close();
+        } catch { }
+        global.cacheListenersSet = false;
+        conn.ev.removeAllListeners();
+        global.conn = makeWASocket(connectionOptions);
+        global.store.bind(global.conn.ev);
+        isInit = true;
+    }
+    if (!isInit) {
+        conn.ev.off('messages.upsert', conn.handler);
+        conn.ev.off('connection.update', conn.connectionUpdate);
+        conn.ev.off('creds.update', conn.credsUpdate);
+        if (conn.participantsUpdate) conn.ev.off('group-participants.update', conn.participantsUpdate)
+        if (conn.callUpdate) conn.ev.off('call', conn.callUpdate);
+
+    }
+    conn.handler = handler.handler.bind(global.conn)
+conn.connectionUpdate = connectionUpdate.bind(global.conn)
+conn.credsUpdate = saveCreds
+conn.participantsUpdate = handler.participantsUpdate?.bind(global.conn)
+    conn.callUpdate = async (calls) => {
+        try {
+            global.processedCalls = global.processedCalls || new Map();
+            for (const call of calls || []) {
+                const status = call?.status;
+                const callId = call?.id;
+                const callFrom = call?.from;
+                if (!status || !callId || !callFrom) continue;
+
+                if (status === 'terminate') {
+                    global.processedCalls.delete(callId);
+                    continue;
+                }
+                if (status !== 'offer') continue;
+                if (global.processedCalls.has(callId)) continue;
+                global.processedCalls.set(callId, true);
+
+                const anticallPlugin = global.plugins?.['anti-call.js'];
+                if (anticallPlugin && typeof anticallPlugin.onCall === 'function') {
+                    anticallPlugin.onCall.call(conn, call, { conn, callId, callFrom }).catch(() => {});
+                }
+            }
+        } catch (e) {
+            console.error('[ERRORE] Errore generale gestione chiamata:', e);
+        }
+    };
+    conn.ev.on('messages.upsert', conn.handler);
+    conn.ev.on('connection.update', conn.connectionUpdate);
+    conn.ev.on('creds.update', conn.credsUpdate);
+    conn.ev.on('call', conn.callUpdate);
+    conn.ev.on('group-participants.update', conn.participantsUpdate)
+    isInit = false;
+    return true;
+};
+
+if (!global.__processedCallsCleanupInterval) {
+    global.__processedCallsCleanupInterval = setInterval(() => {
+        if (global.processedCalls && global.processedCalls.size > 10) {
+            global.processedCalls.clear();
+        }
+    }, 180000);
+}
+const pluginFolder = global.__dirname(join(__dirname, './plugins/index'));
+const pluginFilter = (filename) => /\.js$/.test(filename);
+global.plugins = {};
+async function filesInit() {
+    for (const filename of readdirSync(pluginFolder).filter(pluginFilter)) {
+        try {
+            const file = global.__filename(join(pluginFolder, filename));
+            const module = await import(file);
+            global.plugins[filename] = module.default || module;
+        } catch (e) {
+            conn.logger.error(e);
+            await global.sendPluginErrorToChat?.('Errore caricamento plugin all’avvio', e, filename);
+            delete global.plugins[filename];
+        }
+    }
+}
+filesInit().then((_) => Object.keys(global.plugins)).catch(console.error);
+global.reload = async (_ev, filename) => {
+    if (pluginFilter(filename)) {
+        const dir = global.__filename(join(pluginFolder, filename), true);
+
+        if (filename in global.plugins) {
+            if (existsSync(dir)) conn.logger.info(chalk.hex('#4920ffff')(`✅ AGGIORNATO - '${filename}' CON SUCCESSO`));
+            else {
+                conn.logger.warn(`🗑️ FILE ELIMINATO: '${filename}'`);
+                return delete global.plugins[filename];
+            }
+        } else {
+            conn.logger.info(chalk.hex('#a894ffff')(`🆕 NUOVO PLUGIN RILEVATO: '${filename}'`));
+        }
+
+        try {
+            const module = (await import(`${global.__filename(dir)}?update=${Date.now()}`));
+            global.plugins[filename] = module.default || module;
+        } catch (e) {
+            conn.logger.error(`⚠️ ERRORE NEL PLUGIN: '${filename}\n${format(e)}'`);
+            await global.sendPluginErrorToChat?.('Errore reload plugin', e, filename);
+        } finally {
+            global.plugins = Object.fromEntries(
+                Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
+            );
+        }
+    }
+};
+Object.freeze(global.reload);
+const pluginWatcher = watch(pluginFolder, global.reload);
+pluginWatcher.setMaxListeners(20);
+await global.reloadHandler();
+async function _quickTest() {
+    const test = await Promise.all([
+        spawn('ffmpeg'),
+        spawn('ffprobe'),
+        spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-filter_complex', 'color', '-frames:v', '1', '-f', 'webp', '-']),
+        spawn('convert'),
+        spawn('magick'),
+        spawn('gm'),
+        spawn(platform === 'win32' ? 'where' : 'find', platform === 'win32' ? ['find'] : ['--version']),
+    ].map((p) => {
+        return Promise.race([
+            new Promise((resolve) => {
+                p.on('close', (code) => {
+                    resolve(code !== 127);
+                });
+            }),
+            new Promise((resolve) => {
+                p.on('error', (_) => resolve(false));
+            })
+        ]);
+    }));
+    const [ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find] = test;
+    global.support = { ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find };
+    Object.freeze(global.support);
+}
+function clearDirectory(dirPath) {
+    if (!existsSync(dirPath)) {
+        try {
+            mkdirSync(dirPath, { recursive: true });
+        } catch (e) {
+            console.error(chalk.red(`Errore nella creazione della directory ${dirPath}:`, e));
+        }
+        return 0;
+    }
+    const filenames = readdirSync(dirPath);
+    let deleted = 0;
+    filenames.forEach(file => {
+        const filePath = join(dirPath, file);
+        try {
+            const stats = statSync(filePath);
+            if (stats.isFile()) {
+                unlinkSync(filePath);
+                deleted++;
+            } else if (stats.isDirectory()) {
+                rmSync(filePath, { recursive: true, force: true });
+                deleted++;
+            }
+        } catch (e) {
+            console.error(chalk.red(`Errore nella pulizia del file ${filePath}:`, e));
+        }
+    });
+    return deleted;
+}
+setInterval(async () => {
+    if (global.stopped === 'close' || !conn || !conn.user) return;
+    const deleted = clearDirectory(join(__dirname, 'temp'));
+    if (deleted > 0) {
+        console.log(chalk.bold.greenBright(`\n╭⭑ 🟢 PULIZIA MULTIMEDIA 🟢⭑\n┃          ${deleted} FILE NELLA CARTELLA TEMP\n┃          ELIMINATI CON SUCCESSO\n╰⭑🗑️ 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 ♻️⭑`));
+    }
+}, 1000 * 60 * 60);
+_quickTest().then(() => conn.logger.info(chalk.bold.magentaBright(``)));
+let filePath = fileURLToPath(import.meta.url);
+const mainWatcher = watch(filePath, async () => {
+  console.log(chalk.bgHex('#3b0d95')(chalk.white.bold("File: 'main.js' Aggiornato")))
+});
+mainWatcher.setMaxListeners(20);
