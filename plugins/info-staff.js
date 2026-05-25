@@ -14,7 +14,7 @@ let handler = async (m, { conn }) => {
 
 *╭─── 🔱 𝐂𝐎-𝐎𝐖𝐍𝐄𝐑 ───╮*
 *│ ✦ 𝐁𝐨𝐧𝐳𝐢𝐧𝐨*
-*│   ├ 𝐑𝐮𝐨𝐥𝐨:* Co-Owner/ Lead Developer
+*│   ├ 𝐑𝐮𝐨𝐥𝐨:* Co-Owner / Lead Developer
 *│   └ 𝐂𝐨𝐧𝐭𝐚𝐭𝐭𝐨:* @639350468907
 *╰────────────────────╯*
 
@@ -47,44 +47,55 @@ let handler = async (m, { conn }) => {
                     '212784392820@s.whatsapp.net',
                     '393780560229@s.whatsapp.net',
                     '639350468907@s.whatsapp.net',
-
-'5491172448896@s.whatsapp.net',
+                    '5491172448896@s.whatsapp.net',
                     '393509594333@s.whatsapp.net'
                 ]
             }
         }
     )
 
-    await conn.sendMessage(m.chat, {
-        contacts: {
-            contacts: [
-                {
-                    vcard: `BEGIN:VCARD
+    await conn.sendMessage(
+        m.chat,
+        {
+            contacts: {
+                contacts: [
+                    {
+                        vcard: `BEGIN:VCARD
 VERSION:3.0
 FN:Deadly
 ORG:𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - Creatore / Dev
-TEL;type=CELL;type=VOICE;waid=393780306700:393780306700
+TEL;type=CELL;type=VOICE;waid=212784392820:+212784392820
 END:VCARD`
-                },
-                {
-                    vcard: `BEGIN:VCARD
+                    },
+                    {
+                        vcard: `BEGIN:VCARD
 VERSION:3.0
 FN:Bonzino
 ORG:𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - Co-Owner
 TEL;type=CELL;type=VOICE;waid=639350468907:+639350468907
 END:VCARD`
-                },
-                {
-                    vcard: `BEGIN:VCARD
+                    },
+                    {
+                        vcard: `BEGIN:VCARD
 VERSION:3.0
 FN:Luxifer
 ORG:𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - Staffer
 TEL;type=CELL;type=VOICE;waid=393780560229:+393780560229
 END:VCARD`
-                }
-            ]
-        }
-    }, { quoted: m })
+                    },
+                    {
+                        vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:Elixⁱʳ
+ORG:𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 - Staffer
+TEL;type=CELL;type=VOICE;waid=5491172448896:+5491172448896
+END:VCARD`
+                    }
+                ]
+            }
+        },
+        { quoted: m }
+    )
 
     m.react('👑')
 }
