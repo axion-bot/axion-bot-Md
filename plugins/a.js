@@ -1,12 +1,12 @@
 
 import { exec } from 'child_process';
 
-let handler = async (m, { args, usedPrefix, command }) => {
+const handler = async (m, { args, usedPrefix, command }) => {
   if (!args[0]) {
     return m.reply(`*🔍 USO:* ${usedPrefix}${command} <num/username/email>\n*Esempio:* ${usedPrefix}${command} nomeutente`);
   }
 
-  let searchQuery = args.join(' ').trim();
+  const searchQuery = args.join(' ').trim();
   await m.react('⏳');
 
   try {
