@@ -10,16 +10,42 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (command === 'playtiktok') {
       await m.react('⏳');
       
-      const searchUrl = `https://api.vreden.my.id/api/tiktok-search?query=${encodeURIComponent(text)}`;
-      const searchRes = await fetch(searchUrl);
-      if (!searchRes.ok) throw new Error('Search API failed');
+      let videos = null;
       
-      const searchJson = await searchRes.json();
-      const videos = searchJson.result;
+      try {
+        const searchUrl = `https://api.vreden.my.id/api/tiktok-search?query=${encodeURIComponent(text)}`;
+        const searchRes = await fetch(searchUrl);
+        if (searchRes.ok) {
+          const searchJson = await searchRes.json();
+          videos = searchJson.result;
+        }
+      } catch (e) {
+        console.log("Prima API di ricerca fallita, provo la seconda...");
+      }
+
+      if (!videos || videos.length === 0) {
+        try {
+          const backupUrl = `https://api.lolhuman.xyz/api/tiktoksearch?apikey=GataDios&query=${encodeURIComponent(text)}`;
+          const backupRes = await fetch(backupUrl);
+          if (backupRes.ok) {
+            const backupJson = await backupRes.json();
+            if (backupJson.result) {
+              videos = backupJson.result.map(v => ({
+                title: v.title,
+                videoUrl: v.url,
+                cover: v.thumbnail,
+                author: { nickname: v.author }
+              }));
+            }
+          }
+        } catch (e) {
+          console.log("Seconda API di ricerca fallita");
+        }
+      }
       
       if (!videos || videos.length === 0) {
         await m.react('❌');
-        return m.reply('⚠️ *𝗥𝗶𝘀𝘂𝗹𝘁𝗮𝘁𝗼 𝗻𝗼𝗻 𝘁𝗿𝗼𝘃𝗮𝘁𝗼 su TikTok.*');
+        return m.reply('⚠️ *𝗥𝗶𝘀𝘂𝗹𝘁𝗮𝘁𝗼 𝗻𝗼𝗻 𝘁𝗿𝗼𝘃𝗮𝘁𝗼 su TikTok.* I server di ricerca sono temporaneamente offline.');
       }
 
       const topVideos = videos.slice(0, 3);
@@ -60,16 +86,34 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       await conn.sendMessage(m.chat, { react: { text: "📥", key: m.key } });
 
       const videoUrl = text.trim();
-      const dlApiUrl = `https://api.vreden.my.id/api/tiktok?url=${encodeURIComponent(videoUrl)}`;
-      
-      const dlRes = await fetch(dlApiUrl);
-      if (!dlRes.ok) throw new Error('Download API failed');
-      
-      const dlJson = await dlRes.json();
-      const downloadUrl = dlJson.result?.video?.noWatermark || dlJson.result?.video?.nowm || dlJson.result?.video;
+      let downloadUrl = null;
+
+      try {
+        const dlApiUrl = `https://api.vreden.my.id/api/tiktok?url=${encodeURIComponent(videoUrl)}`;
+        const dlRes = await fetch(dlApiUrl);
+        if (dlRes.ok) {
+          const dlJson = await dlRes.json();
+          downloadUrl = dlJson.result?.video?.noWatermark || dlJson.result?.video?.nowm || dlJson.result?.video;
+        }
+      } catch (e) {
+        console.log("Prima API di download fallita, provo la seconda...");
+      }
 
       if (!downloadUrl) {
-        throw new Error('No download URL found in response');
+        try {
+          const backupDlUrl = `https://api.lolhuman.xyz/api/tiktok?apikey=GataDios&url=${encodeURIComponent(videoUrl)}`;
+          const backupDlRes = await fetch(backupDlUrl);
+          if (backupDlRes.ok) {
+            const backupDlJson = await backupDlRes.json();
+            downloadUrl = backupDlJson.result?.video?.no_watermark || backupDlJson.result?.link;
+          }
+        } catch (e) {
+          console.log("Seconda API di download fallita");
+        }
+      }
+
+      if (!downloadUrl) {
+        throw new Error('Tutte le API di download hanno fallito');
       }
 
       const tmpDir = os.tmpdir();
@@ -95,7 +139,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   } catch (e) {
     console.error("TikTok Handler Error:", e.message);
     await m.react('❌');
-    m.reply('🚀 *𝘛𝘪𝘬𝘛𝘰𝘬 𝘌𝘳𝘳𝘰𝘳:* Impossibile elaborare la richiesta in questo momento. Riprova più tardi.');
+    m.reply('🚀 *𝘛𝘪𝘬𝘛𝘰ken 𝘌𝘳𝘳𝘰𝘳:* Impossibile recuperare il video in questo momento. I server di download sono sovraccarichi.');
   }
 };
 
