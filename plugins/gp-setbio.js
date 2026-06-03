@@ -24,7 +24,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['setbio <testo>']
 handler.tags = ['gruppo']
-handler.command = ['setbio']
+handler.command = ['setbio,setdescrizione,descrizione']
 handler.admin = true
 handler.group = true
 

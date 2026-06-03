@@ -3,8 +3,9 @@
 import { downloadContentFromMessage } from '@realvare/baileys'
 import crypto from 'crypto'
 import fetch from 'node-fetch'
-import FormData from 'form-data'
 import { axionSystem,axionFooter } from '../lib/axionsystem.js'
+
+const OPENAI_MODERATION_MODEL='omni-moderation-latest'
 
 let handler=m=>m
 
@@ -22,7 +23,7 @@ handler.before=async function(m,{conn,isAdmin,isOwner,isROwner,isBotAdmin}){
 
   if(isMedia){
     try{
-      let mediaBuffer,mimeType,fileName
+      let mediaBuffer,mimeType
       const quoted=m.message.extendedTextMessage?.contextInfo?.quotedMessage
       const msg=quoted?(quoted.imageMessage||quoted.videoMessage||quoted.stickerMessage):(m.message.imageMessage||m.message.videoMessage||m.message.stickerMessage)
       if(!msg)return true
@@ -34,65 +35,27 @@ handler.before=async function(m,{conn,isAdmin,isOwner,isROwner,isBotAdmin}){
       else if(msg.mimetype?.includes('image'))type='image'
       else return true
 
-      const stream=await downloadContentFromMessage(msg,type)
-      mediaBuffer=Buffer.from([])
-      for await(const chunk of stream)mediaBuffer=Buffer.concat([mediaBuffer,chunk])
+      if(type==='video'){
+        if(msg.jpegThumbnail)mediaBuffer=Buffer.from(msg.jpegThumbnail)
+        else return true
+        mimeType='image/jpeg'
+      }else{
+        const stream=await downloadContentFromMessage(msg,type)
+        mediaBuffer=Buffer.from([])
+        for await(const chunk of stream)mediaBuffer=Buffer.concat([mediaBuffer,chunk])
+        mimeType=type==='sticker'?'image/webp':(msg.mimetype||'image/jpeg')
+      }
 
       const fileHash=crypto.createHash('md5').update(mediaBuffer).digest('hex')
       if(global.db.data.nsfwCache[fileHash]===true)return await punishUser(conn,m,isBotAdmin,'𝐂𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐍𝐒𝐅𝐖 𝐠𝐢à 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨')
       if(global.db.data.nsfwCache[fileHash]===false)return true
 
-      if(type==='video'){
-        mimeType='video/mp4'
-        fileName='media.mp4'
-        if(mediaBuffer.length>10*1024*1024)return true
-      }else if(type==='sticker'){
-        mimeType='image/webp'
-        fileName='media.webp'
-      }else{
-        mimeType=msg.mimetype||'image/jpeg'
-        fileName='media.jpg'
-      }
+      const result=await moderateImage(mediaBuffer,mimeType)
+      const s=result?.category_scores||{}
+      const sexual=Number(s.sexual||0)
+      const sexualMinors=Number(s['sexual/minors']||0)
+      const isHighRisk=sexual>0.45||sexualMinors>0.10
 
-      const SIGHTENGINE_USER=global.APIKeys.sightengine_user
-      const SIGHTENGINE_SECRET=global.APIKeys.sightengine_secret
-      if(!SIGHTENGINE_USER||!SIGHTENGINE_SECRET)return true
-
-      const apiUrl=type==='video'
-      ?'https://api.sightengine.com/1.0/video/check-sync.json'
-      :'https://api.sightengine.com/1.0/check.json'
-
-      const formData=new FormData()
-      formData.append('media',mediaBuffer,{filename:fileName,contentType:mimeType})
-      formData.append('models','nudity-2.1')
-      formData.append('api_user',SIGHTENGINE_USER)
-      formData.append('api_secret',SIGHTENGINE_SECRET)
-
-      const response=await fetch(apiUrl,{method:'POST',body:formData})
-      const result=await response.json()
-
-      if(result.status!=='success'){
-        console.log('Errore API SightEngine:',result)
-        return true
-      }
-
-      let raw=0,partial=0,sexual=0,erotica=0
-
-      if(type==='video'){
-        const frames=result.data?.frames||[]
-        raw=Math.max(...frames.map(f=>f.nudity?.raw||0),0)
-        partial=Math.max(...frames.map(f=>f.nudity?.partial||0),0)
-        sexual=Math.max(...frames.map(f=>f.nudity?.sexual_activity||f.nudity?.sexual_display||0),0)
-        erotica=Math.max(...frames.map(f=>f.nudity?.erotica||0),0)
-      }else{
-        const nudity=result.nudity||{}
-        raw=nudity.raw||0
-        partial=nudity.partial||0
-        sexual=nudity.sexual_activity||nudity.sexual_display||0
-        erotica=nudity.erotica||0
-      }
-
-      const isHighRisk=raw>0.40||sexual>0.50||erotica>0.60||(partial>0.70&&raw>0.10)
       global.db.data.nsfwCache[fileHash]=isHighRisk
 
       if(isHighRisk)return await punishUser(conn,m,isBotAdmin,'𝐂𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐨 𝐯𝐢𝐬𝐮𝐚𝐥𝐞 𝐍𝐒𝐅𝐖 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨')
@@ -110,6 +73,33 @@ handler.before=async function(m,{conn,isAdmin,isOwner,isROwner,isBotAdmin}){
   }
 
   return true
+}
+
+function getOpenAIKey(){
+  return process.env.OPENAI_API_KEY||global.OPENAI_API_KEY||global.openaiApiKey
+}
+
+async function moderateImage(buffer,mimeType){
+  const key=getOpenAIKey()
+  if(!key)throw new Error('OPENAI_API_KEY_ASSENTE')
+  const b64=buffer.toString('base64')
+  const res=await fetch('https://api.openai.com/v1/moderations',{
+    method:'POST',
+    headers:{
+      Authorization:`Bearer ${key}`,
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({
+      model:OPENAI_MODERATION_MODEL,
+      input:[{
+        type:'image_url',
+        image_url:{url:`data:${mimeType};base64,${b64}`}
+      }]
+    })
+  })
+  const data=await res.json().catch(()=>null)
+  if(!res.ok)throw new Error(data?.error?.message||`OPENAI_MODERATION_${res.status}`)
+  return data?.results?.[0]||null
 }
 
 async function punishUser(conn,m,isBotAdmin,reason){

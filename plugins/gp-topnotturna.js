@@ -35,7 +35,7 @@ user.euro+=premio
 menzioni.push(jid)
 testo+=`
 
-*${medaglie[i]}* *@${jid.split('@')[0]}* • *${formatNumber(d?.conteggio||0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*
+*${medaglie[i]||`${i+1}.`}* *@${jid.split('@')[0]}* • *${formatNumber(d?.conteggio||0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*
 *💸 𝐏𝐫𝐞𝐦𝐢𝐨:* *+${formatNumber(premio)}€*`
 }
 testo+=`
@@ -43,46 +43,83 @@ testo+=`
 *──────────────*
 *🔥 𝐋𝐚 𝐠𝐢𝐨𝐫𝐧𝐚𝐭𝐚 è 𝐭𝐞𝐫𝐦𝐢𝐧𝐚𝐭𝐚, 𝐝𝐚 𝐨𝐫𝐚 𝐬𝐢 𝐫𝐢𝐩𝐚𝐫𝐭𝐞!*
 *⏳ 𝐍𝐮𝐨𝐯𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚, 𝐧𝐮𝐨𝐯𝐚 𝐬𝐟𝐢𝐝𝐚.*`
-await conn.sendMessage(chatId,{text:testo,mentions:menzioni,footer:'𝐏𝐫𝐞𝐦𝐢 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐢 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐢✅️',buttons:[{buttonId:'.top',buttonText:{displayText:'Top Oggi'},type:1},{buttonId:'.topall',buttonText:{displayText:'TopAll'},type:1}],headerType:1})
+
+await conn.sendMessage(chatId,{
+text:testo,
+mentions:menzioni,
+footer:'𝐏𝐫𝐞𝐦𝐢 𝐠𝐢𝐨𝐫𝐧𝐚𝐥𝐢𝐞𝐫𝐢 𝐚𝐬𝐬𝐞𝐠𝐧𝐚𝐭𝐢✅️',
+buttons:[
+{buttonId:'.top',buttonText:{displayText:'Top Oggi'},type:1},
+{buttonId:'.topall',buttonText:{displayText:'TopAll'},type:1}
+],
+headerType:1
+})
+
 return true
 }
 
 async function processaTopNotturna(conn,currentChatId=null,force=false){
 const p=nowRomaParts(),ora=Number(p.hour),minuto=Number(p.minute)
 if(!force&&(ora!==0||minuto>20))return
-if(global.__topNotturnaProcessing&&!force){if(Date.now()-(global.__topNotturnaProcessingAt||0)<LOCK_TIMEOUT_MS)return;global.__topNotturnaProcessing=false}
+
+if(global.__topNotturnaProcessing&&!force){
+if(Date.now()-(global.__topNotturnaProcessingAt||0)<LOCK_TIMEOUT_MS)return
+global.__topNotturnaProcessing=false
+}
+
 global.__topNotturnaProcessing=true
 global.__topNotturnaProcessingAt=Date.now()
+
 try{
-const dataOggi=dataKeyRoma(),ieri=new Date();ieri.setDate(ieri.getDate()-1)
-const dataIeri=dataLabelRoma(ieri),chats=global.db.data.chats||{},keys=Object.keys(chats).filter(id=>id.endsWith('@g.us'))
+const dataOggi=dataKeyRoma(),ieri=new Date()
+ieri.setDate(ieri.getDate()-1)
+
+const dataIeri=dataLabelRoma(ieri)
+const chats=global.db.data.chats||{}
+const keys=Object.keys(chats).filter(id=>id.endsWith('@g.us'))
+
 for(const chatId of keys){
 const chat=chats[chatId]
 if(!chat)continue
+
 ensureChat(chat,dataOggi)
+
 if(chat.topNotturna.ultimoInvio===dataOggi)continue
 if(chat.topNotturna.inCorso)continue
+
 const old=chat.classificaGiornaliera
 if(!old||old.ultimoReset===dataOggi)continue
+
 chat.topNotturna.inCorso=true
 chat.topNotturna.lockAt=Date.now()
+
 try{
 if(chatId!==currentChatId)await delay(DELAY_TRA_GRUPPI_MS)
+
 if((old.totali||0)<=0){
 chat.classificaGiornaliera={totali:0,utenti:{},ultimoReset:dataOggi}
 chat.topNotturna.ultimoInvio=dataOggi
 chat.topNotturna.errori=0
 continue
 }
+
 const metadata=await conn.groupMetadata(chatId).catch(()=>null)
-if(!metadata){chat.topNotturna.errori=(chat.topNotturna.errori||0)+1;console.log('[TOP NOTTURNA] Metadata non disponibile, riproverò:',chatId);continue}
+
+if(!metadata){
+chat.topNotturna.errori=(chat.topNotturna.errori||0)+1
+console.log('[TOP NOTTURNA] Metadata non disponibile, riproverò:',chatId)
+continue
+}
+
 const ok=await inviaTopNotturna(conn,chatId,chat,dataIeri)
+
 if(ok){
 chat.classificaGiornaliera={totali:0,utenti:{},ultimoReset:dataOggi}
 chat.topNotturna.ultimoInvio=dataOggi
 chat.topNotturna.errori=0
 console.log('[TOP NOTTURNA] Inviata:',chatId)
 }
+
 }catch(e){
 chat.topNotturna.errori=(chat.topNotturna.errori||0)+1
 console.error('[TOP NOTTURNA ERROR]',chatId,e?.message||e)
@@ -91,6 +128,7 @@ chat.topNotturna.inCorso=false
 chat.topNotturna.lockAt=0
 }
 }
+
 }finally{
 global.__topNotturnaProcessing=false
 global.__topNotturnaProcessingAt=0
@@ -99,8 +137,13 @@ global.__topNotturnaProcessingAt=0
 
 if(!global.__topNotturnaInterval){
 global.__topNotturnaInterval=setInterval(async()=>{
-try{if(global.conn?.user&&global.db?.data)await processaTopNotturna(global.conn,null,false)}
-catch(e){console.error('[TOP NOTTURNA INTERVAL ERROR]',e?.message||e)}
+try{
+if(global.conn?.user&&global.db?.data){
+await processaTopNotturna(global.conn,null,false)
+}
+}catch(e){
+console.error('[TOP NOTTURNA INTERVAL ERROR]',e?.message||e)
+}
 },60*1000)
 }
 
