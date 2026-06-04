@@ -29,9 +29,9 @@ let handler = async (m, { args, usedPrefix, command }) => {
     const carrierData = lookup.lineTypeIntelligence || {};
     const identityData = lookup.identityMatch || {};
 
-    let replyMsg = `*📱 TWILIO OSINT LOOKUP v2*\n`;
+    let replyMsg = `*📱 OSINT LOOKUP v2*\n`;
     replyMsg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    replyMsg += `• *Numero Formattato:* \`${lookup.phoneNumber}\n\n\`;
+    replyMsg += `• *Numero Formattato:* \`${lookup.phoneNumber}\`\n\n`;
 
     replyMsg += `*📊 INTELLIGENCE LINEA:*\n`;
     replyMsg += `• *Operatore (Carrier):* ${carrierData.carrier_name || 'Non disponibile'}\n`;
@@ -49,7 +49,7 @@ let handler = async (m, { args, usedPrefix, command }) => {
     replyMsg += `💡 _Consiglio OSINT:_ Per verificare manualmente i social, puoi provare a salvare il numero in rubrica per vedere se appare su Telegram/WhatsApp o simulare un recupero password su Instagram.\n\n`;
 
     replyMsg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    replyMsg += `> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓 — TWILIO REPORT*`;
+    replyMsg += `> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`;
 
     await m.reply(replyMsg.trim());
     await m.react('✅');
