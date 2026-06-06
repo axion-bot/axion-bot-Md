@@ -3,7 +3,7 @@
 import fetch from 'node-fetch'
 
 const apis = {
-  sra: 'https://some-random-api.com/canvas/'
+  sra: 'https://api.some-random-api.com/canvas/'
 }
 
 const effetti = {
@@ -26,7 +26,9 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   const who = m.quoted?.sender || m.mentionedJid?.[0] || m.sender
 
   if (!who) {
-    return m.reply(`*𝐓𝐚𝐠𝐠𝐚 𝐪𝐮𝐚𝐥𝐜𝐮𝐧𝐨 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨.*\n\n*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* ${usedPrefix + effect} @user`)
+    return m.reply(`*𝐓𝐚𝐠𝐠𝐚 𝐪𝐮𝐚𝐥𝐜𝐮𝐧𝐨 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨.*
+
+*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* ${usedPrefix + effect} @user`)
   }
 
   try {
@@ -44,22 +46,30 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     url.searchParams.set('avatar', pp)
 
     const res = await fetch(url.toString())
-    if (!res.ok) throw new Error(`API ${res.status}`)
+
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`)
+    }
 
     const buffer = Buffer.from(await res.arrayBuffer())
+
     if (!buffer || buffer.length < 100) {
       throw new Error('Buffer non valido')
     }
 
-    await conn.sendMessage(m.chat, {
-      image: buffer,
-      caption: `*╭━━━━━━━🖼️━━━━━━━╮*
+    await conn.sendMessage(
+      m.chat,
+      {
+        image: buffer,
+        caption: `*╭━━━━━━━🖼️━━━━━━━╮*
 *✦ 𝐄𝐅𝐅𝐄𝐓𝐓𝐎 𝐀𝐏𝐏𝐋𝐈𝐂𝐀𝐓𝐎 ✦*
 *╰━━━━━━━🖼️━━━━━━━╯*
 
-*🎨 𝐄𝐟𝐟𝐞𝐭𝐭𝐨:* ${effect}`,
-      mentions: [who]
-    }, { quoted: m })
+*🎨 𝐄𝐟𝐟𝐞𝐭𝐭𝐨:* *${effect}*`,
+        mentions: [who]
+      },
+      { quoted: m }
+    )
 
   } catch (e) {
     console.error('Errore effettiimmagine:', e)

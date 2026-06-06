@@ -80,6 +80,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 👰 ${usedPrefix}sposa <reply/tag>
 ┃ 💔 ${usedPrefix}divorzia <reply/tag>
 ┃ 🤝 ${usedPrefix}amicizia <reply/tag>
+┃ 💞 ${usedPrefix}trovafid <reply/tag>
 ┃ 👩 ${usedPrefix}madre <reply/tag>
 ┃ 👨 ${usedPrefix}padre <reply/tag>
 ┃ 👶 ${usedPrefix}figlio <reply/tag>
