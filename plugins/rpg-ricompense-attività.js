@@ -59,15 +59,12 @@ user.euro+=t.premio
 
 await conn.sendMessage(m.chat,{
 text:
-`🎉 *𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚 𝐀𝐭𝐭𝐢𝐯𝐢𝐭à! 🥳*
+`🎉 *𝐂𝐨𝐧𝐠𝐫𝐚𝐭𝐮𝐥𝐚𝐳𝐢𝐨𝐧𝐢 @${m.sender.split('@')[0]}!*
 
-╭━━━━━━━━━━━━━━⬣
-┃ *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* @${m.sender.split('@')[0]}
-┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨 𝐀𝐭𝐭𝐢𝐯𝐨:* *${t.label}*
-┃ *💰 𝐏𝐫𝐞𝐦𝐢𝐨:* *+${formatNumber(t.premio)}€*
-╰━━━━━━━━━━━━━━⬣
+*⏱️ 𝐒𝐞𝐢 𝐬𝐭𝐚𝐭𝐨 𝐚𝐭𝐭𝐢𝐯𝐨 ${t.label} 𝐞 𝐡𝐚𝐢 𝐫𝐢𝐜𝐞𝐯𝐮𝐭𝐨 ${formatNumber(t.premio)}€.*
 
-> *🔥 𝐂𝐨𝐧𝐭𝐢𝐧𝐮𝐚 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞 𝐩𝐞𝐫 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐫𝐞 𝐢𝐥 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐭𝐫𝐚𝐠𝐮𝐚𝐫𝐝𝐨!*`,
+> *𝐂𝐨𝐧𝐭𝐢𝐧𝐮𝐚 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞 𝐩𝐞𝐫 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐫𝐞 𝐢𝐥 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐨 𝐭𝐫𝐚𝐠𝐮𝐚𝐫𝐝𝐨.*`,
+buttons:[{buttonId:'.wallet',buttonText:{displayText:'💰 Saldo'},type:1}],
 mentions:[m.sender]
 },{quoted:m})
 

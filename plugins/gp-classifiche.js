@@ -47,11 +47,7 @@ if(!classifica.length)return m.reply(`*❌ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬
 const medaglie=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']
 const titolo=isAll?'*🌐 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐆𝐋𝐎𝐁𝐀𝐋𝐄*':'*⏳ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐎𝐆𝐆𝐈*'
 
-let testo=`${titolo}
-
-*𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐭𝐨𝐭𝐚𝐥𝐢:* *${formatNumber(totaleMessaggi)}* • *𝐓𝐨𝐩 ${classifica.length}*
-
-*──────────────*`
+let testo=`${titolo}`
 
 let menzioni=classifica.map(([jid])=>jid).filter(Boolean)
 
@@ -63,8 +59,11 @@ testo+=`
 
 testo+=`
 
-*──────────────*
-${isAll?`*⏳ 𝐏𝐞𝐫 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐝𝐢 𝐨𝐠𝐠𝐢: ${usedPrefix}top*`:`*🌐 𝐏𝐞𝐫 𝐥𝐚 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐬𝐭𝐨𝐫𝐢𝐜𝐚: ${usedPrefix}topall*`}`
+*💬 𝐓𝐨𝐭𝐚𝐥𝐞:* *${formatNumber(totaleMessaggi)}*
+
+${isAll
+?`> *⏳ 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐝𝐢 𝐨𝐠𝐠𝐢: ${usedPrefix}top*`
+:`> *🌐 𝐂𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚 𝐬𝐭𝐨𝐫𝐢𝐜𝐚: ${usedPrefix}topall*`}`
 
 let buttons=[]
 
@@ -78,13 +77,7 @@ else if(limite===5)buttons.push({buttonId:`${usedPrefix}top`,buttonText:{display
 else buttons.push({buttonId:`${usedPrefix}top`,buttonText:{displayText:'Top 3'},type:1},{buttonId:`${usedPrefix}topall`,buttonText:{displayText:'TopAll'},type:1})
 }
 
-await conn.sendMessage(m.chat,{
-text:testo,
-mentions:menzioni,
-footer:isAll?'Classifica storica del gruppo':'Classifica giornaliera del gruppo',
-buttons,
-headerType:1
-},{quoted:m})
+await conn.sendMessage(m.chat,{text:testo,mentions:menzioni,footer:isAll?'Classifica storica':'Classifica giornaliera',buttons,headerType:1},{quoted:m})
 }
 
 handler.before=async function(m){

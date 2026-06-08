@@ -54,7 +54,7 @@ handler.before=async function(m,{conn,isAdmin,isOwner,isBotAdmin,isROwner}){
     const s=result?.category_scores||{}
     const violence=Number(s.violence||0)
     const graphic=Number(s['violence/graphic']||0)
-    const isHighRisk=graphic>0.10||violence>0.35
+    const isHighRisk=graphic>0.30||violence>0.50
 
     global.db.data.goreCache[fileHash]=isHighRisk
 
