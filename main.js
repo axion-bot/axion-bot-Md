@@ -303,7 +303,7 @@ const makeDecodeJid = (jidCache) => {
 };
 const connectionOptions = {
     logger: logger,
-    browser: Browsers.macOS('Safari'),
+   browser: Browsers.ubuntu('Chrome'),
     auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, logger),

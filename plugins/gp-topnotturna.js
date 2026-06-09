@@ -31,6 +31,15 @@ chat.topNotturna.ultimoInvio=dataOggi
 chat.topNotturna.errori=0
 }
 
+async function getGruppiAttivi(conn,chats){
+try{
+const groups=await conn.groupFetchAllParticipating()
+const ids=Object.keys(groups||{}).filter(id=>id.endsWith('@g.us'))
+if(ids.length)return ids
+}catch(e){console.log('[TOP NOTTURNA] groupFetchAllParticipating non disponibile, uso database:',e?.message||e)}
+return Object.keys(chats||{}).filter(id=>id.endsWith('@g.us'))
+}
+
 async function inviaTopNotturna(conn,chatId,dati,dataLabel){
 const classifica=getClassifica(dati?.utenti||{},10)
 if(!classifica.length)return false
@@ -79,7 +88,7 @@ global.__topNotturnaProcessingAt=Date.now()
 try{
 const dataOggi=dataKeyRoma(),ieri=new Date(Date.now()-24*60*60*1000),dataIeri=dataLabelRoma(ieri)
 const chats=global.db.data.chats||{}
-const keys=Object.keys(chats).filter(id=>id.endsWith('@g.us'))
+const keys=await getGruppiAttivi(conn,chats)
 
 for(const chatId of keys){
 const chat=chats[chatId]
@@ -97,13 +106,6 @@ chat.topNotturna.lockAt=Date.now()
 
 try{
 if(chatId!==currentChatId)await delay(DELAY_TRA_GRUPPI_MS)
-
-const metadata=await conn.groupMetadata(chatId).catch(()=>null)
-if(!metadata){
-chat.topNotturna.errori=(chat.topNotturna.errori||0)+1
-console.log('[TOP NOTTURNA] Metadata non disponibile, riproverò:',chatId)
-continue
-}
 
 const ok=await inviaTopNotturna(conn,chatId,dati,dataIeri)
 if(ok){
