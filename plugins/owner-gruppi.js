@@ -1,112 +1,120 @@
+// gruppi by Bonzino
+
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 var handler = async (m, { conn, text, command, isOwner, usedPrefix }) => {
-  if (!isOwner) return
+if (!isOwner) return
 
-  let groups = Object.values(
-    await conn.groupFetchAllParticipating()
-  )
+let groups = Object.values(await conn.groupFetchAllParticipating())
 
-  if (command === 'gruppi') {
-
-    if (!groups.length) {
-      return conn.reply(m.chat,
+if (command === 'gruppi') {
+if (!groups.length) {
+return conn.reply(m.chat,
 `*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐠𝐫𝐮𝐩𝐩𝐨 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
-    }
+}
 
-    let txt =
-`*╭━━━━━━━🏢━━━━━━━╮*
-*✦ 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐆𝐑𝐔𝐏𝐏𝐈 ✦*
-*╰━━━━━━━🏢━━━━━━━╯*
+let txt = `*🏢 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐆𝐑𝐔𝐏𝐏𝐈*
 
-*⚠️ 𝐔𝐬𝐚:*
-*${usedPrefix}esci numero si/no*
+*⚡ 𝐔𝐬𝐨:*
+*${usedPrefix}esci <numeri> si/no*
 
-*𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
-*${usedPrefix}esci 2 si*
+*⚡ 𝐄𝐬𝐞𝐦𝐩𝐢:*
+*${usedPrefix}esci 2 no*
+*${usedPrefix}esci 1 3 5 si*
 
-*📢 "si" = 𝐢𝐧𝐯𝐢𝐚 5 𝐭𝐚𝐠 𝐠𝐥𝐨𝐛𝐚𝐥𝐢 𝐞 𝐩𝐨𝐢 𝐞𝐬𝐜𝐞.*\n`
+*📢 𝐒𝐈:* 𝐢𝐧𝐯𝐢𝐚 5 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐜𝐨𝐧 𝐭𝐚𝐠 𝐠𝐥𝐨𝐛𝐚𝐥𝐞 𝐩𝐫𝐢𝐦𝐚 𝐝𝐢 𝐮𝐬𝐜𝐢𝐫𝐞.
+*🔇 𝐍𝐎:* 𝐞𝐬𝐜𝐞 𝐬𝐞𝐧𝐳𝐚 𝐬𝐩𝐚𝐦.
 
-    groups.forEach((g, i) => {
-      txt += `\n*${i + 1}.* *${g.subject}*`
-      txt += `\n*👥 𝐌𝐞𝐦𝐛𝐫𝐢:* *${g.participants.length}*\n`
-    })
+`
 
-    txt += `\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+groups.forEach((g, i) => {
+txt += `*${i + 1}.* *${g.subject || 'Senza nome'}*
+*👥 𝐌𝐞𝐦𝐛𝐫𝐢:* *${g.participants?.length || 0}*
+*🆔 𝐈𝐃:* \`${g.id}\`
 
-    return conn.reply(m.chat, txt, m)
-  }
+`
+})
 
-  if (command === 'esci') {
+txt += `> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
-    let [num, spam] = text.split(' ')
-    let index = parseInt(num) - 1
+return conn.reply(m.chat, txt.trim(), m)
+}
 
-    if (!num || isNaN(index) || !groups[index]) {
-      return conn.reply(m.chat,
+if (command === 'esci') {
+let args = String(text || '').trim().split(/\s+/).filter(Boolean)
+let spamArg = args[args.length - 1]?.toLowerCase()
+let spam = spamArg === 'si' ? 'si' : 'no'
+
+if (spamArg === 'si' || spamArg === 'no') args.pop()
+
+let indexes = [...new Set(args.map(v => parseInt(v)).filter(v => !isNaN(v) && v >= 1 && v <= groups.length))]
+
+if (!indexes.length) {
+return conn.reply(m.chat,
 `*⚠️ 𝐅𝐨𝐫𝐦𝐚𝐭𝐨 𝐞𝐫𝐫𝐚𝐭𝐨.*
 
-*𝐔𝐬𝐚:*
-*${usedPrefix}esci numero si/no*
+*⚡ 𝐔𝐬𝐨:*
+*${usedPrefix}esci <numeri> si/no*
+
+*⚡ 𝐄𝐬𝐞𝐦𝐩𝐢:*
+*${usedPrefix}esci 2 no*
+*${usedPrefix}esci 1 3 5 si*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
-    }
+}
 
-    let targetGroup = groups[index]
-    let participants = targetGroup.participants.map(u => u.id)
+let risultati = []
 
-    try {
+for (let n of indexes) {
+let targetGroup = groups[n - 1]
+if (!targetGroup) continue
 
-      if (spam === 'si') {
+try {
+let participants = (targetGroup.participants || []).map(u => conn.decodeJid(u.id)).filter(Boolean)
 
-        for (let i = 0; i < 5; i++) {
+if (spam === 'si') {
+for (let i = 0; i < 5; i++) {
+await conn.sendMessage(targetGroup.id, {
+text: `*📢 𝐍𝐎𝐓𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐔𝐒𝐂𝐈𝐓𝐀*
 
-          await conn.sendMessage(targetGroup.id, {
-            text:
-`*╭━━━━━━━📢━━━━━━━╮*
-*✦ 𝐍𝐎𝐓𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐔𝐒𝐂𝐈𝐓𝐀 ✦*
-*╰━━━━━━━📢━━━━━━━╯*
-
-*📣 𝐄𝐧𝐭𝐫𝐚𝐭𝐞 𝐧𝐞𝐥 𝐜𝐚𝐧𝐚𝐥𝐞 𝐮𝐟𝐟𝐢𝐜𝐢𝐚𝐥𝐞:*
+*𝐄𝐧𝐭𝐫𝐚 𝐧𝐞𝐥 𝐜𝐚𝐧𝐚𝐥𝐞 𝐮𝐟𝐟𝐢𝐜𝐢𝐚𝐥𝐞:*
 
 https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
-            mentions: participants
-          })
+mentions: participants
+})
+await delay(500)
+}
+}
 
-          await delay(500)
-        }
-      }
-
-      await conn.reply(targetGroup.id,
-`*👋 𝐀𝐝𝐝𝐢𝐨 𝐬𝐟𝐢𝐠𝐚𝐭𝐢!*
+await conn.reply(targetGroup.id,
+`*👋 𝐀𝐱𝐢𝐨𝐧 𝐬𝐭𝐚 𝐮𝐬𝐜𝐞𝐧𝐝𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
 
-      await conn.groupLeave(targetGroup.id)
+await delay(500)
+await conn.groupLeave(targetGroup.id)
 
-      return conn.reply(m.chat,
-`*✅ 𝐈𝐥 𝐛𝐨𝐭 𝐡𝐚 𝐚𝐛𝐛𝐚𝐧𝐝𝐨𝐧𝐚𝐭𝐨:*
+risultati.push(`*✅ ${n}.* *${targetGroup.subject || 'Senza nome'}*`)
+await delay(1000)
+} catch (e) {
+console.error(e)
+risultati.push(`*❌ ${n}.* *${targetGroup.subject || 'Senza nome'}*`)
+}
+}
 
-*🏢 ${targetGroup.subject}*
+return conn.reply(m.chat,
+`*🏢 𝐎𝐏𝐄𝐑𝐀𝐙𝐈𝐎𝐍𝐄 𝐂𝐎𝐌𝐏𝐋𝐄𝐓𝐀*
 
-*📢 𝐒𝐩𝐚𝐦:* *${String(spam || 'no').toUpperCase()}*
+*📢 𝐒𝐩𝐚𝐦:* *${spam.toUpperCase()}*
+
+${risultati.join('\n')}
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
-
-    } catch (e) {
-
-      console.error(e)
-
-      return conn.reply(m.chat,
-`*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥’𝐨𝐩𝐞𝐫𝐚𝐳𝐢𝐨𝐧𝐞.*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
-    }
-  }
+}
 }
 
 handler.command = ['gruppi', 'esci']

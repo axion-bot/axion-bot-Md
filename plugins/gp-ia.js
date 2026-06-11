@@ -4,8 +4,8 @@ const sessioniChat = new Map()
 const messaggiBot = new Map()
 
 const utentiRiconosciuti = {
-  '573160542396': {
-    nome: 'Deadly',
+  '639350468907': {
+    nome: 'Bonzino',
     ruolo: 'creatore di Axion'
   },
   '393780087063': {

@@ -197,6 +197,9 @@ const box = (_, desc) => desc
       if (!await requireOwner()) return
       thumbFeature = 'system'
       result = setFeature(bot, 'autoDbBackup', '𝐁𝐀𝐂𝐊𝐔𝐏 𝐃𝐀𝐓𝐀𝐁𝐀𝐒𝐄', '𝐀𝐮𝐭𝐨𝐃𝐁')
+      if (typeof global.restartAutoDbBackupLoop === 'function') {
+        global.restartAutoDbBackupLoop(conn)
+      }
       break
 
     case 'antiprivato':
@@ -292,6 +295,8 @@ const box = (_, desc) => desc
         chat.modoadmin = isEnable
         chat.ai = isEnable
         bot.autoDbBackup = isEnable
+        if (typeof global.restartAutoDbBackupLoop === 'function') {
+        global.restartAutoDbBackupLoop(conn)}
 
         result = box(
           '𝐓𝐔𝐓𝐓𝐄 𝐋𝐄 𝐏𝐑𝐎𝐓𝐄𝐙𝐈𝐎𝐍𝐈',

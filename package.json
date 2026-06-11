@@ -1,7 +1,7 @@
 {
   "name": "axionbot",
-  "version": "1.5.0",
-  "description": "Bot zozzap by deadly",
+  "version": "1.8.0",
+  "description": "Bot zozzap by deadly & Bonzino",
   "main": "main.js",
   "type": "module",
   "license": "Apache-2.0",

@@ -89,8 +89,17 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🗑️ ${usedPrefix}eliminaplugin
 ╰━━━━━━━━━━━━━━━━⬣
 
+╭━〔 📁 ɢᴇsᴛɪᴏɴᴇ ғɪʟᴇ 〕━⬣
+┃ 🖼️ .save <nome>
+┃ 📂 .listmedia
+┃ 🔎 .getfile <nome>
+┃ 🗑️ .delfile <nome>
+┃ 📄 .fileinfo <nome>
+╰━━━━━━━━━━━━━━━━⬣
+
 ╭━━━〔 ⚡ ғᴜɴᴢɪᴏɴɪ sᴘᴇᴄɪᴀʟɪ 〕━⬣
 ┃ ⚠️ ${usedPrefix}bigtag
+┃ 💬 ${usedPrefix}spam
 ┃ ✋ ${usedPrefix}stop
 ┃ 👑 ${usedPrefix}godmode
 ┃ 📢 ${usedPrefix}tuttigp
