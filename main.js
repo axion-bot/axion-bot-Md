@@ -1,4 +1,6 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+import EventEmitter from 'events';
+EventEmitter.defaultMaxListeners = 25;
 import './config.js';
 try {
     await import('./private.js');
