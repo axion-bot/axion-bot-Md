@@ -2,15 +2,13 @@
 
 global.db.data.depositoSessioni ??= {}
 
-const footer = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+const footer='𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
 
-const box = (emoji, title, body, showFooter = true) => `╭━━━━━━━${emoji}━━━━━━━╮
-*✦ ${title} ✦*
-╰━━━━━━━${emoji}━━━━━━━╯
+const box=(emoji,title,body,showFooter=true)=>`${emoji} *${title}*
 
-${body}${showFooter ? `
+${body}${showFooter?`
 
-> *${footer}*` : ''}`
+> *${footer}*`:''}`
 
 function formatNumber(num) {
   return new Intl.NumberFormat('it-IT').format(num || 0)
@@ -47,26 +45,19 @@ let handler = async (m, { conn, args, command }) => {
     return preparaDeposito(m, conn, args.join(' '))
   }
 
-  const sent = await conn.sendMessage(
-    m.chat,
-    {
-      text: box(
-        '🏦',
-        '𝐃𝐄𝐏𝐎𝐒𝐈𝐓𝐎',
-        `*💸 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐥𝐚 𝐪𝐮𝐚𝐧𝐭𝐢𝐭à 𝐝𝐚 𝐝𝐞𝐩𝐨𝐬𝐢𝐭𝐚𝐫𝐞.*
+const sent = await conn.sendMessage(
+  m.chat,
+  {
+    text: box(
+      '🏦',
+      '𝐃𝐄𝐏𝐎𝐒𝐈𝐓𝐎',
+      `*💸 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐥'𝐢𝐦𝐩𝐨𝐫𝐭𝐨 𝐝𝐚 𝐝𝐞𝐩𝐨𝐬𝐢𝐭𝐚𝐫𝐞.*
 
-*📌 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨.*
-
-*📌 𝐏𝐮𝐨𝐢 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞:*
-*all*
-*tutto*
-*metà*
-*50%*
-*100*`
-      )
-    },
-    { quoted: m }
-  )
+*📌 𝐄𝐬𝐞𝐦𝐩𝐢:* all • metà • 50% • 100`
+    )
+  },
+  { quoted: m }
+)
 
   global.db.data.depositoSessioni[`${m.chat}|${sent.key.id}`] = {
     owner: m.sender,
@@ -157,7 +148,7 @@ async function preparaDeposito(m, conn, input) {
       box(
         '❌',
         '𝐒𝐀𝐋𝐃𝐎 𝐈𝐍𝐒𝐔𝐅𝐅𝐈𝐂𝐈𝐄𝐍𝐓𝐄',
-        `*💼 𝐇𝐚𝐢 𝐬𝐨𝐥𝐨 ${formatNumber(user.euro)} 𝐜𝐨𝐧𝐭𝐚𝐧𝐭𝐢.*`
+        `*💼 𝐇𝐚𝐢 𝐬𝐨𝐥𝐨 ${formatNumber(user.euro)}€ 𝐜𝐨𝐧𝐭𝐚𝐧𝐭𝐢.*`
       )
     )
   }
@@ -190,11 +181,11 @@ async function preparaDeposito(m, conn, input) {
       text: box(
         '🏦',
         '𝐂𝐎𝐍𝐅𝐄𝐑𝐌𝐀 𝐃𝐄𝐏𝐎𝐒𝐈𝐓𝐎',
-        `*💸 𝐐𝐮𝐚𝐧𝐭𝐢𝐭à:* ${formatNumber(amount.value)}
+        `*💸 𝐐𝐮𝐚𝐧𝐭𝐢𝐭à:* ${formatNumber(amount.value)}€
 
-*💼 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(user.euro - amount.value)}
-*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐛𝐚𝐧𝐜𝐚:* ${formatNumber(user.bank + amount.value)}
-*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(user.euro + user.bank)}
+*💼 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(user.euro - amount.value)}€
+*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐛𝐚𝐧𝐜𝐚:* ${formatNumber(user.bank + amount.value)}€
+*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(user.euro + user.bank)}€
 
 *📌 𝐂𝐨𝐧𝐟𝐞𝐫𝐦𝐢 𝐥’𝐨𝐩𝐞𝐫𝐚𝐳𝐢𝐨𝐧𝐞?*`,
         false
@@ -255,11 +246,11 @@ async function confermaDeposito(m) {
     box(
       '✅',
       '𝐃𝐄𝐏𝐎𝐒𝐈𝐓𝐎 𝐄𝐅𝐅𝐄𝐓𝐓𝐔𝐀𝐓𝐎',
-      `*💸 𝐃𝐞𝐩𝐨𝐬𝐢𝐭𝐚𝐭𝐢:* ${formatNumber(amount)}
+      `*💸 𝐃𝐞𝐩𝐨𝐬𝐢𝐭𝐚𝐭𝐢:* ${formatNumber(amount)}€
 
-*💼 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(user.euro)}
-*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐛𝐚𝐧𝐜𝐚:* ${formatNumber(user.bank)}
-*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(user.euro + user.bank)}`
+*💼 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(user.euro)}€
+*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐛𝐚𝐧𝐜𝐚:* ${formatNumber(user.bank)}€
+*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(user.euro + user.bank)}€`
     )
   )
 }

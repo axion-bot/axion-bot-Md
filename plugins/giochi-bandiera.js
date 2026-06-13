@@ -1,6 +1,6 @@
 // Plugin Bandiera by Bonzino 
 
-import fetch from 'node-fetch'
+import countries from 'world-countries'
 import { createCanvas, loadImage } from 'canvas'
 
 const H = '╭━━━〔 🧠 𝐐𝐔𝐈𝐙 〕━━━⬣'
@@ -11,13 +11,22 @@ const ANSWER_COOLDOWN_MS = 1200
 const WM = '\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-const playAgainButtons = () => [{
-  name: 'quick_reply',
-  buttonParamsJson: JSON.stringify({
-    display_text: '⟲ Gioca Ancora',
-    id: '.bandiera'
-  })
-}]
+const playAgainButtons = () => [
+  {
+    name:'quick_reply',
+    buttonParamsJson:JSON.stringify({
+      display_text:'⟲ Gioca Ancora',
+      id:'.bandiera'
+    })
+  },
+  {
+    name:'quick_reply',
+    buttonParamsJson:JSON.stringify({
+      display_text:'🏆 Classifica',
+      id:'.topbandiera'
+    })
+  }
+]
 
 const gameButtons = () => [
   {
@@ -46,13 +55,17 @@ function normalizeString(str = '') {
     .trim()
 }
 
-function similarity(a, b) {
-  const x = normalizeString(a)
-  const y = normalizeString(b)
-  if (!x || !y) return false
-  if (x === y) return true
-  if (x.includes(y) || y.includes(x)) return true
-  return false
+function similarity(a,b){
+  const x=normalizeString(a)
+  const y=normalizeString(b)
+
+  if(!x||!y)return false
+  if(x===y)return true
+
+  const xa=x.split(' ')
+  const ya=y.split(' ')
+
+  return xa.length>1&&ya.length>1&&x===y
 }
 
 function pickRandom(arr = []) {
@@ -82,16 +95,10 @@ function getHintText(name = '') {
 
   return `*💡 𝐈𝐧𝐝𝐢𝐳𝐢𝐨:*\n┃ *𝐈𝐧𝐢𝐳𝐢𝐚 𝐜𝐨𝐧:* ${firstLetter}\n┃ *𝐅𝐢𝐧𝐢𝐬𝐜𝐞 𝐜𝐨𝐧:* ${lastLetter}\n┃ *𝐋𝐞𝐭𝐭𝐞𝐫𝐞:* ${lettersOnly}\n┃ *𝐅𝐨𝐫𝐦𝐚:* ${masked}`
 }
-
 async function loadAllFlags() {
   if (global.allFlagsCache?.length) return global.allFlagsCache
 
-  const res = await fetch('https://restcountries.com/v3.1/all?fields=cca2,name,translations,altSpellings')
-  if (!res.ok) throw new Error(`RESTCountries ${res.status}`)
-
-  const json = await res.json()
-
-  const flags = json
+  const flags = countries
     .filter(c => c?.cca2 && c?.name?.common)
     .map(c => {
       const names = []
@@ -222,13 +229,6 @@ function getStreakBonus(streak) {
   return 0
 }
 
-function getStreakEmoji(streak) {
-  if (streak >= 20) return '🔥🔥🔥🔥'
-  if (streak >= 10) return '🔥🔥🔥'
-  if (streak >= 5) return '🔥🔥'
-  if (streak >= 2) return '🔥'
-  return '✨'
-}
 
 let handler = async (m, { conn, command, isAdmin }) => {
   global.bandieraGame = global.bandieraGame || {}
@@ -276,30 +276,27 @@ ${F}${WM}`
   }
 
   if (!m.isGroup) return m.reply('⚠️ 𝐒𝐨𝐥𝐨 𝐧𝐞𝐢 𝐠𝐫𝐮𝐩𝐩𝐢')
-  if (global.bandieraGame[m.chat]) return m.reply('⚠️ 𝐂𝐞̀ 𝐠𝐢à 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚')
+if (global.bandieraGame[m.chat]) return m.reply('⚠️ 𝐂𝐞̀ 𝐠𝐢à 𝐮𝐧𝐚 𝐩𝐚𝐫𝐭𝐢𝐭𝐚 𝐚𝐭𝐭𝐢𝐯𝐚')
 
   let bandiere
-  try {
-    bandiere = await loadAllFlags()
-  } catch {
-    return m.reply('❌ 𝐍𝐨𝐧 𝐫𝐢𝐞𝐬𝐜𝐨 𝐚 𝐜𝐚𝐫𝐢𝐜𝐚𝐫𝐞 𝐥𝐞 𝐛𝐚𝐧𝐝𝐢𝐞𝐫𝐞')
-  }
+try{
+bandiere = await loadAllFlags()
 
-  const frasi = [
-    '*🧠 𝐌𝐞𝐭𝐭𝐢 𝐚𝐥𝐥𝐚 𝐩𝐫𝐨𝐯𝐚 𝐥𝐚 𝐭𝐮𝐚 𝐦𝐞𝐧𝐭𝐞!*',
-    '*🌍 𝐑𝐢𝐜𝐨𝐧𝐨𝐬𝐜𝐢 𝐪𝐮𝐞𝐬𝐭𝐚 𝐛𝐚𝐧𝐝𝐢𝐞𝐫𝐚?*',
-    '*🎯 𝐒𝐨𝐥𝐨 𝐢 𝐯𝐞𝐫𝐢 𝐞𝐬𝐩𝐞𝐫𝐭𝐢 𝐢𝐧𝐝𝐨𝐯𝐢𝐧𝐚𝐧𝐨!*',
-    '*🔍 𝐎𝐬𝐬𝐞𝐫𝐯𝐚 𝐛𝐞𝐧𝐞 𝐨𝐠𝐧𝐢 𝐝𝐞𝐭𝐭𝐚𝐠𝐥𝐢𝐨...*',
-    '*⚡ 𝐒𝐟𝐢𝐝𝐚 𝐚𝐭𝐭𝐢𝐯𝐚!*'
-  ]
+const frasi=[
+  '*🧠 𝐌𝐞𝐭𝐭𝐢 𝐚𝐥𝐥𝐚 𝐩𝐫𝐨𝐯𝐚 𝐥𝐚 𝐭𝐮𝐚 𝐦𝐞𝐧𝐭𝐞!*',
+  '*🌍 𝐑𝐢𝐜𝐨𝐧𝐨𝐬𝐜𝐢 𝐪𝐮𝐞𝐬𝐭𝐚 𝐛𝐚𝐧𝐝𝐢𝐞𝐫𝐚?*',
+  '*🎯 𝐒𝐨𝐥𝐨 𝐢 𝐯𝐞𝐫𝐢 𝐞𝐬𝐩𝐞𝐫𝐭𝐢 𝐢𝐧𝐝𝐨𝐯𝐢𝐧𝐚𝐧𝐨!*',
+  '*🔍 𝐎𝐬𝐬𝐞𝐫𝐯𝐚 𝐛𝐞𝐧𝐞 𝐨𝐠𝐧𝐢 𝐝𝐞𝐭𝐭𝐚𝐠𝐥𝐢𝐨...*',
+  '*⚡ 𝐒𝐟𝐢𝐝𝐚 𝐚𝐭𝐭𝐢𝐯𝐚!*'
+]
 
-  const scelta = pickRandom(bandiere)
-  const frase = pickRandom(frasi)
+const scelta=pickRandom(bandiere)
+const frase=pickRandom(frasi)
 
-  const sent = await sendFlagCard(
-    conn,
-    m.chat,
-    scelta.url,
+const sent=await sendFlagCard(
+  conn,
+  m.chat,
+  scelta.url,
 `${H}
 ┃ *🌍 𝐈𝐍𝐃𝐎𝐕𝐈𝐍𝐀 𝐋𝐀 𝐍𝐀𝐙𝐈𝐎𝐍𝐄*
 ┃
@@ -308,55 +305,66 @@ ${F}${WM}`
 ┃ ⏱️ *𝐓𝐞𝐦𝐩𝐨:* 30𝐬
 ┃ 🎯 *𝐓𝐞𝐧𝐭𝐚𝐭𝐢𝐯𝐢:* ${MAX_TENTATIVI} *𝐩𝐞𝐫 𝐮𝐭𝐞𝐧𝐭𝐞*
 ${F}${WM}`,
-    m
-  )
+m
+)
 
-  await delay(1200)
+await delay(200)
 
-  await conn.sendMessage(m.chat, {
-    text: '*👇 𝐒𝐜𝐞𝐠𝐥𝐢 𝐮𝐧 𝐚𝐳𝐢𝐨𝐧𝐞 𝐪𝐮𝐢 𝐬𝐨𝐭𝐭𝐨*',
-    interactiveButtons: gameButtons()
-  }, { quoted: sent })
+await conn.sendMessage(m.chat,{
+  text:'*👇 𝐒𝐜𝐞𝐠𝐥𝐢 𝐮𝐧 𝐚𝐳𝐢𝐨𝐧𝐞 𝐪𝐮𝐢 𝐬𝐨𝐭𝐭𝐨*',
+  interactiveButtons:gameButtons()
+},{quoted:sent})
 
-  global.bandieraGame[m.chat] = {
-    id: sent.key.id,
-    risposta: normalizeString(scelta.nome),
-    rispostaOriginale: scelta.nome,
-    alias: scelta.alias,
-    hintText: getHintText(scelta.nome),
-    hintUsed: false,
-    tentativi: {},
-    lastAnswerAt: {},
-    startTime: Date.now(),
-    timeout: setTimeout(async () => {
-      const game = global.bandieraGame?.[m.chat]
-      if (!game) return
+global.bandieraGame[m.chat]={
+  id:sent.key.id,
+  risposta:normalizeString(scelta.nome),
+  rispostaOriginale:scelta.nome,
+  alias:scelta.alias,
+  hintText:getHintText(scelta.nome),
+  hintUsed:false,
+  tentativi:{},
+  lastAnswerAt:{},
+  startTime:Date.now(),
+  timeout:setTimeout(async()=>{
+    const game=global.bandieraGame?.[m.chat]
+    if(!game)return
 
-      for (const jid of Object.keys(game.tentativi || {})) {
-        const user = global.db.data.users[jid] || (global.db.data.users[jid] = {})
-        ensureUser(user)
-        user.bandieraGiocate = (user.bandieraGiocate || 0) + 1
-        user.bandieraStreak = 0
-      }
+    for(const jid of Object.keys(game.tentativi||{})){
+      const user=global.db.data.users[jid]||(global.db.data.users[jid]={})
+      ensureUser(user)
+      user.bandieraGiocate=(user.bandieraGiocate||0)+1
+      user.bandieraStreak=0
+    }
 
-      await conn.sendMessage(m.chat, {
-        text: `${H}
+    await conn.sendMessage(m.chat,{
+      text:`${H}
 ┃ *⏰ 𝐓𝐄𝐌𝐏𝐎 𝐒𝐂𝐀𝐃𝐔𝐓𝐎*
 ┃
 ┃ *🏳️ 𝐑𝐢𝐬𝐩𝐨𝐬𝐭𝐚:* ${game.rispostaOriginale}
 ${F}${WM}`,
-        interactiveButtons: playAgainButtons()
-      }, { quoted: sent })
+      interactiveButtons:playAgainButtons()
+    },{quoted:sent})
 
-      delete global.bandieraGame[m.chat]
-    }, GAME_MS)
-  }
+    delete global.bandieraGame[m.chat]
+  },GAME_MS)
+}
+
+}catch(e){
+  delete global.bandieraGame[m.chat]
+  throw e
+}
 }
 
 handler.before = async (m, { conn }) => {
   const game = global.bandieraGame?.[m.chat]
   if (!game) return
-  if (!m.quoted || m.quoted.id !== game.id) return
+  const isReply=m.quoted?.id===game.id
+const guess=normalizeString(m.text||'')
+
+if(!isReply){
+  const isCorrect=game.alias.some(v=>similarity(guess,v))
+  if(!isCorrect)return
+}
   if (!m.text) return
 
   const rawText = String(m.text || '').trim()
@@ -370,7 +378,6 @@ handler.before = async (m, { conn }) => {
   if (now - last < ANSWER_COOLDOWN_MS) return true
   game.lastAnswerAt[m.sender] = now
 
-  const guess = normalizeString(m.text)
   if (!guess) return true
 
   const user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
@@ -395,31 +402,21 @@ handler.before = async (m, { conn }) => {
     const streakBonus = getStreakBonus(user.bandieraStreak)
     const totalReward = baseReward + speedBonus + streakBonus
     const speedLabel = getSpeedLabel(seconds)
-    const streakEmoji = getStreakEmoji(user.bandieraStreak)
+
 
     addReward(user, totalReward)
 
-    const speedLine = speedBonus > 0
-      ? `┃ ⚡ 𝐁𝐨𝐧𝐮𝐬 𝐯𝐞𝐥𝐨𝐜𝐢𝐭à: +${speedBonus}\n`
-      : ''
-
-    const streakLine = streakBonus > 0
-      ? `┃ ${streakEmoji} 𝐁𝐨𝐧𝐮𝐬 𝐬𝐭𝐫𝐞𝐚𝐤: +${streakBonus}\n`
-      : `┃ ${streakEmoji} 𝐒𝐭𝐫𝐞𝐚𝐤: ${user.bandieraStreak}\n`
-
-    await conn.sendMessage(m.chat, {
-      text: `${H}
+await conn.sendMessage(m.chat, {
+  text: `${H}
 ┃ *✅ 𝐂𝐎𝐑𝐑𝐄𝐓𝐓𝐎!*
 ┃
 ┃ *🏳️ 𝐁𝐚𝐧𝐝𝐢𝐞𝐫𝐚:* ${game.rispostaOriginale}
 ┃ *⏱️ 𝐓𝐞𝐦𝐩𝐨:* ${seconds}𝐬
 ┃ *🎖️ 𝐄𝐬𝐢𝐭𝐨:* ${speedLabel}
-┃
-┃ *💰 𝐁𝐚𝐬𝐞:* +${baseReward}
-${speedLine}${streakLine}┃ *💸 𝐓𝐨𝐭𝐚𝐥𝐞:* +${totalReward}
+┃ *💸 𝐑𝐢𝐜𝐨𝐦𝐩𝐞𝐧𝐬𝐚:* +${totalReward}€
 ${F}${WM}`,
-      interactiveButtons: playAgainButtons()
-    }, { quoted: m })
+  interactiveButtons: playAgainButtons()
+}, { quoted: m })
 
     delete global.bandieraGame[m.chat]
     return true

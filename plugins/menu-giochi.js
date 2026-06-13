@@ -35,6 +35,7 @@ const menuBody=`
 ┃ 🥵 ${usedPrefix}scopa <reply/tag>
 ┃ 🍋 ${usedPrefix}limona <reply/tag>
 ┃ 🤟 ${usedPrefix}ditalino <reply/tag>
+┃ 💞 ${usedPrefix}trovafid <reply/tag>
 ┃ 💥 ${usedPrefix}bonk <reply/tag>
 ┃ 💣 ${usedPrefix}bomba <reply/tag>
 ┃ 🤬 ${usedPrefix}insulta <reply/tag>

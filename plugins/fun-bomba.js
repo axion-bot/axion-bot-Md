@@ -11,7 +11,7 @@ const playButtons=()=>[{buttonId:'.bomba',buttonText:{displayText:'💣 Nuova Bo
 
 const testoBomba=(sender,tempo)=>`*💣 𝐁𝐎𝐌𝐁𝐀 𝐈𝐍𝐍𝐄𝐒𝐂𝐀𝐓𝐀*
 
-*💣 𝐋𝐚 𝐛𝐨𝐦𝐛𝐚 è 𝐧𝐞𝐥𝐥𝐞 𝐦𝐚𝐧𝐢 𝐝𝐢:* @${sender.split('@')[0]}
+*🧨 𝐋𝐚 𝐛𝐨𝐦𝐛𝐚 è 𝐧𝐞𝐥𝐥𝐞 𝐦𝐚𝐧𝐢 𝐝𝐢:* @${sender.split('@')[0]}
 *⏱️ 𝐓𝐞𝐦𝐩𝐨:* *${tempo}𝐬*
 *🔥 𝐋𝐚 𝐦𝐢𝐜𝐜𝐢𝐚 è 𝐢𝐧𝐬𝐭𝐚𝐛𝐢𝐥𝐞.*
 
@@ -26,16 +26,38 @@ function isValidUserJid(jid){
 return jid&&jid.endsWith('@s.whatsapp.net')&&!jid.includes('@lid')
 }
 
+function getBotJids(conn){
+return [
+cleanJid(conn,conn.user?.id||''),
+cleanJid(conn,conn.user?.jid||''),
+cleanJid(conn,conn.user?.lid||'')
+].filter(Boolean)
+}
+
+function isBotTarget(conn,jid){
+jid=cleanJid(conn,jid)
+const bots=getBotJids(conn)
+return bots.some(b=>b===jid||b.split('@')[0]===jid.split('@')[0])
+}
+
+function isValidTarget(conn,jid,sender=''){
+jid=cleanJid(conn,jid)
+sender=cleanJid(conn,sender)
+return isValidUserJid(jid)&&jid!==sender&&!isBotTarget(conn,jid)
+}
+
 function scegliUtenteCasuale(conn,m,participants=[]){
-const mentioned=m.mentionedJid?.[0]
-const quoted=m.quoted?.sender||m.quoted?.participant
-if(mentioned&&isValidUserJid(mentioned))return mentioned
-if(quoted&&isValidUserJid(quoted))return quoted
-const botJid=cleanJid(conn,conn.user?.jid||'')
+const mentioned=cleanJid(conn,m.mentionedJid?.[0]||'')
+const quoted=cleanJid(conn,m.quoted?.sender||m.quoted?.participant||'')
+
+if(isValidTarget(conn,mentioned,m.sender))return mentioned
+if(isValidTarget(conn,quoted,m.sender))return quoted
+
 const users=(participants||[])
 .map(p=>cleanJid(conn,p.id||p.jid||''))
-.filter(j=>isValidUserJid(j)&&j!==m.sender&&j!==botJid)
-return users.length?users[rand(0,users.length-1)]:m.sender
+.filter(j=>isValidTarget(conn,j,m.sender))
+
+return users.length?users[rand(0,users.length-1)]:null
 }
 
 async function aggiornaBomba(conn,chat){
@@ -67,7 +89,6 @@ const key=`bomba_${chat}`,now=Date.now()
 if(now-(global.cooldowns[key]||0)<COOLDOWN_MS)return m.reply('*⏳ Aspetta un attimo.*')
 
 let target=scegliUtenteCasuale(conn,m,participants)
-
 if(!target)return m.reply('*❌ Nessun utente valido trovato.*')
 
 global.cooldowns[key]=now
@@ -92,8 +113,7 @@ if(!txt.startsWith('passa'))return
 let target=m.mentionedJid?.[0]||m.quoted?.sender||m.quoted?.participant||null
 target=cleanJid(conn,target)
 
-const botJid=cleanJid(conn,conn.user?.jid||'')
-if(!isValidUserJid(target)||target===m.sender||target===botJid)return
+if(!isValidTarget(conn,target,m.sender))return
 
 let tempo=b.scadenza-Date.now()
 if(tempo<=500)return
@@ -129,8 +149,8 @@ if(!b)return
 clearInterval(b.ticker)
 
 const cilecca=Math.random()<0.08
-const premiati=[...new Set(b.passaggi)].filter(j=>j!==b.vittima)
-let mentions=[b.vittima,...premiati]
+const premiati=[...new Set(b.passaggi)].filter(j=>j!==b.vittima&&!isBotTarget(conn,j))
+let mentions=[b.vittima,...premiati].filter(j=>!isBotTarget(conn,j))
 
 if(cilecca){
 let text=`*💨 𝐁𝐎𝐌𝐁𝐀 𝐈𝐍𝐂𝐄𝐏𝐏𝐀𝐓𝐀*

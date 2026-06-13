@@ -64,6 +64,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🥵 ${usedPrefix}scopa <reply/tag>
 ┃ 🍋 ${usedPrefix}limona <reply/tag>
 ┃ 🤟 ${usedPrefix}ditalino <reply/tag>
+┃ 💞 ${usedPrefix}trovafid <reply/tag>
 ┃ 💥 ${usedPrefix}bonk <reply/tag>
 ┃ 💣 ${usedPrefix}bomba <reply/tag>
 ┃ 🤬 ${usedPrefix}insulta <reply/tag>
@@ -80,7 +81,6 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 👰 ${usedPrefix}sposa <reply/tag>
 ┃ 💔 ${usedPrefix}divorzia <reply/tag>
 ┃ 🤝 ${usedPrefix}amicizia <reply/tag>
-┃ 💞 ${usedPrefix}trovafid <reply/tag>
 ┃ 👩 ${usedPrefix}madre <reply/tag>
 ┃ 👨 ${usedPrefix}padre <reply/tag>
 ┃ 👶 ${usedPrefix}figlio <reply/tag>

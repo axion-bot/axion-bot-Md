@@ -19,19 +19,13 @@ let handler = async (m, { conn }) => {
             ? Math.round((banca / totale) * 100)
             : 0
 
-    let text = `╭━━━━━━━💸━━━━━━━╮
-*✦ 𝐏𝐎𝐑𝐓𝐀𝐅𝐎𝐆𝐋𝐈𝐎 ✦*
-╰━━━━━━━💸━━━━━━━╯
+    let text = `*💸 𝐏𝐎𝐑𝐓𝐀𝐅𝐎𝐆𝐋𝐈𝐎*
 
-*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* @${who.split('@')[0]}
-
-*💼 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(contanti)}
-*🏦 𝐓𝐨𝐭𝐚𝐥𝐞 𝐛𝐚𝐧𝐜𝐚:* ${formatNumber(banca)}
+*💵 𝐂𝐨𝐧𝐭𝐚𝐧𝐭𝐢:* ${formatNumber(contanti)}€
+*🏦 𝐁𝐚𝐧𝐜𝐚:* ${formatNumber(banca)}€
 *📊 𝐃𝐞𝐩𝐨𝐬𝐢𝐭𝐚𝐭𝐨:* ${percentuale}%
 
-*━━━━━━━━━━━━━━*
-
-*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(totale)}`
+*💰 𝐏𝐚𝐭𝐫𝐢𝐦𝐨𝐧𝐢𝐨:* ${formatNumber(totale)}€`
 
     const buttons = [
         {

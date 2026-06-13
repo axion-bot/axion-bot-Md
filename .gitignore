@@ -13,3 +13,4 @@ plugins/gp-ia.js
 plugins/owner-listaia.js
 plugins/owner-logs.js
 plugins/autorivelavo.js
+plugins/autotag.js

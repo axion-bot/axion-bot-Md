@@ -2,7 +2,7 @@ let handler=async()=>{}
 handler.before=async function(m,{conn}){
 if(!m.text||m.fromMe||m.isBaileys)return
 const txt=m.text.trim().toLowerCase()
-if(!txt.includes('aura'))return
+if(!/\baura\b/i.test(txt))return
 await conn.sendFile(
 m.chat,
 './media/aura.webp',
