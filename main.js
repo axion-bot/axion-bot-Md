@@ -51,7 +51,6 @@ const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 protoType();
 serialize();
 
-// funzione x bottone copy universale
 global.sendCopy=async(conn,m,{text='',copy='',button='📋 𝐂𝐨𝐩𝐢𝐚'})=>{
 const msg=generateWAMessageFromContent(m.chat,{
 viewOnceMessage:{message:{
@@ -71,7 +70,6 @@ buttonParamsJson:JSON.stringify({display_text:button,copy_code:copy})
 await conn.relayMessage(m.chat,msg.message,{messageId:msg.key.id})
 }
 
-// funzione x box universale
 global.box=async(conn,chat,{text='ㅤ',title='ㅤㅤㅤ𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',body='𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',thumb='default'}={},options={})=>{
 let thumbnail=null
 try{
@@ -157,6 +155,10 @@ global.botname = global.db?.data?.settings?.botName || '𝛥𝐗𝐈𝚶𝐍 �
 
 global.creds = 'creds.json';
 global.authFile = 'session';
+
+if (!fs.existsSync(global.authFile)) {
+    fs.mkdirSync(global.authFile, { recursive: true });
+}
 
 const { state, saveCreds } = await useMultiFileAuthState(global.authFile);
 const msgRetryCounterCache = new NodeCache();
