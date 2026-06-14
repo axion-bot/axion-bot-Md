@@ -61,7 +61,7 @@ let handler = async (m, { conn }) => {
   const figliTxt = formatList(figli)
   const amiciTxt = formatList(amici)
 
-  let pp = 'https://i.ibb.co/2kR7x9J/avatar.png'
+  let pp = ''
   try {
     pp = await conn.profilePictureUrl(target, 'image')
   } catch {}

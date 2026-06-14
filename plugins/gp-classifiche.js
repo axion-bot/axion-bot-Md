@@ -44,7 +44,7 @@ const classifica=getClassifica(dati.utenti||{},limite)
 
 if(!classifica.length)return m.reply(`*❌ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨*`)
 
-const medaglie=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']
+const medaglie=['🥇','🥈','🥉']
 const titolo=isAll?'*🌐 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐆𝐋𝐎𝐁𝐀𝐋𝐄*':'*⏳ 𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐎𝐆𝐆𝐈*'
 
 let testo=`${titolo}`
@@ -54,7 +54,7 @@ let menzioni=classifica.map(([jid])=>jid).filter(Boolean)
 classifica.forEach(([jid,d],i)=>{
 testo+=`
 
-*${medaglie[i]||'🏅'} ${i+1}°* *@${jid.split('@')[0]}* • *${formatNumber(d?.conteggio||0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*`
+*${i < 3 ? medaglie[i] : `${i + 1}°`}* *@${jid.split('@')[0]}* • *${formatNumber(d?.conteggio||0)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*`
 })
 
 testo+=`

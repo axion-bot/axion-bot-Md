@@ -41,9 +41,8 @@ let handler = async (m, { conn, usedPrefix }) => {
     nomeGruppo = 'Gruppo'
   }
 
-  const text = `╭━━━━━━━📊━━━━━━━╮
-*✦ 𝐋𝐄 𝐓𝐔𝐄 𝐒𝐓𝐀𝐓𝐈𝐒𝐓𝐈𝐂𝐇𝐄 ✦*
-╰━━━━━━━📊━━━━━━━╯
+  const text = `
+*𝐋𝐄 𝐓𝐔𝐄 𝐒𝐓𝐀𝐓𝐈𝐒𝐓𝐈𝐂𝐇𝐄📊*
 
 *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${nome}
 *📍 𝐏𝐨𝐬𝐢𝐳𝐢𝐨𝐧𝐞:* *#${posizioneReale}*
@@ -58,9 +57,9 @@ let handler = async (m, { conn, usedPrefix }) => {
   await conn.sendMessage(m.chat, {
     text,
     buttons: [
-      { buttonId: `${usedPrefix}top`, buttonText: { displayText: '🏆 𝐓𝐨𝐩 𝟑' }, type: 1 },
-      { buttonId: `${usedPrefix}top10`, buttonText: { displayText: '📊 𝐓𝐨𝐩 𝟏𝟎' }, type: 1 },
-      { buttonId: `${usedPrefix}topall`, buttonText: { displayText: '🌐 𝐓𝐨𝐩𝐀𝐥𝐥' }, type: 1 }
+      { buttonId: `${usedPrefix}top`, buttonText: { displayText: '🏆 Top 3' }, type: 1 },
+      { buttonId: `${usedPrefix}top10`, buttonText: { displayText: '📊 Top 10' }, type: 1 },
+      { buttonId: `${usedPrefix}topall`, buttonText: { displayText: '🌐 TopAll' }, type: 1 }
     ],
     headerType: 1
   }, { quoted: m })

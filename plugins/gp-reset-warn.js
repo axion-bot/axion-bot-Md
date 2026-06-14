@@ -3,9 +3,7 @@
 let handler=async(m,{conn,text,usedPrefix,command})=>{
   const chatId=m.chat
   const cleanJid=jid=>String(jid||'').replace(/[^0-9]/g,'')
-  const box=(emoji,title,body)=>`*╭━━━━━━━${emoji}━━━━━━━╮*
-*✦ ${title} ✦*
-*╰━━━━━━━${emoji}━━━━━━━╯*
+  const box=(emoji,title,body)=>`*${emoji} ${title}*
 
 ${body}
 

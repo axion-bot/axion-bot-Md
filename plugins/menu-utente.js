@@ -28,6 +28,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🎵 ${usedPrefix}topic
 ╰━━━━━━━━━━━━━━━━⬣
 
+
 ╭━━━〔 🕹️ 𝐆𝐈𝐎𝐂𝐇𝐈 〕━⬣
 ┃ ❌⭕ ${usedPrefix}tris
 ┃ 🏟️ ${usedPrefix}schedina <euro>
@@ -36,6 +37,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🧠 ${usedPrefix}vof <vero/falso>
 ┃ 🍣 ${usedPrefix}cibo
 ┃ 🚩 ${usedPrefix}bandiera
+┃ 🍾 ${usedPrefix}bottiglia
 ┃ 🏎️ ${usedPrefix}gara
 ┃ 🎰 ${usedPrefix}slot
 ┃ 🎵 ${usedPrefix}ic

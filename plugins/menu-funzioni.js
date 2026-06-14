@@ -49,6 +49,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 *◈ 𝐀𝐧𝐭𝐢𝐠𝐨𝐫𝐞:* ${stato(chat.antigore)}
 *◈ 𝐀𝐧𝐭𝐢𝐭𝐫𝐚𝐯𝐚:* ${stato(chat.antitrava)}
 *◈ 𝐀𝐧𝐭𝐢𝐌𝐞𝐝𝐢𝐚:* ${stato(chat.antimedia)}
+*◈ 𝐀𝐧𝐭𝐢 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞:* ${stato(chat.antiviewonce)}
 *◈ 𝐀𝐧𝐭𝐢𝐈𝐧𝐬𝐭𝐚:* ${stato(chat.antiInsta)}
 *◈ 𝐀𝐧𝐭𝐢𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦:* ${stato(chat.antiTelegram)}
 *◈ 𝐀𝐧𝐭𝐢𝐓𝐢𝐤𝐓𝐨𝐤:* ${stato(chat.antiTiktok)}
@@ -59,6 +60,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 *◈ 𝐌𝐨𝐝𝐨 𝐀𝐝𝐦𝐢𝐧:* ${stato(chat.modoadmin)}
 *◈ 𝐁𝐞𝐧𝐯𝐞𝐧𝐮𝐭𝐨:* ${stato(chat.welcome)}
 *◈ 𝐀𝐝𝐝𝐢𝐨:* ${stato(chat.goodbye)}
+*◈ 𝐏𝐫𝐞𝐬𝐞𝐧𝐭𝐚𝐳𝐢𝐨𝐧𝐞:* ${stato(chat.presentazione)}
 
 *🧠 𝐀𝐢 & 𝐀𝐮𝐭𝐨𝐦𝐚𝐳𝐢𝐨𝐧𝐞*
 *◈ 𝐈𝐀:* ${stato(chat.ai)}

@@ -1,6 +1,7 @@
 // by 𝕯𝖊ⱥ𝖉𝖑𝐲 × Bonzino
 
-import prefissi from '../media/database/prefissi.js'
+import prefissi from '../database/prefissi.js'
+import { sendPresentazione } from '../lib/groups/presentazione.js'
 
 let richiestaInAttesa = {}
 
@@ -189,6 +190,8 @@ let handler = async (m, { conn, isAdmin, isBotAdmin, args, usedPrefix, command }
     }
 
     await conn.groupRequestParticipantsUpdate(groupId, jidList, 'approve')
+    await sendPresentazione(conn, groupId, jidList.length)
+    
 
     return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${jidList.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞${remoteLabel}.*`)
   }
@@ -203,9 +206,8 @@ let handler = async (m, { conn, isAdmin, isBotAdmin, args, usedPrefix, command }
 
     return conn.sendMessage(m.chat, {
       text:
-`╭━━━━━━━📨━━━━━━━╮
-*✦ 𝐑𝐈𝐂𝐇𝐈𝐄𝐒𝐓𝐄 𝐈𝐍 𝐒𝐎𝐒𝐏𝐄𝐒𝐎 ✦*
-╰━━━━━━━📨━━━━━━━╯
+`
+*𝐑𝐈𝐂𝐇𝐈𝐄𝐒𝐓𝐄 𝐈𝐍 𝐒𝐎𝐒𝐏𝐄𝐒𝐎*
 
 ${target.remote ? `*📌 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨:* *${target.title}*\n` : ''}
 *📊 𝐓𝐨𝐭𝐚𝐥𝐞:* *${pending.length}*
@@ -258,6 +260,7 @@ ${details}`,
     }
 
     await conn.groupRequestParticipantsUpdate(groupId, jidList, 'approve')
+    await sendPresentazione(conn, groupId, jidList.length)
 
     return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${jidList.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞${remoteLabel}.*`)
   }
@@ -283,6 +286,7 @@ ${details}`,
     }
 
     await conn.groupRequestParticipantsUpdate(groupId, jidList, 'approve')
+    await sendPresentazione(conn, groupId, jidList.length)
 
     return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${jidList.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 +39${remoteLabel}.*`)
   }
@@ -320,6 +324,7 @@ ${details}`,
     }
 
     await conn.groupRequestParticipantsUpdate(groupId, jidList, 'approve')
+    await sendPresentazione(conn, groupId, jidList.length)
 
     return m.reply(`*✅ 𝐇𝐨 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐭𝐨 ${jidList.length} 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞${remoteLabel}.*`)
   }

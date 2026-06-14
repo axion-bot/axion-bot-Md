@@ -2,9 +2,7 @@
 
 let handler=async(m,{conn,usedPrefix})=>{
   const chatId=m.chat
-  const box=(emoji,title,body)=>`*╭━━━━━━━${emoji}━━━━━━━╮*
-*✦ ${title} ✦*
-*╰━━━━━━━${emoji}━━━━━━━╯*
+const box=(emoji,title,body)=>`*${emoji} ${title}*
 
 ${body}
 

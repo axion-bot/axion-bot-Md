@@ -15,7 +15,7 @@ const TICK_TIME = 5
 const REWARD_MIN = 50
 const REWARD_MAX = 149
 const REWARD_EXP = 500
-const CACHE_PATH = path.join(process.cwd(), 'media/database/indovinacanzone_cache.json')
+const CACHE_PATH = path.join(process.cwd(), 'database/indovinacanzone_cache.json')
 const CACHE_MAX_AGE = 24 * 60 * 60 * 1000
 
 const GENRES = [

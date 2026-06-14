@@ -1,0 +1,136 @@
+{
+  "obbligo": {
+    "normale": [
+      "Invia un audio di 5 secondi.",
+      "Scrivi il primo emoji che ti viene in mente.",
+      "Tagga la persona più simpatica del gruppo.",
+      "Scrivi una parola che descrive la tua giornata.",
+      "Invia una foto dell'oggetto più vicino a te.",
+      "Scrivi il nome dell'ultima serie che hai visto.",
+      "Invia una foto delle tue scarpe.",
+      "Scrivi il tuo colore preferito.",
+      "Invia una foto del cielo da dove sei.",
+      "Tagga una persona a caso del gruppo."
+    ],
+    "imbarazzante": [
+      "Invia un vocale cantando una canzone.",
+      "Cambia la foto profilo per 10 minuti.",
+      "Scrivi 'sono una patata' nel gruppo.",
+      "Invia il selfie più strano che riesci a fare.",
+      "Scrivi un complimento alla persona sopra di te.",
+      "Invia un audio con una voce buffa.",
+      "Descriviti con 3 difetti.",
+      "Scrivi un messaggio usando solo emoji.",
+      "Fai finta di essere un telecronista per 10 secondi in audio.",
+      "Tagga qualcuno e digli una cosa imbarazzante su di te."
+    ],
+    "sentimentale": [
+      "Tagga una persona a cui vuoi bene.",
+      "Scrivi una qualità che apprezzi negli amici.",
+      "Ringrazia una persona del gruppo per qualcosa.",
+      "Scrivi il ricordo più bello che hai.",
+      "Tagga qualcuno che vorresti conoscere meglio.",
+      "Scrivi cosa conta di più in un'amicizia.",
+      "Invia una canzone che ti emoziona.",
+      "Scrivi una cosa che ti rende felice.",
+      "Tagga la persona che ti ispira di più.",
+      "Scrivi una frase gentile per il gruppo."
+    ],
+    "piccante": [
+      "Invia un messaggio dicendo cosa faresti se potessi baciarla/o ora al collo, spalle e giù.",
+      "Manda un messaggio descrivendo come sarebbe baciarsi appassionatamente senza mai staccarsi.",
+      "Scrivi quale parte del corpo ami sentire accarezzata durante l’amplesso.",
+      "Descrivi cosa sognavi di fare stanotte a letto, fallo sensualissimo!",
+      "Tagga qualcuno e digli quale punto debole vorresti esplorare.",
+      "Immagina di dover conquistare qualcuno con solo le parole.",
+      "Scrivi che tipo di preliminari sono quelli che più ti fanno impazzire.",
+      "Confessa se hai mai avuto scene hot solo nella tua testa pensando a qualcuno qui presente.",
+      "Dì chi in questo gruppo ti farebbe impazzire dopo averlo visto nudo/a e perché.",
+      "Descrivi il bacio perfetto."
+    ],
+    "hot18": [
+      "Fai un audio in cui simuli di leccare lentamente una parte sexy del corpo di qualcuno qui.",
+      "Manda una foto di una tua parte intima al ragazzo/a che ti piace di piu in questo gruppo",
+      "Fai sexchat con una persona che scegli tu di questo gruppo",
+      "Vai da tua sorella o tuo fratello e provocala/o, registrando tutto ovviamente",
+      "Descrivi in un vocale come ti piacerebbe toccare le parti intime della persona accanto a te.",
+      "Imita i gemiti che faresti durante un rapporto intenso.",
+      "Scrivi dettagliatamente cosa vorresti sentirti fare mentre sei eccitato/a.",
+      "Fai uno strip immaginario raccontando cosa stai togliendo pezzo per pezzo.",
+      "Manda un vocale in cui spieghi quanto ti ecciterebbe spiare qualcuno del gruppo mentre ti tocchi.",
+      "Racconta in chat la tua fantasia più erotica.",
+      "Simula una chiamata hot dove flirti con qualcuno del gruppo.",
+      "Manda un audio raccontando una fantasia erotica non realizzata con dettagli.",
+      "Spiega come preferisci essere toccato/a per raggiungere il massimo piacere."
+    ]
+  },
+  "verita": {
+    "normale": [
+      "Qual è il tuo film preferito?",
+      "Qual è il tuo gioco preferito?",
+      "Qual è il tuo cibo preferito?",
+      "Qual è il tuo animale preferito?",
+      "Qual è il tuo hobby principale?",
+      "Qual è il posto che vorresti visitare?",
+      "Qual è la tua serie preferita?",
+      "Qual è il tuo colore preferito?",
+      "Qual è il tuo cantante preferito?",
+      "Qual è il tuo più grande sogno?"
+    ],
+    "imbarazzante": [
+      "Qual è stata la figuraccia peggiore della tua vita?",
+      "Hai mai inviato un messaggio alla persona sbagliata?",
+      "Hai mai inciampato davanti a molte persone?",
+      "Qual è il soprannome più imbarazzante che hai avuto?",
+      "Hai mai cantato pensando di essere da solo?",
+      "Hai mai fatto una gaffe che ricordi ancora oggi?",
+      "Qual è la bugia più stupida che hai detto?",
+      "Hai mai dimenticato il nome di qualcuno mentre ci parlavi?",
+      "Hai mai riso in un momento serio?",
+      "Qual è la cosa più strana che hai fatto per noia?"
+    ],
+    "sentimentale": [
+      "Chi ti incuriosisce di più nel gruppo?",
+      "Qual è la qualità che apprezzi di più in una persona?",
+      "Hai mai avuto una cotta segreta?",
+      "Chi consideri la persona più gentile del gruppo?",
+      "Qual è il tuo ricordo più bello?",
+      "Hai mai sentito la mancanza di qualcuno senza dirglielo?",
+      "Qual è la cosa più importante in una relazione?",
+      "Chi vorresti conoscere meglio nel gruppo?",
+      "Qual è il complimento che ricordi con più piacere?",
+      "Cosa ti fa sentire davvero apprezzato?"
+    ],
+    "piccante": [
+      "Chi trovi più attraente nel gruppo?",
+      "Con chi usciresti tra i presenti?",
+      "Hai mai avuto una cotta segreta per qualcuno presente?",
+      "Qual è la tua più grande debolezza in amore?",
+      "Qual è la prima cosa che noti in una persona?",
+      "Hai mai flirtato con qualcuno solo per gioco?",
+      "Qual è il tuo tipo ideale?",
+      "Ti piacerebbe conoscere meglio qualcuno del gruppo?",
+      "Se dovessi scegliere una persona del gruppo per un appuntamento, chi sarebbe?",
+      "Qual è la caratteristica che trovi più attraente in una persona?"
+    ],
+    "hot18": [
+      "Qual è stata l’esperienza più bruciante e selvaggia fatta sotto le lenzuola?",
+      "Hai mai fatto una sega a qualcuno?",
+      "Hai mai fatto un ditalino a qualcuna?",
+      "Hai mai scopato con un tuo familiare?",
+      "A che eta hai scopato per la prima volta?",
+      "A che età ti sei masturbato/a per la prima volta?",
+      "Hai mai desiderato sessualmente qualcuno/a presente in questo gruppo?",
+      "Descrivi la prima volta che hai fatto sexchat con qualcuno/a",
+      "Se potessi inventarti una fantasia erotica con qualcuno qui, chi sceglieresti?",
+      "Qual è la posizione sessuale che preferisci?",
+      "Hai mai fatto sexchat?",
+      "Ti piace più essere dominata/o o essere il dominatore?",
+      "Racconta quando hai provato l’eccitazione più intensa della tua vita.",
+      "Hai mai provato giochi sexy particolari?",
+      "Hai mai provato sex toys su di te o su qualcun altro/a?",
+      "Qual è la zona che ti fa eccitare di più se qualcuno/a ti tocca?",
+      "Se potessi fare sexchat con qualcuno/a qui del gruppo, chi sarebbe? Taggala/o!"
+    ]
+  }
+}

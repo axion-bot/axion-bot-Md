@@ -55,6 +55,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╭━〔 🤖 ɢᴇsᴛɪᴏɴᴇ ʙᴏᴛ 〕━⬣
 ┃ 🌐 ${usedPrefix}aggiorna 
 ┃ 🔄 ${usedPrefix}restart
+┃ 🔍 ${usedPrefix}check
 ┃ 💾 ${usedPrefix}backupdb
 ┃ 🤖 ${usedPrefix}nomebot
 ┃ 🏷 ${usedPrefix}setnomebot

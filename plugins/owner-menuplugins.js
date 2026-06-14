@@ -10,9 +10,8 @@ let handler = async (m, { conn, usedPrefix }) => {
 
   return conn.sendMessage(m.chat, {
     text:
-`*╭━━━━━━━⚙️━━━━━━━╮*
-*✦ 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐏𝐋𝐔𝐆𝐈𝐍 ✦*
-*╰━━━━━━⚙️━━━━━━━╯*
+`
+⚙️*𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐏𝐋𝐔𝐆𝐈𝐍𝐒*⚙️
 
 *📦 𝐏𝐥𝐮𝐠𝐢𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐢:* *${files.length}*
 

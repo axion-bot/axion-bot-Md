@@ -8,7 +8,7 @@ let hangmanGames = {}
 let hangmanSetup = {}
 
 const footer = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
-const DATA_PATH = path.resolve('./media/database/impiccato.json')
+const DATA_PATH = path.resolve('./database/impiccato.json')
 
 const DIFFICULTIES = {
   facile: { label: '🟢 Facile', attempts: 12, wordReward: 350, letterReward: 25, wordExp: 90, letterExp: 10 },

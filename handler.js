@@ -434,6 +434,7 @@ chat = global.db.data.chats[m.chat] || (global.db.data.chats[m.chat] = {
     isBanned: false,
     welcome: false,
     goodbye: false,
+    presentazione: false,
     ai: false,
     vocali: false,
     antiporno: false,

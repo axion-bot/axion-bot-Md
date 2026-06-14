@@ -399,6 +399,7 @@ let handler = async (
   {
     conn,
     command,
+    args,
     isOwner
   }
 ) => {
@@ -408,6 +409,11 @@ let handler = async (
       '*𝐒𝐨𝐥𝐨 𝐢𝐥 𝐩𝐫𝐨𝐩𝐫𝐢𝐞𝐭𝐚𝐫𝐢𝐨 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*'
     )
   }
+  
+  if (['f', 'force'].includes((args?.[0] || '').toLowerCase())) {
+  clearConfirm()
+  return executeRestart(m, conn)
+}
 
   const cmd =
     String(command || '')

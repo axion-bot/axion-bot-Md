@@ -5,7 +5,7 @@ import fs from 'fs/promises'
 
 const MAX_DOMANDE_DEFAULT = 10
 const MAX_CONSENTITE = 50
-const QUIZ_PATH = './media/database/quizpatente.json'
+const QUIZ_PATH = './database/quizpatente.json'
 const TIMEOUT = 60_000
 const PREMIO_EURO = 30
 const PREMIO_EXP = 150

@@ -19,6 +19,7 @@ const menuBody=`
 ┃ 🧠 ${usedPrefix}vof <vero/falso>
 ┃ 🍣 ${usedPrefix}cibo
 ┃ 🚩 ${usedPrefix}bandiera
+┃ 🍾 ${usedPrefix}bottiglia
 ┃ 🏎️ ${usedPrefix}gara
 ┃ 🎰 ${usedPrefix}slot
 ┃ 🎵 ${usedPrefix}ic

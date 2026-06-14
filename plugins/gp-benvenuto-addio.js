@@ -1,11 +1,11 @@
 // welcome-goodbye by Bonzino & Deadly
 
 import { WAMessageStubType } from '@realvare/baileys'
+import { sendPresentazione } from '../lib/groups/presentazione.js'
 
 let handler = m => m
 
 const codaBenvenuti = {}
-const LIMITE_BENVENUTI_SINGOLI = 7
 const RITARDO_BENVENUTO = 3500
 const TEMPO_RAGGRUPPAMENTO = 5000
 
@@ -56,20 +56,7 @@ if (!utenti.length) return
 const { createWelcomeCard } = await getCard()
 
 if (utenti.length > 1) {
-await conn.sendMessage(chatId,{
-text:`*👋 𝐁𝐄𝐍𝐕𝐄𝐍𝐔𝐓𝐈 𝐍𝐄𝐋 𝐆𝐑𝐔𝐏𝐏𝐎!*
-
-*𝐏𝐞𝐫 𝐩𝐫𝐞𝐬𝐞𝐧𝐭𝐚𝐫𝐯𝐢 𝐢𝐧𝐯𝐢𝐚𝐭𝐞:*
-
-• *📷 𝐟𝐨𝐭𝐨 𝟏 𝐯𝐢𝐬𝐮𝐚𝐥*
-• *🎂 𝐋𝐚 𝐯𝐨𝐬𝐭𝐫𝐚 𝐞𝐭à*
-• *📍 𝐋𝐚 𝐯𝐨𝐬𝐭𝐫𝐚 𝐩𝐫𝐨𝐯𝐞𝐧𝐢𝐞𝐧𝐳𝐚*
-
-*🤝 𝐁𝐮𝐨𝐧𝐚 𝐩𝐞𝐫𝐦𝐚𝐧𝐞𝐧𝐳𝐚!*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
-})
-
+await sendPresentazione(conn, chatId, utenti.length)
 return
 }
 
@@ -92,6 +79,8 @@ await conn.sendMessage(chatId,{
 image: card,
 mentions: [jid]
 })
+
+await sendPresentazione(conn, chatId, 1)
 }
 }
 

@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import Jimp from 'jimp'
 
-const PERCORSO_SQUADRE = './media/database/squadre.json'
+const PERCORSO_SQUADRE = './database/squadre.json'
 const CARTELLA_CACHE = './media/seriea_cache'
 const SFONDO_PATH = path.join(CARTELLA_CACHE, 'sfondo_serie_a.png')
 const SNAI_PATH = './media/snai.png'

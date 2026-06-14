@@ -71,6 +71,15 @@ let nome
 
 try{
 nome=await conn.getName(user.jid)
+
+if(
+!nome ||
+nome===user.jid ||
+nome.includes('@s.whatsapp.net') ||
+/^\+?\d[\d\s-]+$/.test(nome)
+){
+nome=user.jid.split('@')[0]
+}
 }catch{
 nome=user.jid.split('@')[0]
 }

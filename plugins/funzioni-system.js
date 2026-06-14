@@ -5,6 +5,7 @@ import { createFakeContact } from '../lib/fakecontact.js'
 
 let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedPrefix }) => {
   const isEnable = /^(attiva|enable|1)$/i.test(command)
+  const isStatus = /^(statofunzione|sf)$/i.test(command)
 
   const chats = global.db.data.chats
   const settings = global.db.data.settings
@@ -38,20 +39,27 @@ const box = (_, desc) => desc
 
   const setFeature = (target, key, title, label) => {
 
-    if (target[key] === isEnable) {
-      return box(
-        title,
-        `${actor}${alreadyText(label)}`
-      )
-    }
+if (isStatus) {
+  return box(
+    title,
+    `${actor}*${label}:* ${target[key] ? '✅ 𝐀𝐭𝐭𝐢𝐯𝐚' : '❌ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚'}`
+  )
+}
 
-    target[key] = isEnable
-
+  if (target[key] === isEnable) {
     return box(
       title,
-      `${actor}${statusText(label)}`
+      `${actor}${alreadyText(label)}`
     )
   }
+
+  target[key] = isEnable
+
+  return box(
+    title,
+    `${actor}${statusText(label)}`
+  )
+}
 
   const sendDenied = async text => {
     await conn.sendMessage(m.chat, {
@@ -103,18 +111,20 @@ const box = (_, desc) => desc
 *📌 𝐔𝐬𝐨:*
 *${usedPrefix}1 <funzione>*
 *${usedPrefix}0 <funzione>*
+*${usedPrefix}sf <funzione>*
 
 *🛡️ 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚:*
 *antilink, antispam, antibot*
 *antiporno, antigore, antitrava*
 *antitag, antiprivato, antivoip*
-*antimedia, antinuke, antiwz*
+*antimedia, antiviewonce, antinuke, antiwz*
 *antiinsta, antitelegram*
 *antitiktok*
 
 *⚙️ 𝐆𝐞𝐬𝐭𝐢𝐨𝐧𝐞:*
 *soloadmin, modoadmin*
 *benvenuto, addio*
+*presentazione*
 *autodb, ia*`
   }
 
@@ -138,6 +148,12 @@ const box = (_, desc) => desc
     case 'antimedia':
       if (!await requireAdmin()) return
       result = setFeature(chat, 'antimedia', '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀', '𝐀𝐧𝐭𝐢 𝐌𝐞𝐝𝐢𝐚')
+      break
+      
+      case 'antiviewonce':
+      if (!await requireAdmin()) return
+      thumbFeature = 'antiviewonce'
+      result = setFeature(chat, 'antiviewonce', '𝐀𝐍𝐓𝐈 𝐕𝐈𝐄𝐖 𝐎𝐍𝐂𝐄', '𝐀𝐧𝐭𝐢 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞')
       break
 
     case 'antitelegram':
@@ -183,6 +199,12 @@ const box = (_, desc) => desc
       if (!await requireAdmin()) return
       result = setFeature(chat, 'goodbye', '𝐀𝐃𝐃𝐈𝐎', '𝐀𝐝𝐝𝐢𝐨')
       break
+      
+      case 'presentazione':
+      if (!await requireAdmin()) return
+      result = setFeature(
+      chat, 'presentazione', '𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐀𝐙𝐈𝐎𝐍𝐄',  '𝐏𝐫𝐞𝐬𝐞𝐧𝐭𝐚𝐳𝐢𝐨𝐧𝐞')
+  break
 
     case 'ia':
     case 'ai':
@@ -255,6 +277,7 @@ const box = (_, desc) => desc
         chat.antitrava,
         chat.antiTag,
         chat.antimedia,
+        chat.antiviewonce,
         chat.antinuke,
         chat.antiWhatsapp,
         chat.antiInsta,
@@ -262,6 +285,7 @@ const box = (_, desc) => desc
         chat.antiTiktok,
         chat.antivoip,
         chat.welcome,
+        chat.presentazione,
         chat.goodbye,
         bot.antiprivato,
         chat.modoadmin,
@@ -283,6 +307,7 @@ const box = (_, desc) => desc
         chat.antitrava = isEnable
         chat.antiTag = isEnable
         chat.antimedia = isEnable
+        chat.antiviewonce = isEnable
         chat.antinuke = isEnable
         chat.antiWhatsapp = isEnable
         chat.antiInsta = isEnable
@@ -291,6 +316,7 @@ const box = (_, desc) => desc
         chat.antivoip = isEnable
         chat.welcome = isEnable
         chat.goodbye = isEnable
+        chat.presentazione = isEnable
         bot.antiprivato = isEnable
         chat.modoadmin = isEnable
         chat.ai = isEnable
@@ -315,6 +341,7 @@ const box = (_, desc) => desc
 
 *📌 𝐔𝐬𝐚:* 
 *${usedPrefix}funzioni*
+*${usedPrefix}sf <funzione>*
 *𝐩𝐞𝐫 𝐯𝐞𝐝𝐞𝐫𝐞 𝐥𝐚 𝐥𝐢𝐬𝐭𝐚 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐚*`
       )
       thumbFeature = 'error'
@@ -362,6 +389,5 @@ const box = (_, desc) => desc
 
 handler.help = ['attiva <feature>', 'disattiva <feature>']
 handler.tags = ['group']
-handler.command = ['attiva', 'disattiva', 'enable', 'disable', '1', '0']
-
+handler.command = [  'attiva',  'disattiva',  'enable', 'disable',  '1',  '0',  'statofunzione', 'sf']
 export default handler

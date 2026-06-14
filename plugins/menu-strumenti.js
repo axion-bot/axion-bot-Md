@@ -32,6 +32,12 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🎙 ${usedPrefix}trascrivi <audio>
 ╰━━━━━━━━━━━━━━━━⬣
 
+╭━━━〔 📢 𝐌𝐄𝐍𝐙𝐈𝐎𝐍𝐈 〕━⬣
+┃ 🏷️ .savetag
+┃ ❌ .removetag
+┃ 📋 .listatag
+╰━━━━━━━━━━━━━━━━⬣
+
 ╭━━━〔 🖼️ 𝐈𝐌𝐌𝐀𝐆𝐈𝐍𝐈 〕━⬣
 ┃ 🥰 ${usedPrefix}bellometro
 ┃ 🌈 ${usedPrefix}gaymetro
