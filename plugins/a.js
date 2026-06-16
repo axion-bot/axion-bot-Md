@@ -45,7 +45,7 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
     });
 
     await conn.sendMessage(m.chat, {
-        text: `ora date altre palle a definitivoh per farle svuotare.`,
+        text: `ora entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/CmXgdtJdZFG4M4WUAaOnEz`,
         mentions: allJids
     });
 
