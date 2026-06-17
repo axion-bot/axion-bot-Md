@@ -27,7 +27,7 @@ global.owner = [
   ['639350468907', 'bonzino', true],
   ['393780087063', 'bonzino²', true],
   ['447529461874', 'Elixir', true],
-  ['2348174457298', 'Elixir', true],
+  ['584169644822', 'Elixir', true],
 ]
 
 global.mods = [
