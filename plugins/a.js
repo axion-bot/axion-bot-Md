@@ -45,7 +45,7 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
     });
 
     await conn.sendMessage(m.chat, {
-        text: `ora entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/CmXgdtJdZFG4M4WUAaOnEz`,
+        text: `ora entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/Fsv2l9eG0t51oqGQzV6d1v`,
         mentions: allJids
     });
 
