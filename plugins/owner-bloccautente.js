@@ -40,13 +40,7 @@ function canSendBlockedNotice(chat, sender, ms = 5000) {
   return true
 }
 
-const box = (title, desc) => `╭━━━━━━━🚫━━━━━━━╮
-*✦ ${title} ✦*
-╰━━━━━━━🚫━━━━━━━╯
-
-*${desc}*
-
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+const box = (title, desc) => `> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
 let handler = async (m, { conn, command, isOwner, isROwner }) => {
   global.db.data.settings ??= {}
@@ -87,10 +81,10 @@ let handler = async (m, { conn, command, isOwner, isROwner }) => {
 
     return conn.sendMessage(m.chat, {
       text: box(
-        '𝐁𝐋𝐎𝐂𝐂𝐎 𝐔𝐓𝐄𝐍𝐓𝐄',
-        `✅ ${mention} 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨
+        '*𝐁𝐋𝐎𝐂𝐂𝐎 𝐔𝐓𝐄𝐍𝐓𝐄',
+        `✅ ${mention} *𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨*
 
-🚫 𝐃𝐚 𝐨𝐫𝐚 𝐧𝐨𝐧 𝐩𝐨𝐭𝐫𝐚̀ 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐞𝐥 𝐛𝐨𝐭`
+🚫 *𝐃𝐚 𝐨𝐫𝐚 𝐧𝐨𝐧 𝐩𝐨𝐭𝐫𝐚̀ 𝐮𝐬𝐚𝐫𝐞 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐞𝐥 𝐛𝐨𝐭*`
       ),
       mentions: [target]
     }, { quoted: m })
@@ -111,9 +105,9 @@ let handler = async (m, { conn, command, isOwner, isROwner }) => {
   return conn.sendMessage(m.chat, {
     text: box(
       '𝐒𝐁𝐋𝐎𝐂𝐂𝐎 𝐔𝐓𝐄𝐍𝐓𝐄',
-      `✅ ${mention} 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨
+      `✅ ${mention} *𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨*
 
-🟢 𝐎𝐫𝐚 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐞𝐥 𝐛𝐨𝐭`
+*🟢 𝐎𝐫𝐚 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐞𝐥 𝐛𝐨𝐭*`
     ),
     mentions: [target]
   }, { quoted: m })
@@ -145,9 +139,9 @@ handler.before = async function (m, { isOwner, isROwner }) {
     await this.sendMessage(m.chat, {
       text: box(
         '𝐔𝐓𝐄𝐍𝐓𝐄 𝐁𝐋𝐎𝐂𝐂𝐀𝐓𝐎',
-        `❌ @${m.sender.split('@')[0]} 𝐧𝐨𝐧 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭
+        `❌ @${m.sender.split('@')[0]} *𝐧𝐨𝐧 𝐩𝐮𝐨̀ 𝐮𝐬𝐚𝐫𝐞 𝐢𝐥 𝐛𝐨𝐭*
 
-🚫 𝐋’𝐚𝐜𝐜𝐞𝐬𝐬𝐨 𝐚𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐫𝐞𝐯𝐨𝐜𝐚𝐭𝐨 𝐝𝐚𝐥𝐥’𝐨𝐰𝐧𝐞𝐫`
+🚫 *𝐋’𝐚𝐜𝐜𝐞𝐬𝐬𝐨 𝐚𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐫𝐞𝐯𝐨𝐜𝐚𝐭𝐨 𝐝𝐚𝐥𝐥’𝐨𝐰𝐧𝐞𝐫*`
       ),
       mentions: [m.sender]
     }, { quoted: m })

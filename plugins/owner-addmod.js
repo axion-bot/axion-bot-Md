@@ -30,7 +30,9 @@ thumbnail=Buffer.from(await res.arrayBuffer())
 }catch{}
 
 await conn.sendMessage(m.chat,{
-text:`*@${who.split('@')[0]} 𝐨𝐫𝐚 𝐞̀ 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞 𝐝𝐢 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 ✅*`,
+text:`*@${who.split('@')[0]} 𝐨𝐫𝐚 𝐞̀ 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞 𝐝𝐢 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 ✅*
+
+> *𝐏𝐞𝐫 𝐯𝐢𝐬𝐮𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐞 𝐭𝐮𝐭𝐭𝐢 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐚 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞 𝐮𝐬𝐚 .𝐦𝐨𝐝*`,
 contextInfo:{
 mentionedJid:[who],
 externalAdReply:{

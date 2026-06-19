@@ -16,6 +16,7 @@ chat.classificaTotale=totale
 if(!chat.classificaGiornaliera)chat.classificaGiornaliera={totali:0,utenti:{},ultimoReset:oggi}
 if(!chat.classificaTotale)chat.classificaTotale={totali:0,utenti:{}}
 if(!chat.topNotturna)chat.topNotturna={ultimoInvio:null,inCorso:false,lockAt:0,errori:0}
+if(!chat.topNotturnaPending)chat.topNotturnaPending=null
 }
 
 let handler=async(m,{conn,command,usedPrefix,isAdmin,isOwner})=>{
@@ -86,8 +87,26 @@ if(!global.db.data.chats[m.chat])global.db.data.chats[m.chat]={}
 let chat=global.db.data.chats[m.chat],oggi=dataKeyRoma()
 ensureChat(chat,oggi)
 
-if(!chat.classificaGiornaliera||chat.classificaGiornaliera.ultimoReset!==oggi)
+if(!chat.classificaGiornaliera){
 chat.classificaGiornaliera={totali:0,utenti:{},ultimoReset:oggi}
+}else if(chat.classificaGiornaliera.ultimoReset!==oggi){
+
+chat.topNotturnaPending=JSON.parse(
+JSON.stringify(chat.classificaGiornaliera)
+)
+console.log(
+'[TOP PENDING]',
+m.chat,
+chat.topNotturnaPending?.totali || 0
+)
+
+chat.classificaGiornaliera={
+totali:0,
+utenti:{},
+ultimoReset:oggi
+}
+
+}
 
 let g=chat.classificaGiornaliera,t=chat.classificaTotale
 

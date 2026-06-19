@@ -7,12 +7,6 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
   const cleanJid = jid => String(jid || '').replace(/[^0-9]/g, '')
   const chatId = m.chat
 
-  const box = (emoji, title, body) => `*╭━━━━━━━${emoji}━━━━━━━╮*
-*✦ ${title} ✦*
-*╰━━━━━━━${emoji}━━━━━━━╯*
-
-${body}`
-
   function ensureChatMuteStore(chat) {
     global.db.data.chats ||= {}
     global.db.data.chats[chat] ||= {}
@@ -92,11 +86,7 @@ ${body}`
   }
 
   if (!(isAdmin || isOwner || isROwner)) {
-    throw box(
-      '❌',
-      '𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎',
-      '*𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*'
-    )
+    throw '⛔ *𝐒𝐨𝐥𝐨 𝐠𝐥𝐢 𝐚𝐝𝐦𝐢𝐧 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐮𝐬𝐚𝐫𝐞 𝐪𝐮𝐞𝐬𝐭𝐨 𝐜𝐨𝐦𝐚𝐧𝐝𝐨.*'
   }
 
   const cmd = String(command || '').toLowerCase()
@@ -106,11 +96,7 @@ ${body}`
 
     if (!mutedList.length) {
       return conn.sendMessage(chatId, {
-        text: box(
-          '✅',
-          '𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈',
-          '*𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐦𝐮𝐭𝐚𝐭𝐨 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*'
-        ),
+        text: '✅ *𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈*\n\n*𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐦𝐮𝐭𝐚𝐭ο 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭ο 𝐠𝐫𝐮𝐩𝐩𝐨.*',
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: [
           {
@@ -136,16 +122,11 @@ ${body}`
           ? '*♾️ 𝐃𝐮𝐫𝐚𝐭𝐚:* *permanente*'
           : `*⏳ 𝐃𝐮𝐫𝐚𝐭𝐚:* *${formatRemaining(u.data.expiresAt - Date.now())}*`
 
-      return `*${i + 1}. 👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-${duration}`
+      return `*${i + 1}. 👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}\n${duration}`
     }).join('\n\n')
 
     return conn.sendMessage(chatId, {
-      text: box(
-        '🔇',
-        '𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈',
-        list
-      ),
+      text: `🔇 *𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈*\n\n${list}`,
       mentions,
       footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
       buttons: muteListButtons(),
@@ -157,11 +138,7 @@ ${duration}`
 
     if (!mutedList.length) {
       return conn.sendMessage(chatId, {
-        text: box(
-          '⚠️',
-          '𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄',
-          '*𝐍𝐨𝐧 𝐜𝐢 𝐬𝐨𝐧𝐨 𝐮𝐭𝐞𝐧𝐭𝐢 𝐦𝐮𝐭𝐚𝐭𝐢 𝐝𝐚 𝐬𝐦𝐮𝐭𝐚𝐫𝐞.*'
-        ),
+        text: '⚠️ *𝐍𝐨𝐧 𝐜𝐢 𝐬𝐨𝐧𝐨 𝐮𝐭𝐞𝐧𝐭𝐢 𝐦𝐮𝐭𝐚𝐭𝐢 𝐝𝐚 𝐬𝐦𝐮𝐭𝐚𝐫𝐞.*',
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: [
           {
@@ -191,13 +168,7 @@ ${duration}`
     }).join('\n')
 
     return conn.sendMessage(chatId, {
-      text: box(
-        '🔊',
-        '𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄',
-        `${list}
-
-*𝐒𝐞𝐥𝐞𝐳𝐢𝐨𝐧𝐚 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐝𝐚 𝐬𝐦𝐮𝐭𝐚𝐫𝐞.*`
-      ),
+      text: `🔊 *𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄*\n\n${list}\n\n*𝐒𝐞𝐥𝐞𝐳𝐢𝐨𝐧𝐚 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐝𝐚 𝐬𝐦𝐮𝐭𝐚𝐫𝐞.*`,
       mentions,
       footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
       buttons,
@@ -210,11 +181,7 @@ ${duration}`
 
     if (!number || number < 1 || number > mutedList.length) {
       return conn.sendMessage(chatId, {
-        text: box(
-          '⚠️',
-          '𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄',
-          '*𝐍𝐮𝐦𝐞𝐫𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*'
-        ),
+        text: '⚠️ *𝐍𝐮𝐦𝐞𝐫𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*',
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: openListButton(),
         headerType: 1
@@ -225,11 +192,7 @@ ${duration}`
 
     if (!target) {
       return conn.sendMessage(chatId, {
-        text: box(
-          '⚠️',
-          '𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄',
-          '*𝐔𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*'
-        ),
+        text: '⚠️ *𝐔𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*',
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: openListButton(),
         headerType: 1
@@ -257,13 +220,7 @@ ${duration}`
 
     return conn.sendMessage(chatId, {
       image: card,
-      caption: box(
-        '🔊',
-        '𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎',
-        `*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*
-
-*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${cleanJid(m.sender)}`
-      ) + '\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+      caption: `🔊 *𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎*\n\n*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${cleanJid(m.sender)}\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
       mentions: [target.jid, m.sender]
     }, { quoted: m })
   }

@@ -53,11 +53,13 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━〔 🤖 ɢᴇsᴛɪᴏɴᴇ ʙᴏᴛ 〕━⬣
-┃ 🌐 ${usedPrefix}aggiorna 
+┃ 🌐 ${usedPrefix}aggiorna
+┃ ⚙️ ${usedPrefix}reload
 ┃ 🔄 ${usedPrefix}restart
 ┃ 🔍 ${usedPrefix}check
 ┃ 💾 ${usedPrefix}backupdb
 ┃ 🤖 ${usedPrefix}nomebot
+┃ 📂 ${usedPrefix}path
 ┃ 🏷 ${usedPrefix}setnomebot
 ┃ 🔄 ${usedPrefix}prefisso/.resetprefisso
 ┃ 🖼 ${usedPrefix}setpicbot
@@ -139,6 +141,5 @@ function clockString(ms) {
 handler.help = ['owner']
 handler.tags = ['menu']
 handler.command = /^(owner)$/i
-handler.rowner = true
 
 export default handler

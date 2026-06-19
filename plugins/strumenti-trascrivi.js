@@ -4,12 +4,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const box = (emoji, title, body) => `*╭━━━━━━━${emoji}━━━━━━━╮*
-*✦ ${title} ✦*
-*╰━━━━━━━${emoji}━━━━━━━╯*
-
-${body}
-
+const box =`
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 
 async function react(conn, m, emoji) {
@@ -161,8 +156,7 @@ let handler = async (m, { conn }) => {
     await react(conn, m, '✅')
 
     return conn.reply(
-      m.chat,
-      box(
+      m.chat,(
         '📝',
         '𝐓𝐑𝐀𝐒𝐂𝐑𝐈𝐙𝐈𝐎𝐍𝐄',
 `*🌍 𝐋𝐢𝐧𝐠𝐮𝐚:* ${getFlag(lang)} ${lang}
@@ -177,8 +171,7 @@ ${text}`
     await react(conn, m, '❌')
 
     return conn.reply(
-      m.chat,
-      box(
+      m.chat,(
         '❌',
         '𝐄𝐑𝐑𝐎𝐑𝐄',
         `*${String(e?.message || e).slice(0, 250)}*`

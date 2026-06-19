@@ -22,6 +22,8 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🛡️ ${usedPrefix}admins
 ┃ 📌 ${usedPrefix}pin <messaggio>
 ┃ ✅ ${usedPrefix}richieste
+┃ 👋 ${usedPrefix}setaddio
+┃ 👋 ${usedPrefix}setwelcome
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 ⚠️ ᴡᴀʀɴ 〕━⬣

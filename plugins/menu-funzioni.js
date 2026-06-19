@@ -49,6 +49,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 *◈ 𝐀𝐧𝐭𝐢𝐠𝐨𝐫𝐞:* ${stato(chat.antigore)}
 *◈ 𝐀𝐧𝐭𝐢𝐭𝐫𝐚𝐯𝐚:* ${stato(chat.antitrava)}
 *◈ 𝐀𝐧𝐭𝐢𝐌𝐞𝐝𝐢𝐚:* ${stato(chat.antimedia)}
+*◈ 𝐀𝐧𝐭𝐢𝐃𝐞𝐥𝐞𝐭𝐞:* ${stato(chat.antidelete)}
 *◈ 𝐀𝐧𝐭𝐢 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞:* ${stato(chat.antiviewonce)}
 *◈ 𝐀𝐧𝐭𝐢𝐈𝐧𝐬𝐭𝐚:* ${stato(chat.antiInsta)}
 *◈ 𝐀𝐧𝐭𝐢𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦:* ${stato(chat.antiTelegram)}

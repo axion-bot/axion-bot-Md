@@ -67,20 +67,24 @@ const righe=[]
 
 for(let i=0;i<classifica.length;i++){
 const user=classifica[i]
-let nome
+let nome=
+global.db.data.users?.[user.jid]?.name ||
+conn.contacts?.[user.jid]?.name ||
+conn.contacts?.[user.jid]?.verifiedName ||
+conn.contacts?.[user.jid]?.notify ||
+conn.contacts?.[user.jid]?.pushName
 
+if(!nome){
 try{
 nome=await conn.getName(user.jid)
+}catch{}
+}
 
 if(
 !nome ||
 nome===user.jid ||
-nome.includes('@s.whatsapp.net') ||
-/^\+?\d[\d\s-]+$/.test(nome)
+nome.includes('@s.whatsapp.net')
 ){
-nome=user.jid.split('@')[0]
-}
-}catch{
 nome=user.jid.split('@')[0]
 }
 
@@ -91,7 +95,7 @@ pos===2?'🥈':
 pos===3?'🥉':
 `${pos}.`
 
-righe.push(`${prefisso} ${nome} ${formatNumber(user.vittorie)} 𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞`)
+righe.push(`${prefisso} @${user.jid.split('@')[0]} ${formatNumber(user.vittorie)} *𝐕𝐢𝐭𝐭𝐨𝐫𝐢𝐞*`)
 }
 
 const testo=`🏆 *𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐁𝐀𝐍𝐃𝐈𝐄𝐑𝐄*

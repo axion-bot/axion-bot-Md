@@ -29,11 +29,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
     if (!canManageRemote && !(isAdmin || isOwner || isROwner)) {
       return conn.reply(
         m.chat,
-        `*╭━━━━━━━📜━━━━━━━╮*
-*✦ 𝐀𝐂𝐂𝐄𝐒𝐒𝐎 𝐍𝐄𝐆𝐀𝐓𝐎 ✦*
-*╰━━━━━━━📜━━━━━━━╯*
-
-*❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐢𝐦𝐩𝐨𝐬𝐭𝐚𝐫𝐞 𝐥𝐞 𝐫𝐞𝐠𝐨𝐥𝐞.*
+`*❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐢𝐦𝐩𝐨𝐬𝐭𝐚𝐫𝐞 𝐥𝐞 𝐫𝐞𝐠𝐨𝐥𝐞.*
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
         m
@@ -86,11 +82,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 *3. 𝐑𝐢𝐬𝐩𝐞𝐭𝐭𝐚 𝐭𝐮𝐭𝐭𝐢 𝐢 𝐦𝐞𝐦𝐛𝐫𝐢*
 *4. 𝐍𝐨 𝐜𝐨𝐧𝐭𝐞𝐧𝐮𝐭𝐢 𝐢𝐥𝐥𝐞𝐠𝐚𝐥𝐢 𝐨 𝐍𝐒𝐅𝐖*`
 
-  const msg = `*╭━━━━━━━📜━━━━━━━╮*
-*✦ 𝐑𝐄𝐆𝐎𝐋𝐄 𝐃𝐄𝐋 𝐆𝐑𝐔𝐏𝐏𝐎 ✦*
-*╰━━━━━━━📜━━━━━━━╯*
-
-${rules}
+  const msg = `${rules}
 
 > *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
 

@@ -117,7 +117,8 @@ if (isStatus) {
 *antilink, antispam, antibot*
 *antiporno, antigore, antitrava*
 *antitag, antiprivato, antivoip*
-*antimedia, antiviewonce, antinuke, antiwz*
+*antimedia, antiviewonce, *antidelete,*
+*antinuke*, *antiwz*
 *antiinsta, antitelegram*
 *antitiktok*
 
@@ -155,6 +156,17 @@ if (isStatus) {
       thumbFeature = 'antiviewonce'
       result = setFeature(chat, 'antiviewonce', '𝐀𝐍𝐓𝐈 𝐕𝐈𝐄𝐖 𝐎𝐍𝐂𝐄', '𝐀𝐧𝐭𝐢 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞')
       break
+      
+      case 'antidelete':
+  if (!await requireAdmin()) return
+  thumbFeature = 'antidelete'
+  result = setFeature(
+    chat,
+    'antidelete',
+    '𝐀𝐍𝐓𝐈 𝐃𝐄𝐋𝐄𝐓𝐄',
+    '𝐀𝐧𝐭𝐢 𝐃𝐞𝐥𝐞𝐭𝐞'
+  )
+  break
 
     case 'antitelegram':
       if (!await requireAdmin()) return
@@ -277,6 +289,7 @@ if (isStatus) {
         chat.antitrava,
         chat.antiTag,
         chat.antimedia,
+        chat.antidelete,
         chat.antiviewonce,
         chat.antinuke,
         chat.antiWhatsapp,
@@ -307,6 +320,7 @@ if (isStatus) {
         chat.antitrava = isEnable
         chat.antiTag = isEnable
         chat.antimedia = isEnable
+        chat.antidelete = isEnable
         chat.antiviewonce = isEnable
         chat.antinuke = isEnable
         chat.antiWhatsapp = isEnable

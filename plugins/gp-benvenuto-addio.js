@@ -142,6 +142,20 @@ type: 'addio!'
 })
 
 await conn.sendMessage(m.chat, { image: card, mentions: [jid] }, { quoted: m })
+if (chat.goodbyeCustom) {
+const testo = chat.goodbyeCustom
+.replace(/@user/gi, `@${jid.split('@')[0]}`)
+.replace(/@gruppo/gi, groupName)
+
+await conn.sendMessage(
+m.chat,
+{
+text: testo,
+mentions: [jid]
+},
+{ quoted: m }
+)
+}
 }
 
 return true

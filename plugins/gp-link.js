@@ -15,10 +15,7 @@ inviteCode=null
 
 const link=inviteCode?`https://chat.whatsapp.com/${inviteCode}`:'𝐍𝐨𝐧 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐞'
 
-const text=`*╭━━━━━━━🔗━━━━━━━╮*
-*✦ 𝐈𝐧𝐟𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 ✦*
-*╰━━━━━━━🔗━━━━━━━╯*
-
+const text=`
 *🏷 𝐍𝐨𝐦𝐞:* *${metadata.subject||'Gruppo'}*
 
 *👥 𝐌𝐞𝐦𝐛𝐫𝐢:* *${totalMembers}*`
