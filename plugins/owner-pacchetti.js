@@ -155,10 +155,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   if (cmd === 'pacchetti' || cmd === 'dipendenze') {
     return conn.sendMessage(m.chat, {
       text:
-`╭━━━━━━━📦━━━━━━━╮
-*✦ 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐏𝐀𝐂𝐂𝐇𝐄𝐓𝐓𝐈 ✦*
-╰━━━━━━━📦━━━━━━━╯
-
+`📦 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐏𝐀𝐂𝐂𝐇𝐄𝐓𝐓𝐈📦*
 *𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐯𝐮𝐨𝐢 𝐜𝐨𝐧𝐭𝐫𝐨𝐥𝐥𝐚𝐫𝐞:*`,
 
       footer: '\n𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
@@ -186,9 +183,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       return m.reply('*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐝𝐢𝐩𝐞𝐧𝐝𝐞𝐧𝐳𝐚 𝐭𝐫𝐨𝐯𝐚𝐭𝐚.*')
     }
 
-    let text = `╭━━━━━━━━━━━━━━╮
-*✦ 𝐃𝐈𝐏𝐄𝐍𝐃𝐄𝐍𝐙𝐄 𝐈𝐍𝐒𝐓𝐀𝐋𝐋𝐀𝐓𝐄 ✦*
-╰━━━━━━━━━━━━━━╯
+    let text = `
+*𝐃𝐈𝐏𝐄𝐍𝐃𝐄𝐍𝐙𝐄 𝐈𝐍𝐒𝐓𝐀𝐋𝐋𝐀𝐓𝐄*
 
 *📦 𝐓𝐨𝐭𝐚𝐥𝐞:* *${names.length}*
 
@@ -215,11 +211,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!mods.length) {
       return conn.sendMessage(m.chat, {
-        text:
-`╭━━━━━━━✅━━━━━━━╮
-*✦ 𝐃𝐈𝐏𝐄𝐍𝐃𝐄𝐍𝐙𝐄 𝐌𝐀𝐍𝐂𝐀𝐍𝐓𝐈 ✦*
-╰━━━━━━━✅━━━━━━━╯
-
+        text:`
 *✅ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐚𝐜𝐜𝐡𝐞𝐭𝐭𝐨 𝐦𝐚𝐧𝐜𝐚𝐧𝐭𝐞.*`,
         footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
         buttons: [
@@ -230,9 +222,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       }, { quoted: m })
     }
 
-    let text = `╭━━━━━━━⚠️━━━━━━━╮
-*✦ 𝐃𝐈𝐏𝐄𝐍𝐃𝐄𝐍𝐙𝐄 𝐌𝐀𝐍𝐂𝐀𝐍𝐓𝐈 ✦*
-╰━━━━━━━⚠️━━━━━━━╯
+    let text = `
+*⚠️𝐃𝐈𝐏𝐄𝐍𝐃𝐄𝐍𝐙𝐄 𝐌𝐀𝐍𝐂𝐀𝐍𝐓𝐈⚠️*
 
 *📦 𝐓𝐨𝐭𝐚𝐥𝐞:* *${mods.length}*
 

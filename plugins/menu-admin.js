@@ -34,6 +34,12 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ ♻️ ${usedPrefix}resetallwarn <reply/tag>
 ╰━━━━━━━━━━━━━━━━⬣
 
+╭━〔 ⏳ ʀᴜᴏʟɪ ᴛᴇᴍᴘᴏʀᴀɴᴇɪ 〕━⬣
+┃ 🛡️ ${usedPrefix}tmod <reply/tag> <tempo>
+┃ 📋 ${usedPrefix}listatempmod
+┃ ❌ ${usedPrefix}rtmod <reply/tag>
+╰━━━━━━━━━━━━━━━━⬣
+
 ╭━━━〔 🧰 ᴄᴏᴍᴀɴᴅɪ 〕━⬣
 ┃ 🤫 ${usedPrefix}muta <reply/tag>
 ┃ 🔊 ${usedPrefix}smuta <reply/tag>

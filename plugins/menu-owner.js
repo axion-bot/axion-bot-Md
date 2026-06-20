@@ -27,6 +27,12 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ ❌️${usedPrefix}delowner <user> <numero>
 ╰━━━━━━━━━━━━━━━━⬣
 
+╭━〔 ⏳ ʀᴜᴏʟɪ ᴛᴇᴍᴘᴏʀᴀɴᴇɪ 〕━⬣
+┃ 👑 ${usedPrefix}tempadmin <utente/tempo>
+┃ 📋 ${usedPrefix}listatempadmin
+┃ ❌ ${usedPrefix}rtadmin
+╰━━━━━━━━━━━━━━━━⬣
+
 ╭━〔 📊 sᴛᴀᴛɪsᴛɪᴄʜᴇ ᴜᴛᴇɴᴛɪ 〕━⬣
 ┃ ➕️ ${usedPrefix}addmoney <quantità> <user>
 ┃ ➖️ ${usedPrefix}removemoney <quantità> <user>
