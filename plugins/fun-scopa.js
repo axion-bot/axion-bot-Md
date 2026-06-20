@@ -62,9 +62,7 @@ if(!hasMode){
 
 return conn.sendMessage(chatId,{
 text:
-`╭━━━━━━━🔥━━━━━━━╮
-*✦ 𝐒𝐂𝐎𝐏𝐀 ✦*
-╰━━━━━━━🔥━━━━━━━╯
+`
 
 *😏 𝐒𝐜𝐞𝐠𝐥𝐢 𝐥𝐚 𝐦𝐨𝐝𝐚𝐥𝐢𝐭à.*`,
 footer:'𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
