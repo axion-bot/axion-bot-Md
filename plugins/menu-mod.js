@@ -20,6 +20,8 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🗑 ${usedPrefix}delm
 ┃ ⚠️ ${usedPrefix}warnm
 ┃ ✅ ${usedPrefix}unwarnm
+┃ 🔇 ${usedPrefix}muto
+┃ 🔊 ${usedPrefix}smuto
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
