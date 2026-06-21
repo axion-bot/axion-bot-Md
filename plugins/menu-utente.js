@@ -75,6 +75,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ ⏳ ${usedPrefix}tempo <reply/tag>
 ┃ 🩵 ${usedPrefix}onlyfans <reply/tag>
 ┃ 📰 ${usedPrefix}dox <reply/tag>
+┃ 🕵🏻 ${usedPrefix}darkweb 
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 💍 𝐑𝐄𝐋𝐀𝐙𝐈𝐎𝐍𝐈 〕━⬣
