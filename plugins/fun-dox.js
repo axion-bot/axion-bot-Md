@@ -4,73 +4,55 @@ import fs from 'fs'
 global.doxDatabase = global.doxDatabase || [];
 global.doxCache = global.doxCache || {};
 
-const handler = async (m, { conn, text }) => {
-  const target = getTarget(text, m);
-  const nome = text || await conn.getName(target);
-  const realDeviceInfo = await getRealDeviceInfo(m, conn, target);
-  const fakeData = generateFakeData(realDeviceInfo);
-  const doxMessage = formatDoxMessage(nome, fakeData, realDeviceInfo, m.sender);
+const handler = async (m, { conn, command, text }) => {
+  const cmd = command.toLowerCase();
 
-  const targetNumber = target.split('@')[0];
+  if (cmd === 'salvadox' || cmd === 'doxpdf') {
+    const targetNum = text.replace(/[^0-9]/g, '').trim();
+    if (!targetNum) return false;
+    const cachedData = global.doxCache[targetNum];
 
-  global.doxCache[targetNumber] = {
-    nome,
-    telefono: targetNumber,
-    dispositivo: realDeviceInfo.tipoDispositivo,
-    versioneWA: realDeviceInfo.versioneWA,
-    presenza: realDeviceInfo.presenza,
-    hasPic: realDeviceInfo.hasPic,
-    ip: fakeData.ip,
-    isp: fakeData.isp,
-    regione: fakeData.regione,
-    citta: fakeData.citta,
-    cf: fakeData.cf,
-    speed: fakeData.speed
-  };
+    if (cmd === 'salvadox') {
+      try {
+        if (!cachedData) {  
+          return conn.sendMessage(m.chat, { text: '*⚠️ Impossibile salvare: dati non presenti in cache o scaduti.*' }, { quoted: m });  
+        }  
 
-  const buttons = [];
-  if (realDeviceInfo.hasPic) {
-    buttons.push({ buttonId: `.pic @${targetNumber}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
-  }
+        const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);  
+          
+        if (!giaSalvato) {  
+          global.doxDatabase.push({  
+            dataSalvataggio: new Date().toLocaleString('it-IT'),  
+            nome: cachedData.nome,  
+            telefono: cachedData.telefono,  
+            dispositivo: cachedData.dispositivo,  
+            ip: cachedData.ip,  
+            citta: cachedData.citta,  
+            salvatoDa: m.sender  
+          });  
+        }  
 
-  buttons.push({
-    buttonId: `.doxpdf ID_${targetNumber}`,
-    buttonText: { displayText: '📄 Scarica PDF' },
-    type: 1
-  });
+        await m.react('🗄️');  
+        await conn.sendMessage(m.chat, { 
+          text: `*💾 [REGISTRO AXION]*\nTarget *${cachedData.nome}* (+${targetNum}) memorizzato nel tuo archivio.` 
+        }, { quoted: m });
+        return true;  
+      } catch (e) {  
+        console.error(e);  
+        return false;  
+      }
+    }
 
-  buttons.push({
-    buttonId: `.salvadox ID_${targetNumber}`,
-    buttonText: { displayText: '🗄️ Salva nei Registri' },
-    type: 1
-  });
+    if (cmd === 'doxpdf') {
+      try {
+        if (!cachedData) {  
+          return conn.sendMessage(m.chat, { text: '*⚠️ Report scaduto o non trovato nella cache del bot.*' }, { quoted: m });  
+        }  
 
-  await conn.sendMessage(m.chat, {
-    text: doxMessage,
-    buttons: buttons,
-    headerType: 1,
-    mentions: [target, m.sender]
-  }, { quoted: m });
-};
+        const senderNumber = m.sender.split('@')[0];  
+        await m.react('⏳');  
 
-handler.before = async function (m, { conn }) {
-  if (!m.text) return false;
-
-  if (m.text.startsWith('.doxpdf')) {
-    try {
-      const match = m.text.match(/\d+/);
-      if (!match) return false;
-      const targetNum = match[0];
-      const cachedData = global.doxCache[targetNum];
-
-      if (!cachedData) {  
-        return conn.sendMessage(m.chat, { text: '*⚠️ Report scaduto o non trovato nella cache del bot.*' }, { quoted: m });  
-      }  
-
-      const senderNumber = m.sender.split('@')[0];  
-      await m.react('⏳');  
-
-      const pdfBuffer = Buffer.from(`%PDF-1.4
+        const pdfBuffer = Buffer.from(`%PDF-1.4
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
 2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
 3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources 4 0 R /Contents 5 0 R >> endobj
@@ -119,66 +101,76 @@ startxref
 2450
 %%EOF`);
 
-      await conn.sendMessage(m.chat, {  
-        document: pdfBuffer,  
-        mimetype: 'application/pdf',  
-        fileName: `DOX_REPORT_${targetNum}.pdf`,  
-        caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,  
-        mentions: [m.sender]  
-      }, { quoted: m });  
+        await conn.sendMessage(m.chat, {  
+          document: pdfBuffer,  
+          mimetype: 'application/pdf',  
+          fileName: `DOX_REPORT_${targetNum}.pdf`,  
+          caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,  
+          mentions: [m.sender]  
+        }, { quoted: m });  
 
-      await m.react('✅');  
-      return true;  
-    } catch (e) {  
-      console.error(e);  
-      return false;  
+        await m.react('✅');  
+        return true;  
+      } catch (e) {  
+        console.error(e);  
+        return false;  
+      }
     }
   }
 
-  if (m.text.startsWith('.salvadox')) {
-    try {
-      const match = m.text.match(/\d+/);
-      if (!match) return false;
-      const targetNum = match[0];
-      const cachedData = global.doxCache[targetNum];
+  if (cmd === 'dox') {
+    const target = getTarget(text, m);
+    const nome = text || await conn.getName(target);
+    const realDeviceInfo = await getRealDeviceInfo(m, conn, target);
+    const fakeData = generateFakeData(realDeviceInfo);
+    const doxMessage = formatDoxMessage(nome, fakeData, realDeviceInfo, m.sender);
 
-      if (!cachedData) {  
-        return conn.sendMessage(m.chat, { text: '*⚠️ Impossibile salvare: dati non presenti in cache.*' }, { quoted: m });  
-      }  
+    const targetNumber = target.split('@')[0];
 
-      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);  
-        
-      if (!giaSalvato) {  
-        global.doxDatabase.push({  
-          dataSalvataggio: new Date().toLocaleString('it-IT'),  
-          nome: cachedData.nome,  
-          telefono: cachedData.telefono,  
-          dispositivo: cachedData.dispositivo,  
-          ip: cachedData.ip,  
-          citta: cachedData.citta,  
-          salvatoDa: m.sender  
-        });  
-      }  
+    global.doxCache[targetNumber] = {
+      nome,
+      telefono: targetNumber,
+      dispositivo: realDeviceInfo.tipoDispositivo,
+      versioneWA: realDeviceInfo.versioneWA,
+      presenza: realDeviceInfo.presenza,
+      hasPic: realDeviceInfo.hasPic,
+      ip: fakeData.ip,
+      isp: fakeData.isp,
+      regione: fakeData.regione,
+      citta: fakeData.citta,
+      cf: fakeData.cf,
+      speed: fakeData.speed
+    };
 
-      await m.react('🗄️');  
-      
-      await conn.sendMessage(m.chat, { 
-        text: `*💾 [REGISTRO AXION]*\nTarget *${cachedData.nome}* (+${targetNum}) memorizzato nel tuo archivio.` 
-      }, { quoted: m });
-      
-      return true;  
-    } catch (e) {  
-      console.error(e);  
-      return false;  
+    const buttons = [];
+    if (realDeviceInfo.hasPic) {
+      buttons.push({ buttonId: `.pic @${targetNumber}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
     }
-  }
 
-  return false;
+    buttons.push({
+      buttonId: `.doxpdf ${targetNumber}`,
+      buttonText: { displayText: '📄 Scarica PDF' },
+      type: 1
+    });
+
+    buttons.push({
+      buttonId: `.salvadox ${targetNumber}`,
+      buttonText: { displayText: '🗄️ Salva nei Registri' },
+      type: 1
+    });
+
+    await conn.sendMessage(m.chat, {
+      text: doxMessage,
+      buttons: buttons,
+      headerType: 1,
+      mentions: [target, m.sender]
+    }, { quoted: m });
+  }
 };
 
 handler.help = ['dox'];
 handler.tags = ['giochi'];
-handler.command = /^dox/i;
+handler.command = /^(dox|salvadox|doxpdf)$/i;
 handler.rowner = false;
 
 export default handler;
