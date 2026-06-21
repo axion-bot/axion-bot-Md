@@ -56,9 +56,11 @@ const handler = async (m, { conn, text }) => {
 handler.before = async function (m, { conn }) {
   if (!m.text) return false;
 
-  if (m.text.startsWith('.doxpdf ')) {
+  if (m.text.startsWith('.doxpdf')) {
     try {
-      const targetNum = m.text.replace('.doxpdf ID_', '').trim();
+      const match = m.text.match(/\d+/);
+      if (!match) return false;
+      const targetNum = match[0];
       const cachedData = global.doxCache[targetNum];
 
       if (!cachedData) {  
@@ -133,9 +135,11 @@ startxref
     }
   }
 
-  if (m.text.startsWith('.salvadox ')) {
+  if (m.text.startsWith('.salvadox')) {
     try {
-      const targetNum = m.text.replace('.salvadox ID_', '').trim();
+      const match = m.text.match(/\d+/);
+      if (!match) return false;
+      const targetNum = match[0];
       const cachedData = global.doxCache[targetNum];
 
       if (!cachedData) {  
