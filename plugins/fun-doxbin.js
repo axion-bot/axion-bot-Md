@@ -1,4 +1,5 @@
 import { md5 } from '@realvare/baileys'
+import fs from 'fs'
 
 global.doxbinAccounts = global.doxbinAccounts || {};
 global.doxDatabase = global.doxDatabase || [];
@@ -8,7 +9,7 @@ const handler = async (m, { conn, text, isGroup }) => {
 
   if (text === 'crea') {
     if (global.doxbinAccounts[m.sender]) {
-      return m.reply(`*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖤𝖱𝖱𝖮𝖱]*\nHai già un account attivo associato a questo numero.\n\n*𝖨𝖣:* @${senderNumber}`, null, { mentions: [m.sender] });
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖤𝖱𝖱𝖮𝖱]*\nHai già un account attivo associato a questo numero.\n\n*𝖨𝖣:* @${senderNumber}`, mentions: [m.sender] }, { quoted: m });
     }
 
     global.doxbinAccounts[m.sender] = {
@@ -18,11 +19,11 @@ const handler = async (m, { conn, text, isGroup }) => {
     };
 
     await m.react('📥');
-    return m.reply(`*🟢 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖲𝖸𝖲𝖳𝖤𝖬]*\n\n     *« ACCOUNT CREATO »*\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n• *𝖴𝗌𝖾𝗋:* @${senderNumber}\n• *𝖲𝗍𝖺𝗍𝗈:* 𝖠𝗍𝗍𝗂𝗏𝗈 (𝖫𝖾𝗏𝖾𝗅 𝟣)\n• *𝖣𝖺𝗍𝖺:* ${global.doxbinAccounts[m.sender].dataCreazione}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*🌐 Configurazione completata.* Usa \`.doxbin\` per accedere al database.`, null, { mentions: [m.sender] });
+    return conn.sendMessage(m.chat, { text: `*🟢 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖲𝖸𝖲𝖳𝖤𝖬]*\n\n     *« ACCOUNT CREATO »*\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n• *𝖴𝗌𝖾𝗋:* @${senderNumber}\n• *𝖲𝗍𝖺𝗍𝗈:* 𝖠𝗍𝗍𝗂𝗏𝗈 (𝖫𝖾𝗏𝖾𝗅 𝟣)\n• *𝖣𝖺𝗍𝖺:* ${global.doxbinAccounts[m.sender].dataCreazione}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*🌐 Configurazione completata.* Usa \`.darkweb\` per accedere al database.`, mentions: [m.sender] }, { quoted: m });
   }
 
   if (!global.doxbinAccounts[m.sender]) {
-    return m.reply(`*🚨 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖠𝖢𝖢𝖤𝖲𝖲𝖮 𝖭𝖤𝖦𝖠𝖳𝖮]*\n\n𝖭𝗈𝗇 𝗉𝗈𝗌𝗌𝗂𝖾𝖽𝗂 𝗎𝗇 𝖺𝖼𝖼𝗈𝗎𝗇𝗍 𝗇𝖾𝗅 𝖽𝖺𝗍𝖺𝖻𝖺𝗌𝖾 𝖣𝗈𝖿𝖻𝗂𝗇 𝖽𝗂 𝖠𝗑𝗂𝗈𝗇 𝖡𝗈𝗍.\n\n*⚡ 𝖯𝖤𝖱 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖱𝖳𝖨 𝖮𝖳𝖮𝖱𝖠:*\n𝖣𝗂𝗀𝗂𝗍𝖺: \`.doxbin crea\``);
+    return conn.sendMessage(m.chat, { text: `*🚨 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖠𝖢𝖢𝖤𝖲𝖲𝖮 𝖭𝖤𝖦𝖠𝖳𝖮]*\n\n𝖭𝗈𝗇 𝗉𝗈𝗌𝗌𝗂𝖾𝖽𝗂 𝗎𝗇 𝖺𝖼𝖼𝗈𝗎𝗇𝗍 𝗇𝖾𝗅 𝖽𝖺𝗍𝖺𝖻𝖺𝗌𝖾 𝖣𝗈𝖿𝖻𝗂𝗇 𝖽𝗂 𝖠𝗑𝗂𝗈𝗇 𝖡𝗈𝗍.\n\n*⚡ 𝖯𝖤𝖱 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖱𝖳𝖨 𝖮𝖳𝖮𝖱𝖠:*\n𝖣𝗂𝗀𝗂𝗍𝖺: \`.darkweb crea\`` }, { quoted: m });
   }
 
   if (text && text.startsWith('pubblica ')) {
@@ -30,35 +31,35 @@ const handler = async (m, { conn, text, isGroup }) => {
     const mieiDoxPrivati = global.doxDatabase.filter(dox => dox.salvatoDa === m.sender);
 
     if (isNaN(indexToPublish) || !mieiDoxPrivati[indexToPublish]) {
-      return m.reply(`*⚠️ [𝖨𝖭𝖣𝖨𝖢𝖤 𝖤𝖱𝖱𝖮𝖭𝖤𝖮]*\n𝖲𝗉𝖾𝖼𝗂𝖿𝗂𝖼𝖺 𝗎𝗇 𝗇𝗎𝗆𝖾𝗋𝗈 𝗏𝖺𝗅𝗂𝖽𝗈. 𝖤𝗌: \`.doxbin pubblica 1\``);
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖨𝖭𝖣𝖨𝖢𝖤 𝖤𝖱𝖱𝖮𝖱]*\n𝖲𝗉𝖾𝖼𝗂𝖿𝗂𝖼𝖺 𝗎𝗇 𝗇𝗎默𝗋𝗈 𝗏𝖺𝗅𝗂𝖽𝗈. 𝖤𝗌: \`.darkweb pubblica 1\`` }, { quoted: m });
     }
 
     const targetDox = mieiDoxPrivati[indexToPublish];
-    
+
     const giaPubblicato = global.doxbinAccounts[m.sender].doxPubblici.some(d => d.telefono === targetDox.telefono);
     if (giaPubblicato) {
-      return m.reply(`*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭]*\n𝖰𝗎𝖾𝗌𝗍𝗈 𝖽𝗈𝗑 è 𝗀𝗂à 𝗉𝗎𝖻𝖻𝗅𝗂𝖼𝖺𝗍𝗈 𝗌𝗎𝗅 𝗍𝗎𝗈 𝗉𝗋𝗈𝖿𝗂𝗅𝗈.`);
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭]*\n𝖰𝗎𝖾𝗌𝗍𝗈 𝖽𝗈𝗑 è 𝗀𝗂à 𝗉𝗎𝖻𝖻𝗅𝗂𝖼𝖺𝗍𝗈 𝗌𝗎𝗅 𝗍𝗎𝗈 𝗉𝗋𝗈𝖿𝗂𝗅𝗈.` }, { quoted: m });
     }
 
     global.doxbinAccounts[m.sender].doxPubblici.push(targetDox);
     await m.react('🌍');
-    return m.reply(`*𝖶𝖮𝖱𝖫𝖣𝖶𝖨𝖣𝖤 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 🌐*\nIl report di *${targetDox.nome}* è stato caricato sui server pubblici Doxbin. Da ora è consultabile da tutti i membri registrati.`);
+    return conn.sendMessage(m.chat, { text: `*𝖶𝖮𝖱𝖫𝖣𝖶𝖨𝖣𝖤 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 🌐*\nIl report di *${targetDox.nome}* è stato caricato sui server pubblici Doxbin. Da ora è consultabile da tutti i membri registrati.` }, { quoted: m });
   }
 
   let txt = `* ⚔️ 𝖣𝖮𝖷𝖡𝖨𝖭 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 ⚔️*\n`;
-  txt += `* [ 𝖴𝖲𝖤𝖱 𝖯𝖠𝖭𝖤𝖫: @${senderNumber} ]*\n`;
+  txt += `* [ 𝖴𝖲𝖤𝖱 𝖯𝖠𝖖𝖤𝖫: @${senderNumber} ]*\n`;
   txt += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n`;
 
   txt += `*📁 𝖨 𝖳𝖴𝖮𝖨 𝖣𝖮𝖷 𝖲𝖠𝖫𝖵𝖠𝖳𝖨 (𝖯𝖱𝖨𝖵𝖠𝖳𝖨):*\n`;
   const mieiDox = global.doxDatabase.filter(dox => dox.salvatoDa === m.sender);
-  
+
   if (mieiDox.length === 0) {
     txt += `_⤷ Nessun record privato in archivio._\n\n`;
   } else {
     mieiDox.forEach((user, index) => {
       txt += `*${index + 1}.* 𝖭𝗈𝗆𝖾: \`${user.nome}\`\n`;
       txt += `   𝖳𝖾𝗅: \`+${user.telefono}\` | 𝖢𝗂𝗍𝗍à: \`${user.citta}\`\n`;
-      txt += `   └ 🌍 _Per pubblicare:_ \`.doxbin pubblica ${index + 1}\` \n\n`;
+      txt += `   └ 🌍 _Per pubblicare:_ \`.darkweb pubblica ${index + 1}\` \n\n`;
     });
   }
 
@@ -74,8 +75,8 @@ const handler = async (m, { conn, text, isGroup }) => {
   }
 
   txt += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
-  txt += `*👥 𝖴𝖳𝖤𝖭𝖳𝖨 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖳𝖨 𝖭𝖤𝖫 𝖦𝖱𝖴𝖯𝖯𝖮:*\n`;
-  
+  txt += `*👥 𝖴𝖳𝖤𝖭𝖳𝖨 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖱𝖳𝖨 𝖭𝖤𝖫 𝖦𝖱𝖴𝖯𝖯𝖮:*\n`;
+
   if (!isGroup) {
     txt += `_Disponibile solo all'interno dei gruppi._\n`;
   } else {
@@ -94,11 +95,16 @@ const handler = async (m, { conn, text, isGroup }) => {
     }
   }
 
-  txt += `\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`;
+  txt += `\n> *𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓*`;
+
+  const tutteMentions = [m.sender];
+  if (global.doxbinAccounts) {
+    tutteMentions.push(...Object.keys(global.doxbinAccounts));
+  }
 
   await conn.sendMessage(m.chat, {
     text: txt,
-    mentions: [m.sender, ...global.doxbinAccounts ? Object.keys(global.doxbinAccounts) : []]
+    mentions: tutteMentions
   }, { quoted: m });
 };
 
