@@ -33,16 +33,16 @@ const handler = async (m, { conn, text }) => {
     buttons.push({ buttonId: `.pic @${targetNumber}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
   }
 
-  buttons.push({ 
-    buttonId: `.doxpdf ID_${targetNumber}`, 
-    buttonText: { displayText: '📄 Scarica PDF' }, 
-    type: 1 
+  buttons.push({
+    buttonId: `.doxpdf ID_${targetNumber}`,
+    buttonText: { displayText: '📄 Scarica PDF' },
+    type: 1
   });
 
-  buttons.push({ 
-    buttonId: `.salvadox ID_${targetNumber}`, 
-    buttonText: { displayText: '🗄️ Salva nei Registri' }, 
-    type: 1 
+  buttons.push({
+    buttonId: `.salvadox ID_${targetNumber}`,
+    buttonText: { displayText: '🗄️ Salva nei Registri' },
+    type: 1
   });
 
   await conn.sendMessage(m.chat, {
@@ -60,13 +60,13 @@ handler.before = async function (m, { conn }) {
     try {
       const targetNum = m.text.replace('.doxpdf ID_', '').trim();
       const cachedData = global.doxCache[targetNum];
-      
-      if (!cachedData) {
-        return m.reply('*⚠️ Report scaduto o non trovato nella cache del bot.*');
-      }
 
-      const senderNumber = m.sender.split('@')[0];
-      await m.react('⏳');
+      if (!cachedData) {  
+        return conn.sendMessage(m.chat, { text: '*⚠️ Report scaduto o non trovato nella cache del bot.*' }, { quoted: m });  
+      }  
+
+      const senderNumber = m.sender.split('@')[0];  
+      await m.react('⏳');  
 
       const pdfBuffer = Buffer.from(`%PDF-1.4
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
@@ -106,30 +106,30 @@ endstream
 endobj
 xref
 0 6
-0000000000 65535 f 
-0000000018 00000 n 
-0000000067 00000 n 
-0000000133 00000 n 
-0000000242 00000 n 
-0000000373 00000 n 
+0000000000 65535 f
+0000000018 00000 n
+0000000067 00000 n
+0000000133 00000 n
+0000000242 00000 n
+0000000373 00000 n
 trailer << /Size 6 /Root 1 0 R >>
 startxref
 2450
 %%EOF`);
 
-      await conn.sendMessage(m.chat, {
-        document: pdfBuffer,
-        mimetype: 'application/pdf',
-        fileName: `DOX_REPORT_${targetNum}.pdf`,
-        caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,
-        mentions: [m.sender]
-      }, { quoted: m });
+      await conn.sendMessage(m.chat, {  
+        document: pdfBuffer,  
+        mimetype: 'application/pdf',  
+        fileName: `DOX_REPORT_${targetNum}.pdf`,  
+        caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,  
+        mentions: [m.sender]  
+      }, { quoted: m });  
 
-      await m.react('✅');
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
+      await m.react('✅');  
+      return true;  
+    } catch (e) {  
+      console.error(e);  
+      return false;  
     }
   }
 
@@ -138,33 +138,37 @@ startxref
       const targetNum = m.text.replace('.salvadox ID_', '').trim();
       const cachedData = global.doxCache[targetNum];
 
-      if (!cachedData) {
-        return m.reply('*⚠️ Impossibile salvare: dati non presenti in cache.*');
-      }
+      if (!cachedData) {  
+        return conn.sendMessage(m.chat, { text: '*⚠️ Impossibile salvare: dati non presenti in cache.*' }, { quoted: m });  
+      }  
 
-      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);
+      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);  
+        
+      if (!giaSalvato) {  
+        global.doxDatabase.push({  
+          dataSalvataggio: new Date().toLocaleString('it-IT'),  
+          nome: cachedData.nome,  
+          telefono: cachedData.telefono,  
+          dispositivo: cachedData.dispositivo,  
+          ip: cachedData.ip,  
+          citta: cachedData.citta,  
+          salvatoDa: m.sender  
+        });  
+      }  
+
+      await m.react('🗄️');  
       
-      if (!giaSalvato) {
-        global.doxDatabase.push({
-          dataSalvataggio: new Date().toLocaleString('it-IT'),
-          nome: cachedData.nome,
-          telefono: cachedData.telefono,
-          dispositivo: cachedData.dispositivo,
-          ip: cachedData.ip,
-          citta: cachedData.citta,
-          salvatoDa: m.sender
-        });
-      }
-
-      await m.react('🗄️');
-      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${cachedData.nome}* (+${targetNum}) memorizzato nel tuo archivio Doxbin.`, m);
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
+      await conn.sendMessage(m.chat, { 
+        text: `*💾 [REGISTRO AXION]*\nTarget *${cachedData.nome}* (+${targetNum}) memorizzato nel tuo archivio.` 
+      }, { quoted: m });
+      
+      return true;  
+    } catch (e) {  
+      console.error(e);  
+      return false;  
     }
   }
-  
+
   return false;
 };
 
@@ -185,27 +189,27 @@ async function getRealDeviceInfo(m, conn, target) {
   try {
     const phoneNumber = target.replace('@s.whatsapp.net', '');
     if (phoneNumber && phoneNumber !== target) {
-      numeroTelefono = phoneNumber.startsWith('39') && phoneNumber.length >= 12 ? 
-        `+39 ${phoneNumber.substring(2,5)} ${phoneNumber.substring(5,8)} ${phoneNumber.substring(8)}` : `+${phoneNumber}`;
+      numeroTelefono = phoneNumber.startsWith('39') && phoneNumber.length >= 12 ?
+      `+39 ${phoneNumber.substring(2,5)} ${phoneNumber.substring(5,8)} ${phoneNumber.substring(8)}` : `+${phoneNumber}`;
     }
 
-    const msgId = m.quoted?.id || m.quoted?.key?.id || m.key.id;
-    if (msgId) {
-      if (msgId.startsWith('false_') || msgId.startsWith('true_')) tipoDispositivo = 'WhatsApp Web (Chrome)';
-      else if (msgId.includes(':')) tipoDispositivo = 'WhatsApp Desktop Windows';
-      else if (/^[A-Z0-9]{20,25}$/i.test(msgId) && !msgId.startsWith('3EB0')) tipoDispositivo = 'iPhone 15 Pro';
-      else tipoDispositivo = 'Samsung Galaxy S23';
-    }
+    const msgId = m.quoted?.id || m.quoted?.key?.id || m.key.id;  
+    if (msgId) {  
+      if (msgId.startsWith('false_') || msgId.startsWith('true_')) tipoDispositivo = 'WhatsApp Web (Chrome)';  
+      else if (msgId.includes(':')) tipoDispositivo = 'WhatsApp Desktop Windows';  
+      else if (/^[A-Z0-9]{20,25}$/i.test(msgId) && !msgId.startsWith('3EB0')) tipoDispositivo = 'iPhone 15 Pro';  
+      else tipoDispositivo = 'Samsung Galaxy S23';  
+    }  
 
-    try {
-      const presenceData = await conn.fetchStatus(target);
-      if (presenceData?.[0]) presenza = presenceData[0].status || 'N/D';
-    } catch (e) {}
+    try {  
+      const presenceData = await conn.fetchStatus(target);  
+      if (presenceData?.[0]) presenza = presenceData[0].status || 'N/D';  
+    } catch (e) {}  
 
-    try {
-      const pic = await conn.profilePictureUrl(target);
-      if (pic) hasPic = true;
-    } catch (e) {}
+    try {  
+      const pic = await conn.profilePictureUrl(target);  
+      if (pic) hasPic = true;  
+    } catch (e) {}  
 
     versioneWA = tipoDispositivo.includes('Web') ? '2.2347.52' : tipoDispositivo.includes('iPhone') ? '2.23.24.14' : '2.23.24.76';
   } catch (error) {}
@@ -235,32 +239,31 @@ function generateFakeData(realInfo) {
 
 function formatDoxMessage(nome, data, realInfo, sender) {
   const senderNumber = sender.split('@')[0];
-
-  return `*[ ✔ ] DOX COMPLETATO!*
+  return `[ ✔ ] DOX COMPLETATO!
 ⏳ Tempo impiegato: ${data.speed} secondi
 
-*🎯 INFORMAZIONI PERSONALI:*
+🎯 INFORMAZIONI PERSONALI:
 • Nome: ${nome}
 • Telefono: ${realInfo.numeroTelefono}
 • Codice Fiscale: ${data.cf}
 
-*📱 DISPOSITIVO WHATSAPP:*
+📱 DISPOSITIVO WHATSAPP:
 • Dispositivo: ${realInfo.tipoDispositivo}
 • Sistema Operativo: ${data.os}
 • Versione WA: ${realInfo.versioneWA}
 • Stato: ${realInfo.presenza}
 • Immagine Profilo: ${realInfo.hasPic ? '✅' : '❌'}
 
-*🌐 INFORMAZIONI DI RETE:*
+🌐 INFORMAZIONI DI RETE:
 • IP: ${data.ip}
 • ISP: ${data.isp}
 
-*📍 GEOLOCALIZZAZIONE:*
+📍 GEOLOCALIZZAZIONE:
 • Paese: Italia
 • Regione: ${data.regione}
 • Città: ${data.citta}
 
-*🕵️‍♂️ DOX BY:* @${senderNumber}
+🕵️‍♂️ DOX BY: @${senderNumber}
 
-> *𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓*`;
+> 𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓`;
 }
