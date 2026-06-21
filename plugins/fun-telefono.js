@@ -3,7 +3,6 @@ import { createCanvas, loadImage } from '@napi-rs/canvas'
 import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs'
 import path from 'path'
-import { os } from 'os'
 
 global.doxDatabase = global.doxDatabase || [];
 global.doxCache = global.doxCache || {};
