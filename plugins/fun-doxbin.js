@@ -104,7 +104,7 @@ const handler = async (m, { conn, text, isGroup }) => {
 
 handler.help = ['doxbin'];
 handler.tags = ['giochi'];
-handler.command = /^doxbin/i;
+handler.command = /^darkweb/i;
 handler.group = false;
 
 export default handler;
