@@ -34,13 +34,13 @@ const handler = async (m, { conn, text }) => {
   }
 
   buttons.push({ 
-    buttonId: `.doxpdf ${targetNumber}`, 
+    buttonId: `.doxpdf ID_${targetNumber}`, 
     buttonText: { displayText: '📄 Scarica PDF' }, 
     type: 1 
   });
 
   buttons.push({ 
-    buttonId: `.salvadox ${targetNumber}`, 
+    buttonId: `.salvadox ID_${targetNumber}`, 
     buttonText: { displayText: '🗄️ Salva nei Registri' }, 
     type: 1 
   });
@@ -58,7 +58,7 @@ handler.before = async function (m, { conn }) {
 
   if (m.text.startsWith('.doxpdf ')) {
     try {
-      const targetNum = m.text.substring(8).trim();
+      const targetNum = m.text.replace('.doxpdf ID_', '').trim();
       const cachedData = global.doxCache[targetNum];
       
       if (!cachedData) {
@@ -135,7 +135,7 @@ startxref
 
   if (m.text.startsWith('.salvadox ')) {
     try {
-      const targetNum = m.text.substring(10).trim();
+      const targetNum = m.text.replace('.salvadox ID_', '').trim();
       const cachedData = global.doxCache[targetNum];
 
       if (!cachedData) {
