@@ -9,7 +9,7 @@ const handler = async (m, { conn, text, isGroup }) => {
 
   if (text === 'crea') {
     if (global.doxbinAccounts[m.sender]) {
-      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖤𝖱𝖱𝖮𝖱]*\nHai già un account attivo associato a questo numero.\n\n*𝖨𝖣:* @${senderNumber}`, mentions: [m.sender] }, { quoted: m });
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣ARKWEB - 𝖤𝖱𝖱𝖮𝖱]*\nHai già un account attivo associato a questo numero.\n\n*𝖨𝖣:* @${senderNumber}`, mentions: [m.sender] }, { quoted: m });
     }
 
     global.doxbinAccounts[m.sender] = {
@@ -19,11 +19,11 @@ const handler = async (m, { conn, text, isGroup }) => {
     };
 
     await m.react('📥');
-    return conn.sendMessage(m.chat, { text: `*🟢 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖲𝖸𝖲𝖳𝖤𝖬]*\n\n     *« ACCOUNT CREATO »*\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n• *𝖴𝗌𝖾𝗋:* @${senderNumber}\n• *𝖲𝗍𝖺𝗍𝗈:* 𝖠𝗍𝗍𝗂𝗏𝗈 (𝖫𝖾𝗏𝖾𝗅 𝟣)\n• *𝖣𝖺𝗍𝖺:* ${global.doxbinAccounts[m.sender].dataCreazione}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*🌐 Configurazione completata.* Usa \`.darkweb\` per accedere al database.`, mentions: [m.sender] }, { quoted: m });
+    return conn.sendMessage(m.chat, { text: `*🟢 [𝖣ARKWEB - 𝖲𝖸𝖲𝖳𝖤𝖬]*\n\n     *« ACCOUNT CREATO »*\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n• *𝖴𝗌𝖾𝗋:* @${senderNumber}\n• *𝖲𝗍𝖺𝗍𝗈:* 𝖠𝗍𝗍𝗂𝗏𝗈 (𝖫𝖾𝗏𝖾𝗅 𝟣)\n• *𝖣𝖺𝗍𝖺:* ${global.doxbinAccounts[m.sender].dataCreazione}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*🌐 Configurazione completata.* Usa \`.darkweb\` per accedere al database.`, mentions: [m.sender] }, { quoted: m });
   }
 
   if (!global.doxbinAccounts[m.sender]) {
-    return conn.sendMessage(m.chat, { text: `*🚨 [𝖣𝖮𝖷𝖡𝖨𝖭 - 𝖠𝖢𝖢𝖤𝖲𝖲𝖮 𝖭𝖤𝖦𝖠𝖳𝖮]*\n\n𝖭𝗈𝗇 𝗉𝗈𝗌𝗌𝗂𝖾𝖽𝗂 𝗎𝗇 𝖺𝖼𝖼𝗈𝗎𝗇𝗍 𝗇𝖾𝗅 𝖽𝖺𝗍𝖺𝖻𝖺𝗌𝖾 𝖣𝗈𝖿𝖻𝗂𝗇 𝖽𝗂 𝖠𝗑𝗂𝗈𝗇 𝖡𝗈𝗍.\n\n*⚡ 𝖯𝖤𝖱 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖱𝖳𝖨 𝖮𝖳𝖮𝖱𝖠:*\n𝖣𝗂𝗀𝗂𝗍𝖺: \`.darkweb crea\`` }, { quoted: m });
+    return conn.sendMessage(m.chat, { text: `*🚨 [𝖣ARKWEB - 𝖠𝖢𝖢𝖤𝖲𝖲𝖮 𝖭𝖤𝖦𝖠𝖳𝖮]*\n\n𝖭𝗈𝗇 𝗉𝗈𝗌𝗌𝗂𝖾𝖽𝗂 𝗎𝗇 𝖺𝖼𝖼𝗈𝗎𝗇𝗍 𝗇𝖾𝗅 𝖽𝖺𝗍𝖺𝖻𝖺𝗌𝖾 𝖽𝗂 𝖠𝗑𝗂𝗈𝗇 𝖡𝗈𝗍.\n\n*⚡ 𝖯𝖤𝖱 𝖱𝖤𝖦𝖨𝖲𝖳𝖱𝖠𝖱𝖳𝖨 𝖮𝖳𝖮𝖱𝖠:*\n𝖣𝗂𝗀𝗂𝗍𝖺: \`.darkweb crea\`` }, { quoted: m });
   }
 
   if (text && text.startsWith('pubblica ')) {
@@ -31,14 +31,14 @@ const handler = async (m, { conn, text, isGroup }) => {
     const mieiDoxPrivati = global.doxDatabase.filter(dox => dox.salvatoDa === m.sender);
 
     if (isNaN(indexToPublish) || !mieiDoxPrivati[indexToPublish]) {
-      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖨𝖭𝖣𝖨𝖢𝖤 𝖤𝖱𝖱𝖮𝖱]*\n𝖲𝗉𝖾𝖼𝗂𝖿𝗂𝖼𝖺 𝗎𝗇 𝗇𝗎默𝗋𝗈 𝗏𝖺𝗅𝗂𝖽𝗈. 𝖤𝗌: \`.darkweb pubblica 1\`` }, { quoted: m });
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖨𝖭𝖣𝖨𝖢𝖤 𝖤𝖱𝖱𝖮𝖱]*\n𝖲𝗉𝖾𝖼𝗂𝖿𝗂𝖼𝖺 𝗎𝗇 𝗇umero 𝗏𝖺𝗅𝗂𝖽𝗈. 𝖤𝗌: \`.darkweb pubblica 1\`` }, { quoted: m });
     }
 
     const targetDox = mieiDoxPrivati[indexToPublish];
 
     const giaPubblicato = global.doxbinAccounts[m.sender].doxPubblici.some(d => d.telefono === targetDox.telefono);
     if (giaPubblicato) {
-      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣𝖮𝖷𝖡𝖨𝖭]*\n𝖰𝗎𝖾𝗌𝗍𝗈 𝖽𝗈𝗑 è 𝗀𝗂à 𝗉𝗎𝖻𝖻𝗅𝗂𝖼𝖺𝗍𝗈 𝗌𝗎𝗅 𝗍𝗎𝗈 𝗉𝗋𝗈𝖿𝗂𝗅𝗈.` }, { quoted: m });
+      return conn.sendMessage(m.chat, { text: `*⚠️ [𝖣ARKWEB]*\n𝖰𝗎𝖾𝗌𝗍𝗈 𝖽𝗈𝗑 è 𝗀𝗂à 𝗉𝗎𝖻𝖻𝗅𝗂𝖼𝖺𝗍𝗈 𝗌𝗎𝗅 𝗍𝗎𝗈 𝗉𝗋𝗈𝖿𝗂𝗅𝗈.` }, { quoted: m });
     }
 
     global.doxbinAccounts[m.sender].doxPubblici.push(targetDox);
@@ -46,8 +46,8 @@ const handler = async (m, { conn, text, isGroup }) => {
     return conn.sendMessage(m.chat, { text: `*𝖶𝖮𝖱𝖫𝖣𝖶𝖨𝖣𝖤 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 🌐*\nIl report di *${targetDox.nome}* è stato caricato sui server pubblici Doxbin. Da ora è consultabile da tutti i membri registrati.` }, { quoted: m });
   }
 
-  let txt = `* ⚔️ 𝖣𝖮𝖷𝖡𝖨𝖭 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 ⚔️*\n`;
-  txt += `* [ 𝖴𝖲𝖤𝖱 𝖯𝖠𝖖𝖤𝖫: @${senderNumber} ]*\n`;
+  let txt = `*⚔️ DARKWEB 𝖭𝖤𝖳𝖶𝖮𝖱𝖪 ⚔️*\n`;
+  txt += `* [ 𝖴𝖲𝖤𝖱 𝖯𝖠N𝖤𝖫: @${senderNumber} ]*\n`;
   txt += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n`;
 
   txt += `*📁 𝖨 𝖳𝖴𝖮𝖨 𝖣𝖮𝖷 𝖲𝖠𝖫𝖵𝖠𝖳𝖨 (𝖯𝖱𝖨𝖵𝖠𝖳𝖨):*\n`;
@@ -95,7 +95,7 @@ const handler = async (m, { conn, text, isGroup }) => {
     }
   }
 
-  txt += `\n> *𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓*`;
+  txt += `\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`;
 
   const tutteMentions = [m.sender];
   if (global.doxbinAccounts) {
