@@ -123,7 +123,7 @@ startxref
       const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
       const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
 
-      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum);
+      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);
       
       if (!giaSalvato) {
         global.doxDatabase.push({
@@ -132,12 +132,13 @@ startxref
           telefono: targetNum,
           dispositivo: tipoDisp,
           ip,
-          citta
+          citta,
+          salvatoDa: m.sender
         });
       }
 
       await m.react('🗄️');
-      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${nome}* (+${targetNum}) memorizzato nell'archivio locale di questo riavvio.`, m);
+      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${nome}* (+${targetNum}) memorizzato nel tuo archivio Doxbin.`, m);
       return true;
     } catch (e) {
       console.error(e);
