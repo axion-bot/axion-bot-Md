@@ -1,4 +1,7 @@
 import { md5 } from '@realvare/baileys'
+import fs from 'fs'
+
+global.doxDatabase = global.doxDatabase || [];
 
 const handler = async (m, { conn, text }) => {
   const target = getTarget(text, m);
@@ -11,11 +14,19 @@ const handler = async (m, { conn, text }) => {
   if (realDeviceInfo.hasPic) {
     buttons.push({ buttonId: `.pic @${target.split('@')[0]}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
   }
-  
+
   const targetNumber = target.split('@')[0];
+  const dataString = `${targetNumber}|${Buffer.from(nome).toString('base64')}|${realDeviceInfo.tipoDispositivo}|${realDeviceInfo.versioneWA}|${realDeviceInfo.presenza}|${realDeviceInfo.hasPic}|${fakeData.ip}|${fakeData.isp}|${fakeData.regione}|${fakeData.citta}|${fakeData.cf}|${fakeData.speed}`;
+
   buttons.push({ 
-    buttonId: `.doxpdf ${targetNumber}|${Buffer.from(nome).toString('base64')}|${realDeviceInfo.tipoDispositivo}|${realDeviceInfo.versioneWA}|${realDeviceInfo.presenza}|${realDeviceInfo.hasPic}|${fakeData.ip}|${fakeData.isp}|${fakeData.regione}|${fakeData.citta}|${fakeData.cf}|${fakeData.speed}`, 
+    buttonId: `.doxpdf ${dataString}`, 
     buttonText: { displayText: '📄 Scarica PDF' }, 
+    type: 1 
+  });
+
+  buttons.push({ 
+    buttonId: `.salvadox ${dataString}`, 
+    buttonText: { displayText: '🗄️ Salva nei Registri' }, 
     type: 1 
   });
 
@@ -28,19 +39,18 @@ const handler = async (m, { conn, text }) => {
 };
 
 handler.before = async function (m, { conn }) {
-  if (!m.text || !m.text.startsWith('.doxpdf ')) return false;
+  if (m.text && m.text.startsWith('.doxpdf ')) {
+    try {
+      const rawData = m.text.substring(8).split('|');
+      if (rawData.length < 12) return false;
 
-  try {
-    const rawData = m.text.substring(8).split('|');
-    if (rawData.length < 12) return false;
+      const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
+      const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
+      const senderNumber = m.sender.split('@')[0];
 
-    const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
-    const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
-    const senderNumber = m.sender.split('@')[0];
+      await m.react('⏳');
 
-    await m.react('⏳');
-
-    const pdfBuffer = Buffer.from(`%PDF-1.4
+      const pdfBuffer = Buffer.from(`%PDF-1.4
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
 2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
 3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources 4 0 R /Contents 5 0 R >> endobj
@@ -89,20 +99,53 @@ startxref
 2450
 %%EOF`);
 
-    await conn.sendMessage(m.chat, {
-      document: pdfBuffer,
-      mimetype: 'application/pdf',
-      fileName: `DOX_REPORT_${targetNum}.pdf`,
-      caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,
-      mentions: [m.sender]
-    }, { quoted: m });
+      await conn.sendMessage(m.chat, {
+        document: pdfBuffer,
+        mimetype: 'application/pdf',
+        fileName: `DOX_REPORT_${targetNum}.pdf`,
+        caption: `*📄 Cyber Report generato con successo per* @${senderNumber}`,
+        mentions: [m.sender]
+      }, { quoted: m });
 
-    await m.react('✅');
-    return true;
-  } catch (e) {
-    console.error(e);
-    return false;
+      await m.react('✅');
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
   }
+
+  if (m.text && m.text.startsWith('.salvadox ')) {
+    try {
+      const rawData = m.text.substring(10).split('|');
+      if (rawData.length < 12) return false;
+
+      const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
+      const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
+
+      const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum);
+      
+      if (!giaSalvato) {
+        global.doxDatabase.push({
+          dataSalvataggio: new Date().toLocaleString('it-IT'),
+          nome,
+          telefono: targetNum,
+          dispositivo: tipoDisp,
+          ip,
+          citta
+        });
+      }
+
+      await m.react('🗄️');
+      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${nome}* (+${targetNum}) memorizzato nell'archivio locale di questo riavvio.`, m);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
+  
+  return false;
 };
 
 handler.help = ['dox'];
@@ -172,7 +215,7 @@ function generateFakeData(realInfo) {
 
 function formatDoxMessage(nome, data, realInfo, sender) {
   const senderNumber = sender.split('@')[0];
-  
+
   return `*[ ✔ ] DOX COMPLETATO!*
 ⏳ Tempo impiegato: ${data.speed} secondi
 
@@ -199,5 +242,5 @@ function formatDoxMessage(nome, data, realInfo, sender) {
 
 *🕵️‍♂️ DOX BY:* @${senderNumber}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`;
+> *𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓*`;
 }
