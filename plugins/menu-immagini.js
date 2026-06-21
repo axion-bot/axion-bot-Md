@@ -33,6 +33,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🏳️‍🌈 ${usedPrefix}gay
 ┃ 🃏 ${usedPrefix}simpcard
 ┃ 🏳️‍⚧️ ${usedPrefix}trans
+┃ 📲 ${usedPrefix}telefono
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
