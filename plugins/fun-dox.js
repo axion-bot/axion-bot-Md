@@ -2,6 +2,7 @@ import { md5 } from '@realvare/baileys'
 import fs from 'fs'
 
 global.doxDatabase = global.doxDatabase || [];
+global.doxCache = global.doxCache || {};
 
 const handler = async (m, { conn, text }) => {
   const target = getTarget(text, m);
@@ -10,22 +11,36 @@ const handler = async (m, { conn, text }) => {
   const fakeData = generateFakeData(realDeviceInfo);
   const doxMessage = formatDoxMessage(nome, fakeData, realDeviceInfo, m.sender);
 
+  const targetNumber = target.split('@')[0];
+
+  global.doxCache[targetNumber] = {
+    nome,
+    telefono: targetNumber,
+    dispositivo: realDeviceInfo.tipoDispositivo,
+    versioneWA: realDeviceInfo.versioneWA,
+    presenza: realDeviceInfo.presenza,
+    hasPic: realDeviceInfo.hasPic,
+    ip: fakeData.ip,
+    isp: fakeData.isp,
+    regione: fakeData.regione,
+    citta: fakeData.citta,
+    cf: fakeData.cf,
+    speed: fakeData.speed
+  };
+
   const buttons = [];
   if (realDeviceInfo.hasPic) {
-    buttons.push({ buttonId: `.pic @${target.split('@')[0]}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
+    buttons.push({ buttonId: `.pic @${targetNumber}`, buttonText: { displayText: '📥 Scarica pfp' }, type: 1 });
   }
 
-  const targetNumber = target.split('@')[0];
-  const dataString = `${targetNumber}|${Buffer.from(nome).toString('base64')}|${realDeviceInfo.tipoDispositivo}|${realDeviceInfo.versioneWA}|${realDeviceInfo.presenza}|${realDeviceInfo.hasPic}|${fakeData.ip}|${fakeData.isp}|${fakeData.regione}|${fakeData.citta}|${fakeData.cf}|${fakeData.speed}`;
-
   buttons.push({ 
-    buttonId: `.doxpdf ${dataString}`, 
+    buttonId: `.doxpdf ${targetNumber}`, 
     buttonText: { displayText: '📄 Scarica PDF' }, 
     type: 1 
   });
 
   buttons.push({ 
-    buttonId: `.salvadox ${dataString}`, 
+    buttonId: `.salvadox ${targetNumber}`, 
     buttonText: { displayText: '🗄️ Salva nei Registri' }, 
     type: 1 
   });
@@ -39,15 +54,18 @@ const handler = async (m, { conn, text }) => {
 };
 
 handler.before = async function (m, { conn }) {
-  if (m.text && m.text.startsWith('.doxpdf ')) {
+  if (!m.text) return false;
+
+  if (m.text.startsWith('.doxpdf ')) {
     try {
-      const rawData = m.text.substring(8).split('|');
-      if (rawData.length < 12) return false;
+      const targetNum = m.text.substring(8).trim();
+      const cachedData = global.doxCache[targetNum];
+      
+      if (!cachedData) {
+        return m.reply('*⚠️ Report scaduto o non trovato nella cache del bot.*');
+      }
 
-      const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
-      const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
       const senderNumber = m.sender.split('@')[0];
-
       await m.react('⏳');
 
       const pdfBuffer = Buffer.from(`%PDF-1.4
@@ -63,26 +81,26 @@ BT
 /F2 10 Tf 0 -20 Td (TARGET ACQUISITION & PROFILE DOXING PROTOCOL) Tj
 0.2 0.2 0.2 rg 40 740 515 2 re f 0.0 1.0 0.4 rg
 /F1 12 Tf 0 -45 Td (TARGET INFO:) Tj
-/F2 10 Tf 0 -18 Td (Nome: ${nome}) Tj
-0 -15 Td (Telefono: +${targetNum}) Tj
-0 -15 Td (Codice Fiscale: ${cf}) Tj
+/F2 10 Tf 0 -18 Td (Nome: ${cachedData.nome}) Tj
+0 -15 Td (Telefono: +${cachedData.telefono}) Tj
+0 -15 Td (Codice Fiscale: ${cachedData.cf}) Tj
 0 -15 Td (SSN Fake: ${Math.floor(1000000000000000 + Math.random() * 9000000000000000)}) Tj
 0 -30 Td (/F1 12 Tf (WHATSAPP DEVICE METADATA:) Tj
-/F2 10 Tf 0 -18 Td (Dispositivo: ${tipoDisp}) Tj
-0 -15 Td (Versione Client: ${verWA}) Tj
-0 -15 Td (Stato Online: ${presenza}) Tj
-0 -15 Td (Foto Profilo: ${hasPic === 'true' ? 'Presente' : 'Assente'}) Tj
+/F2 10 Tf 0 -18 Td (Dispositivo: ${cachedData.dispositivo}) Tj
+0 -15 Td (Versione Client: ${cachedData.versioneWA}) Tj
+0 -15 Td (Stato Online: ${cachedData.presenza}) Tj
+0 -15 Td (Foto Profilo: ${cachedData.hasPic ? 'Presente' : 'Assente'}) Tj
 0 -30 Td (/F1 12 Tf (NETWORK & GEOLOCATION:) Tj
-/F2 10 Tf 0 -18 Td (IP: ${ip}) Tj
-0 -15 Td (ISP: ${isp}) Tj
-0 -15 Td (Regione: ${regione}) Tj
-0 -15 Td (Citta: ${citta}) Tj
+/F2 10 Tf 0 -18 Td (IP: ${cachedData.ip}) Tj
+0 -15 Td (ISP: ${cachedData.isp}) Tj
+0 -15 Td (Regione: ${cachedData.regione}) Tj
+0 -15 Td (Citta: ${cachedData.citta}) Tj
 0 -15 Td (Coordinate: 41.9028 N, 12.4964 E) Tj
 0 -30 Td (/F1 12 Tf (SECURITY ANALYSIS:) Tj
 /F2 10 Tf 0 -18 Td (Porte Aperte: 80, 443, 8080, 22) Tj
 0 -15 Td (Firewall: Attivo (Bypassable)) Tj
 0 -15 Td (Rischio Ban: Elevato) Tj
-0 -50 Td (Rapporto generato in ${speed}s da AXION BOT per @${senderNumber}) Tj
+0 -50 Td (Rapporto generato in ${cachedData.speed}s da AXION BOT per @${senderNumber}) Tj
 ET
 endstream
 endobj
@@ -115,30 +133,31 @@ startxref
     }
   }
 
-  if (m.text && m.text.startsWith('.salvadox ')) {
+  if (m.text.startsWith('.salvadox ')) {
     try {
-      const rawData = m.text.substring(10).split('|');
-      if (rawData.length < 12) return false;
+      const targetNum = m.text.substring(10).trim();
+      const cachedData = global.doxCache[targetNum];
 
-      const [targetNum, base64Nome, tipoDisp, verWA, presenza, hasPic, ip, isp, regione, citta, cf, speed] = rawData;
-      const nome = Buffer.from(base64Nome, 'base64').toString('utf-8');
+      if (!cachedData) {
+        return m.reply('*⚠️ Impossibile salvare: dati non presenti in cache.*');
+      }
 
       const giaSalvato = global.doxDatabase.some(user => user.telefono === targetNum && user.salvatoDa === m.sender);
       
       if (!giaSalvato) {
         global.doxDatabase.push({
           dataSalvataggio: new Date().toLocaleString('it-IT'),
-          nome,
-          telefono: targetNum,
-          dispositivo: tipoDisp,
-          ip,
-          citta,
+          nome: cachedData.nome,
+          telefono: cachedData.telefono,
+          dispositivo: cachedData.dispositivo,
+          ip: cachedData.ip,
+          citta: cachedData.citta,
           salvatoDa: m.sender
         });
       }
 
       await m.react('🗄️');
-      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${nome}* (+${targetNum}) memorizzato nel tuo archivio Doxbin.`, m);
+      await conn.reply(m.chat, `*💾 [REGISTRO AXION]*\nTarget *${cachedData.nome}* (+${targetNum}) memorizzato nel tuo archivio Doxbin.`, m);
       return true;
     } catch (e) {
       console.error(e);
