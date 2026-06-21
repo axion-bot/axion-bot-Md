@@ -12,9 +12,7 @@ nome=meta.subject||'𝐒𝐜𝐨𝐧𝐨𝐬𝐜𝐢𝐮𝐭𝐨'
 membri=meta.participants?.length||0
 }catch{}
 
-const testo=`*╭━━━━━━━🆔━━━━━━━╮*
-*✦ 𝐈𝐃 𝐆𝐑𝐔𝐏𝐏𝐎 ✦*
-*╰━━━━━━━🆔━━━━━━━╯*
+const testo=`
 
 *🏷️ 𝐍𝐨𝐦𝐞:* *${nome}*
 *👥 𝐌𝐞𝐦𝐛𝐫𝐢:* *${membri}*
