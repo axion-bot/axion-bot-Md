@@ -1,6 +1,7 @@
 // by Bonzino
 
 import fetch from 'node-fetch'
+import fs from 'fs'
 
 const S = v => String(v || '')
 
@@ -71,36 +72,39 @@ let handler = async (m, { conn }) => {
   const madreTxt = madre ? `@${bare(madre)}` : '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
   const padreTxt = padre ? `@${bare(padre)}` : '𝐍𝐞𝐬𝐬𝐮𝐧𝐨'
 
-  let pp = 'https://i.ibb.co/2kR7x9J/avatar.png'
-  try {
-    pp = await conn.profilePictureUrl(target, 'image')
-  } catch {}
+  let thumbnailBuffer
 
-  const thumbnailBuffer = typeof pp === 'string'
-    ? await (await fetch(pp)).buffer()
-    : pp
+try {
+  const pp = await conn.profilePictureUrl(target, 'image')
+  thumbnailBuffer = await (await fetch(pp)).buffer()
+} catch {
+  thumbnailBuffer = fs.readFileSync('./media/default-avatar.png')
+}
 
-  const header = `🏠 𝐄𝐜𝐜𝐨 𝐥𝐚 𝐟𝐚𝐦𝐢𝐠𝐥𝐢𝐚 𝐝𝐢 ${tag}\n\n`
+const text =
+`*🏠 𝐀𝐋𝐁𝐄𝐑𝐎 𝐆𝐄𝐍𝐄𝐀𝐋𝐎𝐆𝐈𝐂𝐎 𝐃𝐈* ${tag}
 
-  const text = `${header}*╭━━━━━━━🏠━━━━━━━╮*
-   *✦ 𝐅𝐀𝐌𝐈𝐆𝐋𝐈𝐀 ✦*
-*╰━━━━━━━🏠━━━━━━━╯*
+*❤️ 𝐏𝐀𝐑𝐓𝐍𝐄𝐑*
+╰ ${partnerTxt}
 
-*❤️ 𝐏𝐚𝐫𝐭𝐧𝐞𝐫:* ${partnerTxt}
+*👨‍👩‍👧 𝐆𝐄𝐍𝐈𝐓𝐎𝐑𝐈*
+├ 👩 ${madreTxt}
+╰ 👨 ${padreTxt}
 
-*👩 𝐌𝐚𝐝𝐫𝐞:* ${madreTxt}
-*👨 𝐏𝐚𝐝𝐫𝐞:* ${padreTxt}
+*👶 𝐅𝐈𝐆𝐋𝐈*
+╰ ${formatList(figli)}
 
-*👶 𝐅𝐢𝐠𝐥𝐢:* ${formatList(figli)}
+*🧑‍🤝‍🧑 𝐅𝐑𝐀𝐓𝐄𝐋𝐋𝐈*
+├ 👦 ${formatList(fratelli)}
+╰ 👧 ${formatList(sorelle)}
 
-*🧑‍🤝‍🧑 𝐅𝐫𝐚𝐭𝐞𝐥𝐥𝐢:* ${formatList(fratelli)}
-*👭 𝐒𝐨𝐫𝐞𝐥𝐥𝐞:* ${formatList(sorelle)}
+*👴👵 𝐍𝐎𝐍𝐍𝐈*
+├ 👴 ${formatList(nonni)}
+╰ 👵 ${formatList(nonne)}
 
-*👴 𝐍𝐨𝐧𝐧𝐢:* ${formatList(nonni)}
-*👵 𝐍𝐨𝐧𝐧𝐞:* ${formatList(nonne)}
-
-*👬 𝐂𝐮𝐠𝐢𝐧𝐢:* ${formatList(cugini)}
-*👭 𝐂𝐮𝐠𝐢𝐧𝐞:* ${formatList(cugine)}`
+*👬👭 𝐂𝐔𝐆𝐈𝐍𝐈*
+├ 👦 ${formatList(cugini)}
+╰ 👧 ${formatList(cugine)}`
 
   await conn.sendMessage(m.chat, {
     text,

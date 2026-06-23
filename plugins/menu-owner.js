@@ -24,7 +24,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🚫 ${usedPrefix}blocca/sblocca <utente>
 ┃ 📃 ${usedPrefix}blocklist
 ┃ ➕️ ${usedPrefix}addowner <user> <numero>
-┃ ❌️${usedPrefix}delowner <user> <numero>
+┃ ❌️ ${usedPrefix}delowner <user> <numero>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━〔 ⏳ ʀᴜᴏʟɪ ᴛᴇᴍᴘᴏʀᴀɴᴇɪ 〕━⬣
@@ -42,6 +42,8 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🗑 ${usedPrefix}azzeramsg <user>
 ┃ 💬 ${usedPrefix}resetallmsg
 ┃ 💸 ${usedPrefix}resetallmoney
+┃ 🗑️ ${usedPrefix}resetuser <utente>
+┃ 🔄 ${usedPrefix}migrate <vecchio> <nuovo>
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━〔 👥 ɢᴇsᴛɪᴏɴᴇ ɢʀᴜᴘᴘɪ 〕━⬣
