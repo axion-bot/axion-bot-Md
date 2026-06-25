@@ -1,5 +1,4 @@
 import yts from 'yt-search';
-import fetch from 'node-fetch';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -38,55 +37,29 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, { react: { text: "📥", key: m.key } });
 
     const isAudio = command === 'playaud';
-    let downloadUrl = null;
-
-    try {
-        let res = await fetch(`https://api.alyachan.dev/api/ytmp4?url=${encodeURIComponent(url)}`);
-        let json = await res.json();
-        if (json.status && json.result) {
-            downloadUrl = isAudio ? (json.result.audio || json.result.url) : (json.result.video || json.result.url);
-        }
-    } catch (e) {}
-
-    if (!downloadUrl) {
-        try {
-            let type = isAudio ? 'mp3' : 'mp4';
-            let res = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?url=${encodeURIComponent(url)}`);
-            if (type === 'mp4') res = await fetch(`https://api.lolhuman.xyz/api/ytvideo2?url=${encodeURIComponent(url)}`);
-            let json = await res.json();
-            if (json.status === 200 && json.result) {
-                downloadUrl = json.result.link || json.result;
-            }
-        } catch (e) {}
-    }
-
-    if (!downloadUrl) {
-        try {
-            let res = await fetch(`https://api.sandipbaruwal.co/trending/youtube/download?url=${encodeURIComponent(url)}`);
-            let json = await res.json();
-            if (json.status && json.data) {
-                downloadUrl = isAudio ? json.data.audio : json.data.video;
-            }
-        } catch (e) {}
-    }
-
-    if (!downloadUrl) throw new Error('Tutti i server di scraping hanno fallito il bypass.');
-
     const tmpDir = os.tmpdir();
     const fileName = `file_${Date.now()}`;
-    const inputPath = path.join(tmpDir, `${fileName}.mp4`);
+    const outputFormat = isAudio ? 'mp3' : 'mp4';
+    const downloadPath = path.join(tmpDir, `${fileName}.${outputFormat}`);
 
-    const response = await fetch(downloadUrl);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const arrayBuffer = await response.arrayBuffer();
-    fs.writeFileSync(inputPath, Buffer.from(arrayBuffer));
+    let ytDlpCommand = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-playlist --merge-output-format mp4 "${url}" -o "${downloadPath}"`;
+    if (isAudio) {
+        ytDlpCommand = `yt-dlp -f bestaudio --no-playlist --extract-audio --audio-format mp3 --audio-quality 0 "${url}" -o "${downloadPath}"`;
+    }
+
+    await new Promise((resolve, reject) => {
+        exec(ytDlpCommand, (err) => {
+            if (err) reject(err);
+            else resolve();
+        });
+    });
 
     if (isAudio) {
         const voicePath = path.join(tmpDir, `${fileName}.ogg`);
 
         await new Promise((resolve, reject) => {
             exec(
-                `ffmpeg -hide_banner -loglevel error -y -i "${inputPath}" -map_metadata -1 -vn -ar 48000 -ac 1 -c:a libopus -b:a 64k -application voip -f ogg "${voicePath}"`,
+                `ffmpeg -hide_banner -loglevel error -y -i "${downloadPath}" -map_metadata -1 -vn -ar 48000 -ac 1 -c:a libopus -b:a 64k -application voip -f ogg "${voicePath}"`,
                 (err) => {
                     if (err) reject(err);
                     else resolve();
@@ -103,18 +76,18 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         if (fs.existsSync(voicePath)) fs.unlinkSync(voicePath);
     } else {
         await conn.sendMessage(m.chat, {
-            video: fs.readFileSync(inputPath),
+            video: fs.readFileSync(downloadPath),
             mimetype: 'video/mp4',
             caption: `✅ *𝐒𝐜𝐚𝐫𝐢𝐜𝐚𝐭𝐨 𝐝𝐚 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
         }, { quoted: m });
     }
 
-    if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+    if (fs.existsSync(downloadPath)) fs.unlinkSync(downloadPath);
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
   } catch (e) {
     console.error("Handler Error:", e.message);
-    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤rer:* Errore nel caricamento del file. I server di YouTube stanno bloccando le richieste automatiche. Riprova tra poco.');
+    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤rer:* Impossibile scaricare il file multimediale direttamente da YouTube. Riprova più tardi.');
   }
 };
 
