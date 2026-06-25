@@ -40,14 +40,33 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const isAudio = command === 'playaud';
     const tmpDir = os.tmpdir();
     const fileName = `file_${Date.now()}`;
-    const inputPath = path.join(tmpDir, `${fileName}.mp4`); 
+    const inputPath = path.join(tmpDir, `${fileName}.mp4`);
+
+    const cookieTxtPath = path.join(process.cwd(), 'cookies.txt');
+    const cookieJsonPath = path.join(process.cwd(), 'cookies.json');
+    let agent;
+
+    if (fs.existsSync(cookieJsonPath)) {
+        agent = ytdl.createAgent(JSON.parse(fs.readFileSync(cookieJsonPath, 'utf8')));
+    } else if (fs.existsSync(cookieTxtPath)) {
+        agent = ytdl.createAgent(fs.readFileSync(cookieTxtPath, 'utf8'));
+    }
 
     await new Promise((resolve, reject) => {
-        const stream = ytdl(url, { filter: isAudio ? 'audioonly' : 'videoandaudio', quality: 'highest' });
-        const fileStream = fs.createWriteStream(inputPath);
-        stream.pipe(fileStream);
-        stream.on('end', resolve);
-        stream.on('error', reject);
+        try {
+            const stream = ytdl(url, { 
+                filter: isAudio ? 'audioonly' : 'videoandaudio', 
+                quality: 'highest',
+                agent: agent
+            });
+            
+            const fileStream = fs.createWriteStream(inputPath);
+            stream.pipe(fileStream);
+            stream.on('end', resolve);
+            stream.on('error', reject);
+        } catch (err) {
+            reject(err);
+        }
     });
 
     if (isAudio) {
@@ -83,7 +102,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (e) {
     console.error("Handler Error:", e.message);
-    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤rer:* Errore nel caricamento del file. Riprova più tardi o cambia traccia.');
+    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤𝙧:* Errore nel caricamento del file. Riprova più tardi o cambia traccia.');
   }
 };
 
