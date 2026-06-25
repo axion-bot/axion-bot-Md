@@ -1,6 +1,5 @@
 import yts from 'yt-search';
-import fg from 'api-dylux';
-import fetch from 'node-fetch';
+import ytdl from '@distube/ytdl-core';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -36,74 +35,55 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         }, { quoted: m });
     }
 
-    await conn.sendMessage(m.chat, { react: { text: "🎵", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "📥", key: m.key } });
 
-    let downloadUrl = null;
     const isAudio = command === 'playaud';
-    try {
-        let res = isAudio ? await fg.yta(url) : await fg.ytv(url);
-        if (res && res.dl_url) downloadUrl = res.dl_url;
-    } catch (e) { console.log("Dylux API failed"); }
-
-    if (!downloadUrl) {
-        try {
-            let api = isAudio ? 'ytmp3' : 'ytmp4';
-            let res = await fetch(`https://api.vreden.my.id/api/${api}?url=${url}`);
-            let json = await res.json();
-            downloadUrl = json.result?.download?.url || json.result?.url;
-        } catch (e) { console.log("Vreden API failed"); }
-    }
-
-    if (!downloadUrl) {
-        throw new Error('APIs failed to provide a download URL');
-    }
-
     const tmpDir = os.tmpdir();
     const fileName = `file_${Date.now()}`;
-    const inputPath = path.join( tmpDir, `${fileName}.${isAudio ? 'mp3' : 'mp4'}`);
-    const outputPath = path.join(tmpDir, `${fileName}.${isAudio ? 'mp3' : 'mp4'}`);
-
-    const response = await fetch(downloadUrl);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const arrayBuffer = await response.arrayBuffer();
-    fs.writeFileSync(inputPath, Buffer.from(arrayBuffer));
-
-if (isAudio) {
-    const voicePath = path.join(tmpDir, `${fileName}.ogg`)
+    const inputPath = path.join(tmpDir, `${fileName}.mp4`); 
 
     await new Promise((resolve, reject) => {
-        exec(
-            `ffmpeg -hide_banner -loglevel error -y -i "${inputPath}" -map_metadata -1 -vn -ar 48000 -ac 1 -c:a libopus -b:a 64k -application voip -f ogg "${voicePath}"`,
-            (err) => {
-                if (err) reject(err)
-                else resolve()
-            }
-        )
-    })
+        const stream = ytdl(url, { filter: isAudio ? 'audioonly' : 'videoandaudio', quality: 'highest' });
+        const fileStream = fs.createWriteStream(inputPath);
+        stream.pipe(fileStream);
+        stream.on('end', resolve);
+        stream.on('error', reject);
+    });
 
-    await conn.sendMessage(m.chat, {
-        audio: fs.readFileSync(voicePath),
-        mimetype: 'audio/ogg; codecs=opus',
-        ptt: true
-    }, { quoted: m })
+    if (isAudio) {
+        const voicePath = path.join(tmpDir, `${fileName}.ogg`);
 
-    if (fs.existsSync(voicePath)) fs.unlinkSync(voicePath)
+        await new Promise((resolve, reject) => {
+            exec(
+                `ffmpeg -hide_banner -loglevel error -y -i "${inputPath}" -map_metadata -1 -vn -ar 48000 -ac 1 -c:a libopus -b:a 64k -application voip -f ogg "${voicePath}"`,
+                (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                }
+            );
+        });
 
-} else {
-    await conn.sendMessage(m.chat, {
-        video: fs.readFileSync(inputPath),
-        mimetype: 'video/mp4',
-        caption: `✅ *𝐒𝐜𝐚𝐫𝐢𝐜𝐚𝐭𝐨 𝐝𝐚 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
-    }, { quoted: m })
-}
+        await conn.sendMessage(m.chat, {
+            audio: fs.readFileSync(voicePath),
+            mimetype: 'audio/ogg; codecs=opus',
+            ptt: true
+        }, { quoted: m });
+
+        if (fs.existsSync(voicePath)) fs.unlinkSync(voicePath);
+    } else {
+        await conn.sendMessage(m.chat, {
+            video: fs.readFileSync(inputPath),
+            mimetype: 'video/mp4',
+            caption: `✅ *𝐒𝐜𝐚𝐫𝐢𝐜𝐚𝐭𝐨 𝐝𝐚 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+        }, { quoted: m });
+    }
 
     if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-    if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
   } catch (e) {
     console.error("Handler Error:", e.message);
-    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤𝙧:* Al momento i server di download sono sovraccarichi. Riprova tra poco.');
+    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤rer:* Errore nel caricamento del file. Riprova più tardi o cambia traccia.');
   }
 };
 
