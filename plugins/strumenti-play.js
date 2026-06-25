@@ -1,5 +1,5 @@
 import yts from 'yt-search';
-import ytdl from '@distube/ytdl-core';
+import fetch from 'node-fetch';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -38,36 +38,48 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, { react: { text: "📥", key: m.key } });
 
     const isAudio = command === 'playaud';
+    let downloadUrl = null;
+
+    try {
+        let res = await fetch(`https://api.alyachan.dev/api/ytmp4?url=${encodeURIComponent(url)}`);
+        let json = await res.json();
+        if (json.status && json.result) {
+            downloadUrl = isAudio ? (json.result.audio || json.result.url) : (json.result.video || json.result.url);
+        }
+    } catch (e) {}
+
+    if (!downloadUrl) {
+        try {
+            let type = isAudio ? 'mp3' : 'mp4';
+            let res = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?url=${encodeURIComponent(url)}`);
+            if (type === 'mp4') res = await fetch(`https://api.lolhuman.xyz/api/ytvideo2?url=${encodeURIComponent(url)}`);
+            let json = await res.json();
+            if (json.status === 200 && json.result) {
+                downloadUrl = json.result.link || json.result;
+            }
+        } catch (e) {}
+    }
+
+    if (!downloadUrl) {
+        try {
+            let res = await fetch(`https://api.sandipbaruwal.co/trending/youtube/download?url=${encodeURIComponent(url)}`);
+            let json = await res.json();
+            if (json.status && json.data) {
+                downloadUrl = isAudio ? json.data.audio : json.data.video;
+            }
+        } catch (e) {}
+    }
+
+    if (!downloadUrl) throw new Error('Tutti i server di scraping hanno fallito il bypass.');
+
     const tmpDir = os.tmpdir();
     const fileName = `file_${Date.now()}`;
     const inputPath = path.join(tmpDir, `${fileName}.mp4`);
 
-    const cookieTxtPath = path.join(process.cwd(), 'cookies.txt');
-    const cookieJsonPath = path.join(process.cwd(), 'cookies.json');
-    let agent;
-
-    if (fs.existsSync(cookieJsonPath)) {
-        agent = ytdl.createAgent(JSON.parse(fs.readFileSync(cookieJsonPath, 'utf8')));
-    } else if (fs.existsSync(cookieTxtPath)) {
-        agent = ytdl.createAgent(fs.readFileSync(cookieTxtPath, 'utf8'));
-    }
-
-    await new Promise((resolve, reject) => {
-        try {
-            const stream = ytdl(url, { 
-                filter: isAudio ? 'audioonly' : 'videoandaudio', 
-                quality: 'highest',
-                agent: agent
-            });
-            
-            const fileStream = fs.createWriteStream(inputPath);
-            stream.pipe(fileStream);
-            stream.on('end', resolve);
-            stream.on('error', reject);
-        } catch (err) {
-            reject(err);
-        }
-    });
+    const response = await fetch(downloadUrl);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const arrayBuffer = await response.arrayBuffer();
+    fs.writeFileSync(inputPath, Buffer.from(arrayBuffer));
 
     if (isAudio) {
         const voicePath = path.join(tmpDir, `${fileName}.ogg`);
@@ -102,7 +114,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (e) {
     console.error("Handler Error:", e.message);
-    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤𝙧:* Errore nel caricamento del file. Riprova più tardi o cambia traccia.');
+    m.reply('🚀 *𝙋𝙡𝙖𝙮 𝙀𝙧𝙧𝙤rer:* Errore nel caricamento del file. I server di YouTube stanno bloccando le richieste automatiche. Riprova tra poco.');
   }
 };
 
